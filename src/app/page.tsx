@@ -1,7 +1,6 @@
 import { validateAuthCookie } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
-
 export default async function Home() {
   const authCookie = await validateAuthCookie();
   console.log(authCookie);
