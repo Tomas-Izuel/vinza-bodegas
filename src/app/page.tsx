@@ -1,4 +1,4 @@
-import { validateAuthCookie } from "@/lib/utils";
+import { validateAuthCookie } from "@/lib/utils.server";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
