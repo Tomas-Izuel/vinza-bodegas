@@ -1,16 +1,13 @@
+"use client";
 import Link from "next/link";
 import { Home, FileText, Calendar, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Routes } from "@/lib/routes";
+import { Routes, RouteSchema } from "@/lib/routes";
+import { usePathname } from "next/navigation";
 
-interface SidebarNavProps {
-  currentPath?: string;
-}
-
-export default function SidebarNav({
-  currentPath = Routes.DASHBOARD,
-}: SidebarNavProps) {
-  const isActive = (path: string) => currentPath === path;
+export default function SidebarNav() {
+  const path = usePathname();
+  const activePage = RouteSchema.safeParse(path);
 
   return (
     <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-screen">
@@ -20,7 +17,7 @@ export default function SidebarNav({
           <div
             className={cn(
               "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
-              isActive(Routes.DASHBOARD)
+              activePage.success && activePage.data === Routes.DASHBOARD
                 ? "bg-gray-100 text-primary"
                 : "text-gray-700 hover:bg-gray-100",
             )}
@@ -36,7 +33,15 @@ export default function SidebarNav({
             Eventos
           </div>
           <div className="mt-1 space-y-1">
-            <Link href={Routes.RESERVAS}>
+            <Link
+              href={Routes.RESERVAS}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                activePage.success && activePage.data === Routes.RESERVAS
+                  ? "bg-gray-100 text-primary"
+                  : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
               <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <FileText className="h-4 w-4 mr-3" />
                 <span className="flex-1">Reservas</span>
@@ -45,7 +50,15 @@ export default function SidebarNav({
                 </span>
               </div>
             </Link>
-            <Link href={Routes.EVENTOS}>
+            <Link
+              href={Routes.EVENTOS}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                activePage.success && activePage.data === Routes.EVENTOS
+                  ? "bg-gray-100 text-primary"
+                  : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
               <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <Calendar className="h-4 w-4 mr-3" />
                 Eventos
@@ -60,13 +73,30 @@ export default function SidebarNav({
             Bodega
           </div>
           <div className="mt-1 space-y-1">
-            <Link href={Routes.BODEDA_INFORMACION}>
+            <Link
+              href={Routes.BODEDA_INFORMACION}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                activePage.success &&
+                  activePage.data === Routes.BODEDA_INFORMACION
+                  ? "bg-gray-100 text-primary"
+                  : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
               <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <FileText className="h-4 w-4 mr-3" />
                 Información de bodega
               </div>
             </Link>
-            <Link href={Routes.BODEDA_USUARIOS}>
+            <Link
+              href={Routes.BODEDA_USUARIOS}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                activePage.success && activePage.data === Routes.BODEDA_USUARIOS
+                  ? "bg-gray-100 text-primary"
+                  : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
               <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <Users className="h-4 w-4 mr-3" />
                 Usuarios y permisos
