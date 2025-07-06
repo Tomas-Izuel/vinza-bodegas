@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -23,7 +24,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { login } from "@/api/auth/auth.service";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Routes } from "@/lib/routes";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -38,9 +40,20 @@ const LoginForm = () => {
   const onSubmit = async (data: LoginDto) => {
     try {
       await login(data);
-      router.push("/dashboard");
+
+      toast.success("Inicio de sesión exitoso", {
+        description: "Redirigiendo al dashboard...",
+      });
+
+      setTimeout(() => {
+        router.push(Routes.DASHBOARD);
+      }, 1000);
     } catch (error) {
-      console.error(error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Error al iniciar sesión";
+      toast.error("Error al iniciar sesión", {
+        description: errorMessage,
+      });
     }
   };
 

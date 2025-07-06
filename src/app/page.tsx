@@ -1,3 +1,4 @@
+import { Routes } from "@/lib/routes";
 import { validateAuthCookie } from "@/lib/utils.server";
 import { redirect } from "next/navigation";
 
@@ -5,8 +6,8 @@ export default async function Home() {
   const authCookie = await validateAuthCookie();
   console.log(authCookie);
   if (!authCookie) {
-    redirect("/iniciar-sesion");
+    redirect(Routes.LOGIN);
   } else {
-    redirect("/dashboard");
+    redirect(Routes.DASHBOARD);
   }
 }
