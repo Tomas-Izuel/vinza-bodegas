@@ -4,7 +4,10 @@ export enum Routes {
   REGISTER = "/register",
   FORGOT_PASSWORD = "/forgot-password",
   RESET_PASSWORD = "/reset-password",
-  PROFILE = "/profile",
-  SETTINGS = "/settings",
+  RESERVAS = "/reservas",
+  EVENTOS = "/eventos",
+  BODEDA = "/bodega",
+  BODEDA_INFORMACION = "/bodega/informacion",
+  BODEDA_USUARIOS = "/bodega/usuarios",
   LOGOUT = "/logout",
 }
