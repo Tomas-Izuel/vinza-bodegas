@@ -121,6 +121,10 @@
   }
 }
 
+.font-inria-serif {
+  font-family: var(--font-inria-serif);
+}
+
 h1 {
   @apply text-2xl font-bold py-4;
 }
@@ -136,4 +140,9 @@ h3 {
 .required::after {
   content: "*";
   color: red;
+}
+
+.common-main-container {
+  background-color: #fffaf4;
+  @apply px-8 xl:px-14 py-6;
 }
