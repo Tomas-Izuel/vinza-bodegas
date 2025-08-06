@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+- All UI components must use the **ShadCN UI** library.
+- The application must be designed for **light mode only**.
+- The UI must be modern and clean

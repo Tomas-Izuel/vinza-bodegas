@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+
+- All forms **must** use **React Hook Form**.
+- You **must use** internal state flags like `isSubmitting`, `isDirty`, etc., from React Hook Form.
+- **DO NOT** use `useState` to manage form data or form-related logic.
+- Use **Zod** with `zodResolver` for all form validations.
+- Zod schemas should be modular and reusable.
+- All validation error messages must be **written in Spanish**.
+- The **Zod schemas must be placed in the same `.types.ts` file** as the corresponding TypeScript types, **organized by module**.

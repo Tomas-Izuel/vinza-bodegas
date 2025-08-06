@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+
+- All backend calls must be routed through `.service.ts` files.
+- These files must include `'use server'` at the top.
+- Service files must be **organized by module** (e.g., `auth`, `reserva`, etc.).
+- Only define functions here for backend communication or related logic.
+- All service functions **must be typed** using types defined in a `.types.ts` file, **organized by module**.
+- All service functions must handle errors using `try...catch`. Inside the `catch`, log the error using the format:  
+  `"[<MODULE_NAME>]: <error>"`
+
+- Follow a **server-side first approach**.
+- Use **client components only when necessary**, e.g., for interactive components like forms.
+- Client-side logic must be:
+  - **Minimal**
+  - **Encapsulated**
