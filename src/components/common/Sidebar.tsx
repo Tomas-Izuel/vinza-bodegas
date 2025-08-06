@@ -13,11 +13,11 @@ export default function SidebarNav() {
     <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-screen">
       <div className="p-4 space-y-1">
         {/* Panel - Active Item */}
-        <Link href={Routes.DASHBOARD}>
+        <Link href={Routes.HOME}>
           <div
             className={cn(
               "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
-              activePage.success && activePage.data === Routes.DASHBOARD
+              activePage.success && activePage.data === Routes.HOME
                 ? "bg-gray-100 text-primary"
                 : "text-gray-700 hover:bg-gray-100",
             )}

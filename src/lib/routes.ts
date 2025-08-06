@@ -1,7 +1,7 @@
 import z from "zod";
 
 export enum Routes {
-  DASHBOARD = "/dashboard",
+  HOME = "/",
   LOGIN = "/login",
   REGISTER = "/register",
   FORGOT_PASSWORD = "/forgot-password",
@@ -14,6 +14,4 @@ export enum Routes {
   LOGOUT = "/logout",
 }
 
-export const RouteSchema = z.enum(
-  Object.values(Routes) as [string, ...string[]],
-);
+export const RouteSchema = z.nativeEnum(Routes);

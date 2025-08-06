@@ -46,7 +46,7 @@ const LoginForm = () => {
       });
 
       setTimeout(() => {
-        router.push(Routes.DASHBOARD);
+        router.push(Routes.HOME);
       }, 1000);
     } catch (error) {
       const errorMessage =
