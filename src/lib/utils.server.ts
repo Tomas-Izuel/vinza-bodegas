@@ -3,16 +3,10 @@ import { cookies, headers } from "next/headers";
 import z from "zod";
 import { errorLogger } from "./utils";
 import { type Role } from "./permissions";
-
-export const authCookieSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  name: z.string(),
-  role: z.enum(["admin", "user"]),
-});
+import { AuthCookieSchema } from "@/api/auth/auth.type";
 
 export const validateAuthCookie = async (): Promise<
-  boolean | z.infer<typeof authCookieSchema>
+  boolean | z.infer<typeof AuthCookieSchema>
 > => {
   const cookieStore = await cookies();
   const authCookie = cookieStore.get(AUTH_COOKIE_NAME);
@@ -21,7 +15,7 @@ export const validateAuthCookie = async (): Promise<
     return false;
   }
 
-  const decodedCookie = authCookieSchema.safeParse(authCookie.value);
+  const decodedCookie = AuthCookieSchema.safeParse(authCookie.value);
   if (!decodedCookie.success) {
     errorLogger("Invalid auth cookie", "validateAuthCookie");
     return false;

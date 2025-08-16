@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME } from "./lib/constants";
-import { authCookieSchema } from "./lib/utils.server";
 import { hasRouteAccess, type Role } from "./lib/permissions";
 import { middlewareLogger } from "./lib/middleware-logger";
+import { AuthCookieSchema } from "./api/auth/auth.type";
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
@@ -36,10 +36,10 @@ export function middleware(request: NextRequest) {
   // Validar el contenido de la cookie
   try {
     const cookieData = JSON.parse(authCookie.value);
-    const validatedData = authCookieSchema.parse(cookieData);
+    const validatedData = AuthCookieSchema.parse(cookieData);
 
     // Verificar permisos para la ruta
-    if (!hasRouteAccess(validatedData.role as Role, pathname)) {
+    /*if (!hasRouteAccess(validatedData.role as Role, pathname)) {
       middlewareLogger.permissionDenied(
         validatedData.id,
         validatedData.role,
@@ -50,21 +50,21 @@ export function middleware(request: NextRequest) {
       middlewareLogger.redirect(pathname, homeUrl.pathname, "Sin permisos");
 
       return NextResponse.redirect(homeUrl);
-    }
+    }*/
 
     // Log de autenticación exitosa solo en desarrollo
     middlewareLogger.authSuccess(
-      validatedData.id,
-      validatedData.role,
+      validatedData.id.toString(),
+      validatedData.roles[0].nombre,
       pathname,
     );
 
     // Añadir headers con información del usuario
     const response = NextResponse.next();
-    response.headers.set("x-user-id", validatedData.id);
-    response.headers.set("x-user-role", validatedData.role);
+    response.headers.set("x-user-id", validatedData.id.toString());
+    response.headers.set("x-user-role", validatedData.roles[0].nombre);
     response.headers.set("x-user-email", validatedData.email);
-    response.headers.set("x-user-name", validatedData.name);
+    response.headers.set("x-user-name", validatedData.nombre);
 
     return response;
   } catch (error) {

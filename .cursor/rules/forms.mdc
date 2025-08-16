@@ -9,3 +9,4 @@ alwaysApply: true
 - Zod schemas should be modular and reusable.
 - All validation error messages must be **written in Spanish**.
 - The **Zod schemas must be placed in the same `.types.ts` file** as the corresponding TypeScript types, **organized by module**.
+- The pagination and filters must be stored in search params.

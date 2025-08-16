@@ -41,13 +41,7 @@ const LoginForm = () => {
     try {
       await login(data);
 
-      toast.success("Inicio de sesión exitoso", {
-        description: "Redirigiendo al dashboard...",
-      });
-
-      setTimeout(() => {
-        router.push(Routes.HOME);
-      }, 1000);
+      router.push(Routes.HOME);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Error al iniciar sesión";
@@ -75,11 +69,11 @@ const LoginForm = () => {
             <FormField
               control={form.control}
               name="email"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" />
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormDescription />
                   <FormMessage />
@@ -89,12 +83,13 @@ const LoginForm = () => {
             <FormField
               control={form.control}
               name="password"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required">Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" />
+                    <Input type="password" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
