@@ -20,7 +20,7 @@ export const validateAuthCookie = async (): Promise<z.infer<
 
     return decodedCookie.data;
   } catch (error) {
-    errorLogger("Error validating auth cookie", "validateAuthCookie");
+    errorLogger(error, "validateAuthCookie");
     return null;
   }
 };
@@ -117,3 +117,58 @@ export async function fetchApiWithAuth<T>(
     },
   });
 }
+
+//BUILD SEARCH PARAMS GENERICO
+/**
+ * Configuración para mapeo de parámetros de búsqueda
+ */
+export type SearchParamMappingConfig = {
+  [key: string]: string;
+};
+
+/**
+ * Construye URLSearchParams de forma genérica con soporte para mapeos personalizados
+ * @param params - Objeto con los parámetros de búsqueda
+ * @param mappings - Configuración de mapeo opcional (ej: { search: "nombre" })
+ * @returns URLSearchParams configurado
+ */
+export const buildSearchParams = <T extends Record<string, unknown>>(
+  params?: T,
+  mappings: SearchParamMappingConfig = {},
+): URLSearchParams => {
+  const searchParams = new URLSearchParams();
+
+  if (!params) {
+    return searchParams;
+  }
+
+  Object.entries(params).forEach(([key, value]) => {
+    // Si existe un mapeo para esta key, usar el valor mapeado
+    const mappedKey = mappings[key] || key;
+
+    // Solo agregar valores que no sean null, undefined o string vacío
+    if (value !== null && value !== undefined && value !== "") {
+      searchParams.set(mappedKey, value.toString());
+    }
+  });
+
+  return searchParams;
+};
+
+/**
+ * Construye una URL completa con parámetros de búsqueda
+ * @param baseUrl - URL base (ej: "/eventos")
+ * @param params - Objeto con los parámetros de búsqueda
+ * @param mappings - Configuración de mapeo opcional
+ * @returns URL completa con query string si hay parámetros
+ */
+export const buildApiUrl = <T extends Record<string, unknown>>(
+  baseUrl: string,
+  params?: T,
+  mappings: SearchParamMappingConfig = {},
+): string => {
+  const searchParams = buildSearchParams(params, mappings);
+  const queryString = searchParams.toString();
+
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+};

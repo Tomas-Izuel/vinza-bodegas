@@ -1,33 +1,38 @@
+"use client";
+
 import { Evento } from "@/api/eventos/evento.type";
+import { Meta } from "@/api/common.type";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { CommonTableHeader } from "../common/CommonTableHeader";
+import { CommonTableFooter } from "../common/CommonTableFooter";
 import { EventoFilters } from "./EventoFilters";
 
 interface ListaEventoProps {
   eventos: Evento[];
+  meta: Meta;
 }
 
-export function ListaEvento({ eventos }: ListaEventoProps) {
+export function ListaEvento({ eventos, meta }: ListaEventoProps) {
   return (
-    <section className="bg-white">
-      <CommonTableHeader placeholder="Buscar eventos..." />
+    <section className="bg-white border">
+      <CommonTableHeader
+        placeholder="Buscar eventos..."
+        filtersForm={<EventoFilters />}
+      />
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
-        <TableHeader>
+        <TableHeader className="bg-gray-100">
           <TableRow>
-            <TableHead className="w-[100px]">Invoice</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Descripción</TableHead>
+            <TableHead>Cupo</TableHead>
+            <TableHead className="text-right">Precio</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -40,13 +45,13 @@ export function ListaEvento({ eventos }: ListaEventoProps) {
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter>
       </Table>
+      <CommonTableFooter
+        currentPage={meta.currentPage}
+        totalPages={meta.totalPages}
+        totalItems={meta.totalItems}
+        itemsPerPage={meta.itemsPerPage}
+      />
     </section>
   );
 }

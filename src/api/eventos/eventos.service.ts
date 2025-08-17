@@ -1,6 +1,6 @@
-import { fetchApiWithAuth } from "@/lib/utils.server";
+import { fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
-import { EventosResponse } from "./evento.type";
+import { EventosParams, EventosResponse } from "./evento.type";
 
 export type Evento = {
   id: string;
@@ -10,9 +10,17 @@ export type Evento = {
   ultimaModificacion: string; // ISO date
 };
 
-export const getEventos = async (): Promise<EventosResponse> => {
+export const getEventos = async (
+  params?: EventosParams,
+): Promise<EventosResponse> => {
   try {
-    const response = await fetchApiWithAuth<EventosResponse>("/eventos");
+    // Configuración de mapeo específica para eventos
+    const eventosMapping = {
+      search: "nombre", // mapea "search" a "nombre"
+    };
+
+    const url = buildApiUrl("/eventos", params, eventosMapping);
+    const response = await fetchApiWithAuth<EventosResponse>(url);
     return response;
   } catch (error) {
     const errorMessage =

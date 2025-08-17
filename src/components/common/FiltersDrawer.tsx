@@ -31,7 +31,7 @@ export function FiltersDrawer({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange} direction="right">
       <DrawerTrigger asChild>
         <Button variant="outline" size="icon">
           <Filter className="h-4 w-4" />

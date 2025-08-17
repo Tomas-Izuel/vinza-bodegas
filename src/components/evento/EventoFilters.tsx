@@ -11,22 +11,15 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
-
-// Schema para los filtros de eventos
-const EventoFiltersSchema = z.object({
-  estado: z.string().optional(),
-  sucursal: z.string().optional(),
-  categoria: z.string().optional(),
-  fechaDesde: z.string().optional(),
-  fechaHasta: z.string().optional(),
-});
-
-type EventoFiltersType = z.infer<typeof EventoFiltersSchema>;
+import {
+  EventoFiltersSchema,
+  EventoFiltersType,
+  EventosParams,
+} from "@/api/eventos/evento.type";
 
 interface EventoFiltersProps {
-  onFilter?: (filters: EventoFiltersType) => void;
+  onFilter?: (filters: EventosParams) => void;
   onClear?: () => void;
 }
 
@@ -34,16 +27,34 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
   const form = useForm<EventoFiltersType>({
     resolver: zodResolver(EventoFiltersSchema),
     defaultValues: {
-      estado: "",
-      sucursal: "",
-      categoria: "",
+      sucursalId: undefined,
+      categoriaId: undefined,
+      estadoId: undefined,
+      bodegaId: undefined,
       fechaDesde: "",
       fechaHasta: "",
+      precioMaximo: undefined,
+      puntuacionMinima: undefined,
     },
   });
 
   const handleSubmit = (data: EventoFiltersType) => {
-    onFilter?.(data);
+    // Filtrar valores vacíos y convertir a EventosParams
+    const filteredData: EventosParams = {};
+
+    if (data.sucursalId) filteredData.sucursalId = data.sucursalId;
+    if (data.categoriaId) filteredData.categoriaId = data.categoriaId;
+    if (data.estadoId) filteredData.estadoId = data.estadoId;
+    if (data.bodegaId) filteredData.bodegaId = data.bodegaId;
+    if (data.fechaDesde?.trim())
+      filteredData.fechaDesde = data.fechaDesde.trim();
+    if (data.fechaHasta?.trim())
+      filteredData.fechaHasta = data.fechaHasta.trim();
+    if (data.precioMaximo) filteredData.precioMaximo = data.precioMaximo;
+    if (data.puntuacionMinima)
+      filteredData.puntuacionMinima = data.puntuacionMinima;
+
+    onFilter?.(filteredData);
   };
 
   const handleClear = () => {
@@ -54,23 +65,28 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-4 [&>*]:w-full">
           <FormField
             control={form.control}
-            name="estado"
+            name="estadoId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Estado</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) =>
+                    field.onChange(value ? Number(value) : undefined)
+                  }
+                  value={field.value?.toString() || undefined}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar estado" />
+                      <SelectValue placeholder="Todos los estados" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="activo">Activo</SelectItem>
-                    <SelectItem value="finalizado">Finalizado</SelectItem>
-                    <SelectItem value="suspendido">Suspendido</SelectItem>
+                    <SelectItem value="1">Activo</SelectItem>
+                    <SelectItem value="2">Finalizado</SelectItem>
+                    <SelectItem value="3">Suspendido</SelectItem>
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -79,14 +95,19 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
 
           <FormField
             control={form.control}
-            name="sucursal"
+            name="sucursalId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sucursal</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) =>
+                    field.onChange(value ? Number(value) : undefined)
+                  }
+                  value={field.value?.toString() || undefined}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar sucursal" />
+                      <SelectValue placeholder="Todas las sucursales" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -101,14 +122,19 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
 
           <FormField
             control={form.control}
-            name="categoria"
+            name="categoriaId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Categoría</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) =>
+                    field.onChange(value ? Number(value) : undefined)
+                  }
+                  value={field.value?.toString() || undefined}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar categoría" />
+                      <SelectValue placeholder="Todas las categorías" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -123,29 +149,103 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
 
           <FormField
             control={form.control}
-            name="fechaDesde"
+            name="bodegaId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Fecha desde</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} placeholder="Fecha de inicio" />
-                </FormControl>
+                <FormLabel>Bodega</FormLabel>
+                <Select
+                  onValueChange={(value) =>
+                    field.onChange(value ? Number(value) : undefined)
+                  }
+                  value={field.value?.toString() || undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas las bodegas" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="1">Bodega Central</SelectItem>
+                    <SelectItem value="2">Bodega Norte</SelectItem>
+                    <SelectItem value="3">Bodega Sur</SelectItem>
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="fechaHasta"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fecha hasta</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} placeholder="Fecha de fin" />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="fechaDesde"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fecha desde</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      placeholder="Fecha de inicio"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fechaHasta"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fecha hasta</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} placeholder="Fecha de fin" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="precioMaximo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Precio máximo</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      placeholder="Precio máximo"
+                      min="0"
+                      step="0.01"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="puntuacionMinima"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Puntuación mínima</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      placeholder="Puntuación mínima"
+                      min="0"
+                      max="5"
+                      step="0.1"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <div className="flex gap-2 pt-4">
