@@ -43,7 +43,7 @@ export function FiltersDrawer({
             <DrawerTitle className="flex items-center justify-between">
               Filtros{" "}
               <DrawerClose asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" id="filters-drawer-close">
                   <X className="h-4 w-4" />
                 </Button>
               </DrawerClose>

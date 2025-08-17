@@ -42,8 +42,6 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
         return "default";
     }
   };
-
-  console.log(eventos);
   return (
     <section className="bg-white border">
       <CommonTableHeader
