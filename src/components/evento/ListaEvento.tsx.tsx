@@ -17,24 +17,9 @@ interface ListaEventoProps {
 }
 
 export function ListaEvento({ eventos }: ListaEventoProps) {
-  const handleFilter = (filters: Record<string, unknown>) => {
-    console.log("Filtros aplicados:", filters);
-    // Aquí se implementaría la lógica de filtrado
-  };
-
-  const handleClearFilters = () => {
-    console.log("Filtros limpiados");
-    // Aquí se implementaría la lógica para limpiar filtros
-  };
-
   return (
     <section className="bg-white">
-      <CommonTableHeader
-        placeholder="Buscar eventos..."
-        filtersForm={
-          <EventoFilters onFilter={handleFilter} onClear={handleClearFilters} />
-        }
-      />
+      <CommonTableHeader placeholder="Buscar eventos..." />
       <Table>
         <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
