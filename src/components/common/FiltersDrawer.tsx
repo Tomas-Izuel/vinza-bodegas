@@ -11,7 +11,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Filter } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { ReactNode } from "react";
 
 interface FiltersDrawerProps {
@@ -40,17 +40,20 @@ export function FiltersDrawer({
       <DrawerContent>
         <div className="mx-auto w-full max-w-4xl">
           <DrawerHeader>
-            <DrawerTitle>Filtros</DrawerTitle>
+            <DrawerTitle className="flex items-center justify-between">
+              Filtros{" "}
+              <DrawerClose asChild>
+                <Button variant="outline" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DrawerClose>
+            </DrawerTitle>
+
             <DrawerDescription>
               Aplica filtros para refinar los resultados
             </DrawerDescription>
           </DrawerHeader>
           <div className="p-4 pb-0">{filtersForm}</div>
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Cerrar</Button>
-            </DrawerClose>
-          </DrawerFooter>
         </div>
       </DrawerContent>
     </Drawer>

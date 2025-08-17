@@ -10,7 +10,7 @@ export default function SidebarNav() {
   const activePage = RouteSchema.safeParse(path);
 
   return (
-    <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-screen">
+    <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-[calc(100vh-64px)]">
       <div className="p-4 space-y-1">
         {/* Panel - Active Item */}
         <Link href={Routes.HOME}>

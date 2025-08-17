@@ -79,11 +79,11 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
                   value={field.value?.toString() || undefined}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Todos los estados" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="w-full">
                     <SelectItem value="1">Activo</SelectItem>
                     <SelectItem value="2">Finalizado</SelectItem>
                     <SelectItem value="3">Suspendido</SelectItem>
@@ -106,11 +106,11 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
                   value={field.value?.toString() || undefined}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Todas las sucursales" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="w-full">
                     <SelectItem value="1">Sucursal Central</SelectItem>
                     <SelectItem value="2">Sucursal Norte</SelectItem>
                     <SelectItem value="3">Sucursal Sur</SelectItem>
@@ -133,11 +133,11 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
                   value={field.value?.toString() || undefined}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Todas las categorías" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="w-full">
                     <SelectItem value="1">Degustación</SelectItem>
                     <SelectItem value="2">Cata</SelectItem>
                     <SelectItem value="3">Tour</SelectItem>
@@ -160,11 +160,11 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
                   value={field.value?.toString() || undefined}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Todas las bodegas" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="w-full">
                     <SelectItem value="1">Bodega Central</SelectItem>
                     <SelectItem value="2">Bodega Norte</SelectItem>
                     <SelectItem value="3">Bodega Sur</SelectItem>
@@ -248,7 +248,7 @@ export function EventoFilters({ onFilter, onClear }: EventoFiltersProps) {
           </div>
         </div>
 
-        <div className="flex gap-2 pt-4">
+        <div className="flex flex-col gap-2 pt-4">
           <Button type="submit" className="flex-1">
             Aplicar filtros
           </Button>
