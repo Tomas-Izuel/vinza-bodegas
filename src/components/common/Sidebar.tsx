@@ -10,13 +10,13 @@ export default function SidebarNav() {
   const activePage = RouteSchema.safeParse(path);
 
   return (
-    <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-screen">
+    <aside className="w-60 bg-[#FFFAF4] border-r border-gray-200 h-[calc(100vh-64px)]">
       <div className="p-4 space-y-1">
         {/* Panel - Active Item */}
         <Link href={Routes.HOME}>
           <div
             className={cn(
-              "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+              "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
               activePage.success && activePage.data === Routes.HOME
                 ? "bg-gray-100 text-primary"
                 : "text-gray-700 hover:bg-gray-100",
@@ -36,13 +36,13 @@ export default function SidebarNav() {
             <Link
               href={Routes.RESERVAS}
               className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
                 activePage.success && activePage.data === Routes.RESERVAS
                   ? "bg-gray-100 text-primary"
                   : "text-gray-700 hover:bg-gray-100",
               )}
             >
-              <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+              <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <FileText className="h-4 w-4 mr-3" />
                 <span className="flex-1">Reservas</span>
                 <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs font-medium">
@@ -53,13 +53,13 @@ export default function SidebarNav() {
             <Link
               href={Routes.EVENTOS}
               className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
                 activePage.success && activePage.data === Routes.EVENTOS
                   ? "bg-gray-100 text-primary"
                   : "text-gray-700 hover:bg-gray-100",
               )}
             >
-              <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+              <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <Calendar className="h-4 w-4 mr-3" />
                 Eventos
               </div>
@@ -76,14 +76,14 @@ export default function SidebarNav() {
             <Link
               href={Routes.BODEDA_INFORMACION}
               className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
                 activePage.success &&
                   activePage.data === Routes.BODEDA_INFORMACION
                   ? "bg-gray-100 text-primary"
                   : "text-gray-700 hover:bg-gray-100",
               )}
             >
-              <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+              <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <FileText className="h-4 w-4 mr-3" />
                 Información de bodega
               </div>
@@ -91,13 +91,13 @@ export default function SidebarNav() {
             <Link
               href={Routes.BODEDA_USUARIOS}
               className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
+                "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
                 activePage.success && activePage.data === Routes.BODEDA_USUARIOS
                   ? "bg-gray-100 text-primary"
                   : "text-gray-700 hover:bg-gray-100",
               )}
             >
-              <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+              <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <Users className="h-4 w-4 mr-3" />
                 Usuarios y permisos
               </div>

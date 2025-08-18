@@ -37,14 +37,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 }
 
 :root {
-  --radius: 0.65rem;
+  --radius: 0px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -114,7 +114,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 rounded-none;
   }
   body {
     @apply bg-background text-foreground;
@@ -144,5 +144,5 @@ h3 {
 
 .common-main-container {
   background-color: #fffaf4;
-  @apply px-8 xl:px-14 py-6;
+  @apply px-8 xl:px-14 py-6 h-[calc(100vh-64px)] overflow-y-auto;
 }

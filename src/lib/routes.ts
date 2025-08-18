@@ -8,6 +8,8 @@ export enum Routes {
   RESET_PASSWORD = "/reset-password",
   RESERVAS = "/reservas",
   EVENTOS = "/eventos",
+  CREAR_EVENTO = "/eventos/crear",
+  EDITAR_EVENTO = "/eventos/",
   BODEDA = "/bodega",
   BODEDA_INFORMACION = "/bodega/informacion",
   BODEDA_USUARIOS = "/bodega/usuarios",
