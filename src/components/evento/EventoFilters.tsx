@@ -40,8 +40,8 @@ export function EventoFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Obtener valores actuales de los search params
-  const getInitialValues = (): EventoFiltersType => {
+  // Memorizar la función para obtener valores de search params
+  const getInitialValues = React.useCallback((): EventoFiltersType => {
     return {
       sucursalId: searchParams.get("sucursalId")
         ? Number(searchParams.get("sucursalId"))
@@ -64,7 +64,7 @@ export function EventoFilters() {
         ? Number(searchParams.get("puntuacionMinima"))
         : undefined,
     };
-  };
+  }, [searchParams]);
 
   const form = useForm<EventoFiltersType>({
     resolver: zodResolver(EventoFiltersSchema),
@@ -73,30 +73,9 @@ export function EventoFilters() {
 
   // Actualizar formulario cuando cambien los search params
   React.useEffect(() => {
-    const newValues: EventoFiltersType = {
-      sucursalId: searchParams.get("sucursalId")
-        ? Number(searchParams.get("sucursalId"))
-        : undefined,
-      categoriaId: searchParams.get("categoriaId")
-        ? Number(searchParams.get("categoriaId"))
-        : undefined,
-      estadoId: searchParams.get("estadoId")
-        ? Number(searchParams.get("estadoId"))
-        : undefined,
-      bodegaId: searchParams.get("bodegaId")
-        ? Number(searchParams.get("bodegaId"))
-        : undefined,
-      fechaDesde: searchParams.get("fechaDesde") || "",
-      fechaHasta: searchParams.get("fechaHasta") || "",
-      precioMaximo: searchParams.get("precioMaximo")
-        ? Number(searchParams.get("precioMaximo"))
-        : undefined,
-      puntuacionMinima: searchParams.get("puntuacionMinima")
-        ? Number(searchParams.get("puntuacionMinima"))
-        : undefined,
-    };
+    const newValues = getInitialValues();
     form.reset(newValues);
-  }, [searchParams, form]);
+  }, [getInitialValues, form]);
 
   const handleSubmit = (data: EventoFiltersType) => {
     // Obtener parámetros actuales y preservar los importantes
