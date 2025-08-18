@@ -9,10 +9,12 @@ export enum Routes {
   RESERVAS = "/reservas",
   EVENTOS = "/eventos",
   CREAR_EVENTO = "/eventos/crear",
-  EDITAR_EVENTO = "/eventos/",
+  EDITAR_EVENTO = "/eventos/editar/",
+  VER_EVENTO = "/eventos/",
   BODEDA = "/bodega",
   BODEDA_INFORMACION = "/bodega/informacion",
-  BODEDA_USUARIOS = "/bodega/usuarios",
+  USUARIOS = "/usuarios",
+  CREAR_USUARIO = "/usuarios/crear",
   LOGOUT = "/logout",
 }
 

@@ -1,3 +1,4 @@
+"use server";
 import { fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
 import { EventosParams, EventosResponse } from "./evento.type";

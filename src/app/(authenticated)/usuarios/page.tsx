@@ -1,13 +1,13 @@
 import { EventosParams } from "@/api/eventos/evento.type";
-import { getEventos } from "@/api/eventos/eventos.service";
+import { getUsuarios } from "@/api/usuarios/usuario.service";
 import { ListaEvento } from "@/components/evento/ListaEvento.tsx";
 import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Vinza - Eventos",
-  description: "Lista de eventos de tu bodega",
+  title: "Vinza - Usuarios y permisos",
+  description: "Lista de usuarios y permisos de tu bodega",
 };
 
 interface EventosPageProps {
@@ -17,24 +17,22 @@ interface EventosPageProps {
 export default async function EventosPage({ searchParams }: EventosPageProps) {
   const params = (await searchParams) as EventosParams;
 
-  const eventos = await getEventos({
-    ...params,
-  });
+  const usuarios = await getUsuarios();
+
+  console.log(usuarios);
 
   return (
     <>
       <header className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Eventos</h1>
+        <h1 className="text-3xl font-bold">Usuarios y permisos</h1>
         <Link
-          href={Routes.CREAR_EVENTO}
+          href={Routes.CREAR_USUARIO}
           className="bg-primary text-white px-4 py-2 rounded"
         >
-          Nuevo evento
+          Crear usuario
         </Link>
       </header>
-      <main>
-        <ListaEvento eventos={eventos.items} meta={eventos.meta} />
-      </main>
+      <main></main>
     </>
   );
 }
