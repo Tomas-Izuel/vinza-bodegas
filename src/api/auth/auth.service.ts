@@ -38,3 +38,15 @@ export const login = async (data: LoginDto) => {
     throw new Error(errorMessage);
   }
 };
+
+export const logout = async () => {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete(AUTH_COOKIE_NAME);
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al cerrar sesión";
+    errorLogger(error, "logout");
+    throw new Error(errorMessage);
+  }
+};

@@ -15,7 +15,7 @@ const FiltersDrawer = dynamic(
 );
 
 interface CommonTableHeaderProps {
-  placeholder: string;
+  placeholder?: string;
   filtersForm?: React.ReactNode;
 }
 
@@ -65,12 +65,14 @@ export function CommonTableHeader({
 
   return (
     <header className="flex justify-end items-center mb-6 p-4 pb-0 gap-4">
-      <Input
-        placeholder={placeholder}
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        className="rounded-none max-w-xl"
-      />
+      {placeholder && (
+        <Input
+          placeholder={placeholder}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="rounded-none max-w-xl"
+        />
+      )}
       <FiltersDrawer
         filtersForm={filtersForm}
         isOpen={isFiltersOpen}

@@ -3,20 +3,22 @@ import { AUTH_COOKIE_NAME } from "./lib/constants";
 import { hasRouteAccess, type Role } from "./lib/permissions";
 import { middlewareLogger } from "./lib/middleware-logger";
 import { AuthCookieSchema } from "./api/auth/auth.type";
+import { Routes } from "./lib/routes";
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
-  "/iniciar-sesion",
-  "/registro",
-  "/forgot-password",
-  "/reset-password",
+  Routes.LOGIN,
+  Routes.REGISTER,
+  Routes.FORGOT_PASSWORD,
+  Routes.RESET_PASSWORD,
+  Routes.LOGOUT,
 ];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Permitir acceso a rutas públicas
-  if (PUBLIC_ROUTES.includes(pathname)) {
+  if (PUBLIC_ROUTES.includes(pathname as Routes)) {
     return NextResponse.next();
   }
 
