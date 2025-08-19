@@ -1,6 +1,6 @@
 import { EventosParams } from "@/api/eventos/evento.type";
 import { getUsuarios } from "@/api/usuarios/usuario.service";
-import { ListaEvento } from "@/components/evento/ListaEvento.tsx";
+import { ListaUsuario } from "@/components/usuario/ListaUsuario";
 import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -19,8 +19,6 @@ export default async function EventosPage({ searchParams }: EventosPageProps) {
 
   const usuarios = await getUsuarios();
 
-  console.log(usuarios);
-
   return (
     <>
       <header className="flex justify-between items-center mb-6">
@@ -32,7 +30,9 @@ export default async function EventosPage({ searchParams }: EventosPageProps) {
           Crear usuario
         </Link>
       </header>
-      <main></main>
+      <main>
+        <ListaUsuario usuarios={usuarios} />
+      </main>
     </>
   );
 }

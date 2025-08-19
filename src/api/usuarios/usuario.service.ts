@@ -2,11 +2,11 @@
 
 import { errorLogger } from "@/lib/utils";
 import { fetchApiWithAuth } from "@/lib/utils.server";
+import { UsuariosResponse } from "./usuario.type";
 
 export const getUsuarios = async () => {
   try {
-    const response = await fetchApiWithAuth<unknown>(`/users`);
-    console.log(response);
+    const response = await fetchApiWithAuth<UsuariosResponse>(`/users`);
     return response;
   } catch (error) {
     const errorMessage =

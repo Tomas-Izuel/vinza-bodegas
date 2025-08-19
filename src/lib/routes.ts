@@ -2,8 +2,9 @@ import z from "zod";
 
 export enum Routes {
   HOME = "/",
-  LOGIN = "/login",
-  REGISTER = "/register",
+  LOGIN = "/iniciar-sesion",
+  LOGOUT = "/cerrar-sesion",
+  REGISTER = "/registro",
   FORGOT_PASSWORD = "/forgot-password",
   RESET_PASSWORD = "/reset-password",
   RESERVAS = "/reservas",
@@ -15,7 +16,6 @@ export enum Routes {
   BODEDA_INFORMACION = "/bodega/informacion",
   USUARIOS = "/usuarios",
   CREAR_USUARIO = "/usuarios/crear",
-  LOGOUT = "/logout",
 }
 
 export const RouteSchema = z.nativeEnum(Routes);
