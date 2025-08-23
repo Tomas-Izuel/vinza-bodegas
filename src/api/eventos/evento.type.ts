@@ -1,6 +1,7 @@
 import z from "zod";
 import { CommonSearchParams, Meta } from "../common.type";
 import { Sucursal } from "../sucursales/sucursal.type";
+import { CategoriaEvento } from "../categoria-evento/categoria-evento.type";
 
 export enum EstadosEvento {
   ACTIVO = "activo",
@@ -12,14 +13,6 @@ export enum EstadosEvento {
 export type EventosResponse = {
   items: Evento[];
   meta: Meta;
-};
-
-export type CategoriaEvento = {
-  id: number;
-  nombre: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
 };
 
 export type EstadoEvento = {
@@ -91,3 +84,79 @@ export const EventoFiltersSchema = z
 export type EventoFiltersType = z.infer<typeof EventoFiltersSchema>;
 
 export type EventosParams = CommonSearchParams & EventoFiltersType;
+
+// Tipos para el step form de creación de eventos
+export type EventoStepFormData = {
+  // Paso 1: Detalles del evento
+  nombre: string;
+  duracion: number;
+  cupos: number;
+  categoriaId: number;
+  precio: number;
+  sucursalId: number;
+  descripcion?: string;
+
+  // Paso 2: Fecha y hora
+  tipoEvento: "unica" | "recurrente";
+  fechas: string[];
+  hora: string;
+
+  // Paso 3: Multimedia
+  imagenes: File[];
+};
+
+// Tipo para enviar al backend
+export type CrearEventoDto = {
+  nombre: string;
+  descripcion: string;
+  cupo: string;
+  sucursalId: number;
+  estadoId: number;
+  categoriaId: number;
+  precio: number;
+  recurrencias: Array<{
+    dia: string;
+    hora: string;
+    fecha_desde?: string;
+    fecha_hasta?: string;
+  }>;
+};
+
+// Schema de validación para el paso 1 (Detalles del evento)
+export const EventoDetallesSchema = z.object({
+  nombre: z.string().min(1, "El nombre del evento es requerido"),
+  duracion: z
+    .number()
+    .min(1, "La duración es requerida")
+    .max(24, "La duración no puede ser mayor a 24 horas"),
+  cupos: z
+    .number()
+    .min(1, "Los cupos son requeridos")
+    .positive("Los cupos deben ser un número positivo"),
+  categoriaId: z.number().min(1, "Debe seleccionar una categoría"),
+  precio: z
+    .number()
+    .min(1, "El precio es requerido")
+    .positive("El precio debe ser un número positivo"),
+  sucursalId: z.number().min(1, "Debe seleccionar una sucursal"),
+  descripcion: z.string().optional(),
+});
+
+// Schema de validación para el paso 2 (Fecha y hora)
+export const EventoFechaSchema = z.object({
+  tipoEvento: z.enum(["unica", "recurrente"]),
+  fechas: z.array(z.string()).min(1, "Debe seleccionar al menos una fecha"),
+  hora: z.string().min(1, "Debe seleccionar una hora"),
+});
+
+// Schema de validación para el paso 3 (Multimedia)
+export const EventoMultimediaSchema = z.object({
+  imagenes: z.array(z.instanceof(File)).optional(),
+});
+
+// Schema completo para el step form
+export const EventoStepFormSchema = EventoDetallesSchema.merge(
+  EventoFechaSchema,
+).merge(EventoMultimediaSchema);
+
+export type EventoStepFormType = z.infer<typeof EventoStepFormSchema>;
