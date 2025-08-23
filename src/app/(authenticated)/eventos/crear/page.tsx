@@ -2,6 +2,8 @@ import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
 import { CrearEventoStepForm } from "@/components/evento/CrearEventoStepForm";
 import { getSucursales } from "@/api/sucursales/sucursal.service";
 
+export const dynamic = "force-dynamic";
+
 const CrearEventoPage = async () => {
   const [categorias, sucursales] = await Promise.all([
     getCategorias(),
