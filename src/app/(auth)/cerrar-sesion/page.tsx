@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { errorLogger } from "@/lib/utils";
 
+// Forzar renderizado dinámico para evitar error de cookies
+export const dynamic = "force-dynamic";
+
 const LogoutPage = async () => {
   try {
     const cookieStore = await cookies();
