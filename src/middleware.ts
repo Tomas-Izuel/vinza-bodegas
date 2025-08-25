@@ -4,6 +4,7 @@ import { hasRouteAccess, type Role } from "./lib/permissions";
 import { middlewareLogger } from "./lib/middleware-logger";
 import { AuthCookieSchema } from "./api/auth/auth.type";
 import { Routes } from "./lib/routes";
+import { isTokenExpired } from "./lib/jwt.utils";
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
@@ -29,7 +30,7 @@ export function middleware(request: NextRequest) {
   if (!authCookie) {
     middlewareLogger.authFailure(pathname, "Cookie no encontrada");
 
-    const loginUrl = new URL("/iniciar-sesion", request.url);
+    const loginUrl = new URL(Routes.LOGIN, request.url);
     middlewareLogger.redirect(pathname, loginUrl.pathname, "Sin autenticación");
 
     return NextResponse.redirect(loginUrl);
@@ -39,6 +40,26 @@ export function middleware(request: NextRequest) {
   try {
     const cookieData = JSON.parse(authCookie.value);
     const validatedData = AuthCookieSchema.parse(cookieData);
+
+    if (validatedData.token) {
+      // Verificar si el token ha expirado
+      if (isTokenExpired(validatedData.token)) {
+        middlewareLogger.authFailure(pathname, "Token expirado");
+
+        const logoutUrl = new URL(Routes.LOGOUT, request.url);
+        middlewareLogger.redirect(
+          pathname,
+          logoutUrl.pathname,
+          "Token expirado",
+        );
+
+        const response = NextResponse.redirect(logoutUrl);
+        // Limpiar la cookie expirada
+        response.cookies.delete(AUTH_COOKIE_NAME);
+
+        return response;
+      }
+    }
 
     // Verificar permisos para la ruta
     /*if (!hasRouteAccess(validatedData.role as Role, pathname)) {
@@ -74,7 +95,7 @@ export function middleware(request: NextRequest) {
       error instanceof Error ? error.message : "Error desconocido";
     middlewareLogger.cookieError(pathname, errorMessage);
 
-    const loginUrl = new URL("/iniciar-sesion", request.url);
+    const loginUrl = new URL(Routes.LOGIN, request.url);
     const response = NextResponse.redirect(loginUrl);
 
     // Limpiar la cookie inválida

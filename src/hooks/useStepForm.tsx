@@ -36,7 +36,7 @@ export function useStepForm<T extends Record<string, unknown>>({
     stepData: {},
     currentStep: 1,
     isSubmitting: false,
-    canGoNext: false,
+    canGoNext: true,
   });
 
   const updateState = useCallback((updates: Partial<StepFormState<T>>) => {
@@ -68,7 +68,7 @@ export function useStepForm<T extends Record<string, unknown>>({
         const nextStepNumber = state.currentStep + 1;
         updateState({
           currentStep: nextStepNumber,
-          canGoNext: false, // Reset para el siguiente paso
+          canGoNext: true, // Reset para el siguiente paso
         });
         onStepChange?.(nextStepNumber, state.stepData);
       }
@@ -145,7 +145,7 @@ export function useStepForm<T extends Record<string, unknown>>({
       stepData: {},
       currentStep: 1,
       isSubmitting: false,
-      canGoNext: false,
+      canGoNext: true,
     });
   }, [updateState]);
 

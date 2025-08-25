@@ -125,16 +125,16 @@ export type CrearEventoDto = {
 // Schema de validación para el paso 1 (Detalles del evento)
 export const EventoDetallesSchema = z.object({
   nombre: z.string().min(1, "El nombre del evento es requerido"),
-  duracion: z
+  duracion: z.coerce
     .number()
     .min(1, "La duración es requerida")
     .max(24, "La duración no puede ser mayor a 24 horas"),
-  cupos: z
+  cupos: z.coerce
     .number()
     .min(1, "Los cupos son requeridos")
     .positive("Los cupos deben ser un número positivo"),
   categoriaId: z.number().min(1, "Debe seleccionar una categoría"),
-  precio: z
+  precio: z.coerce
     .number()
     .min(1, "El precio es requerido")
     .positive("El precio debe ser un número positivo"),

@@ -37,6 +37,7 @@ export const getEventos = async (
 };
 
 export async function crearEvento(data: EventoStepFormType): Promise<void> {
+  console.log(data);
   try {
     // Transformar los datos del step form al formato del backend
     const backendData: CrearEventoDto = {
