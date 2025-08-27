@@ -104,18 +104,16 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
                     Ver
                   </Button>
                 </Link>
-                <Link href={Routes.EDITAR_EVENTO + evento.id}>
+                <Link href={Routes.VER_EVENTO + evento.id + "?editar=true"}>
                   <Button variant="ghost" size={"sm"}>
                     <Pencil className="w-4 h-4" />
                     Editar
                   </Button>
                 </Link>
-                <Link href={Routes.EDITAR_EVENTO + evento.id}>
-                  <Button variant="ghost" size={"sm"} className="text-red-500">
-                    <Trash className="w-4 h-4" />
-                    Eliminar
-                  </Button>
-                </Link>
+                <Button variant="ghost" size={"sm"} className="text-red-500">
+                  <Trash className="w-4 h-4" />
+                  Eliminar
+                </Button>
               </TableCell>
             </TableRow>
           ))}

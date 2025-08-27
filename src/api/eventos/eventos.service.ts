@@ -6,6 +6,9 @@ import {
   EventosResponse,
   EventoStepFormType,
   CrearEventoDto,
+  EventoDetalle,
+  EditarEventoType,
+  ActualizarEventoDto,
 } from "./evento.type";
 
 export type Evento = {
@@ -100,3 +103,43 @@ export async function obtenerSucursales(): Promise<
     throw new Error("Error al obtener sucursales");
   }
 }
+
+export const getEvento = async (id: string): Promise<EventoDetalle> => {
+  try {
+    const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`);
+    return response;
+  } catch (error) {
+    console.error("[EVENTOS]:", error);
+    throw new Error("Error al obtener el evento");
+  }
+};
+
+export const actualizarEvento = async (
+  id: string,
+  data: EditarEventoType,
+): Promise<EventoDetalle> => {
+  try {
+    // Transformar los datos al formato del backend
+    const backendData: ActualizarEventoDto = {
+      nombre: data.nombre,
+      descripcion: data.descripcion || "",
+      cupo: data.cupo.toString(),
+      precio: data.precio,
+      categoriaId: data.categoriaId,
+      sucursalId: data.sucursalId,
+    };
+
+    const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(backendData),
+    });
+
+    return response;
+  } catch (error) {
+    console.error("[EVENTOS]:", error);
+    throw new Error("Error al actualizar el evento");
+  }
+};

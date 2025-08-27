@@ -1,7 +1,8 @@
 import z from "zod";
 import { CommonSearchParams, Meta } from "../common.type";
-import { Sucursal } from "../sucursales/sucursal.type";
+import { Sucursal, SucursalCompleta } from "../sucursales/sucursal.type";
 import { CategoriaEvento } from "../categoria-evento/categoria-evento.type";
+import { RecurrenciaEvento } from "../recurrencias/recurrencia.type";
 
 export enum EstadosEvento {
   ACTIVO = "activo",
@@ -21,6 +22,25 @@ export type EstadoEvento = {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+};
+
+export type EventoDetalle = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  cupo: string;
+  precio: string;
+  sucursalId: number;
+  estadoId: number;
+  categoriaId: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  promedioValoracion: string;
+  categoria: CategoriaEvento;
+  estado: EstadoEvento;
+  sucursal: SucursalCompleta;
+  recurrencias: RecurrenciaEvento[];
 };
 
 export type Evento = {
@@ -160,3 +180,31 @@ export const EventoStepFormSchema = EventoDetallesSchema.merge(
 ).merge(EventoMultimediaSchema);
 
 export type EventoStepFormType = z.infer<typeof EventoStepFormSchema>;
+
+// Schema para editar evento (solo campos básicos)
+export const EditarEventoSchema = z.object({
+  nombre: z.string().min(1, "El nombre del evento es requerido"),
+  descripcion: z.string().optional(),
+  cupo: z.coerce
+    .number()
+    .min(1, "Los cupos son requeridos")
+    .positive("Los cupos deben ser un número positivo"),
+  precio: z.coerce
+    .number()
+    .min(1, "El precio es requerido")
+    .positive("El precio debe ser un número positivo"),
+  categoriaId: z.number().min(1, "Debe seleccionar una categoría"),
+  sucursalId: z.number().min(1, "Debe seleccionar una sucursal"),
+});
+
+export type EditarEventoType = z.infer<typeof EditarEventoSchema>;
+
+// DTO para actualizar evento
+export type ActualizarEventoDto = {
+  nombre: string;
+  descripcion: string;
+  cupo: string;
+  precio: number;
+  categoriaId: number;
+  sucursalId: number;
+};
