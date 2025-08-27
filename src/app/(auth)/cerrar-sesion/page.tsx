@@ -1,16 +1,15 @@
 import { Routes } from "@/lib/routes";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { errorLogger } from "@/lib/utils";
+import { logout } from "@/api/auth/auth.service";
 
 // Forzar renderizado dinámico para evitar error de cookies
 export const dynamic = "force-dynamic";
 
 const LogoutPage = async () => {
   try {
-    const cookieStore = await cookies();
-    cookieStore.delete(AUTH_COOKIE_NAME);
+    await logout();
+    redirect(Routes.LOGIN);
   } catch (error) {
     errorLogger(error, "logout");
   }
