@@ -15,13 +15,13 @@ import { Routes } from "@/lib/routes";
 import Link from "next/link";
 
 interface EventoDetallePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
-  const { id } = params;
+  const { id } = await params;
 
   // Obtener todos los datos necesarios en paralelo
   const [evento, categorias, sucursales] = await Promise.all([
