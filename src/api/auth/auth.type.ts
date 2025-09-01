@@ -61,14 +61,9 @@ export interface LoginResponse {
   token: string;
 }
 
-export enum RoleEnum {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
-
 export const RoleSchema = z.object({
   id: z.number(),
-  nombre: z.nativeEnum(RoleEnum),
+  nombre: z.string(),
   bodegaId: z.number(),
   created_at: z.string(),
   updated_at: z.string(),
