@@ -1,92 +1,87 @@
-// Sistema de permisos para control de acceso basado en roles
-
-export type Role = "admin" | "user";
+import { Routes } from "./routes";
 
 export type Permission =
-  | "manage_users" // Gestionar usuarios
-  | "view_users" // Ver listado de usuarios
-  | "manage_reservations" // Gestionar reservas
-  | "view_reservations" // Ver reservas
-  | "manage_events" // Gestionar eventos
-  | "view_events" // Ver eventos
-  | "manage_bodega" // Gestionar información de bodega
-  | "view_bodega" // Ver información de bodega
-  | "admin_panel"; // Acceder al panel de administración
-
-// Definición de permisos por rol
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  admin: [
-    "manage_users",
-    "view_users",
-    "manage_reservations",
-    "view_reservations",
-    "manage_events",
-    "view_events",
-    "manage_bodega",
-    "view_bodega",
-    "admin_panel",
-  ],
-  user: ["view_reservations", "view_events", "view_bodega"],
-};
+  | "sudo" // Acceso a todo
+  | "bodegas_read" // Ver bodegas
+  | "bodegas_manage" // Gestionar bodegas
+  | "users_read" // Ver usuarios
+  | "users_manage" // Gestionar usuarios
+  | "roles_read" // Ver roles
+  | "roles_manage" // Gestionar roles
+  | "eventos_read" // Ver eventos
+  | "eventos_manage" // Gestionar eventos
+  | "reservas_read" // Ver reservas
+  | "reservas_manage" // Gestionar reservas
+  | "valoraciones_read" // Ver valoraciones
+  | "valoraciones_manage" // Gestionar valoraciones
+  | "instancia_eventos_read" // Ver instancia de eventos
+  | "instancia_eventos_manage"; // Gestionar instancia de eventos
 
 // Mapeo de rutas a permisos requeridos
-export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
-  "/bodega/usuarios": ["view_users"],
-  "/bodega/usuarios/crear": ["manage_users"],
-  "/bodega/usuarios/editar": ["manage_users"],
-  "/reservas": ["view_reservations"],
-  "/reservas/crear": ["manage_reservations"],
-  "/reservas/editar": ["manage_reservations"],
-  "/eventos": ["view_events"],
-  "/eventos/crear": ["manage_events"],
-  "/eventos/editar": ["manage_events"],
-  "/bodega": ["view_bodega"],
-  "/bodega/informacion": ["view_bodega"],
-  "/bodega/informacion/editar": ["manage_bodega"],
+export const routePermissionMap: Record<string, Permission[]> = {
+  // Página principal - acceso básico para usuarios autenticados
+  [Routes.HOME]: [],
+
+  // Eventos
+  [Routes.EVENTOS]: ["eventos_read"],
+  [Routes.CREAR_EVENTO]: ["eventos_manage"],
+  // Para rutas dinámicas como /eventos/[id], usaremos un patrón de matching
+
+  // Usuarios
+  [Routes.USUARIOS]: ["users_read"],
+  [Routes.CREAR_USUARIO]: ["users_manage"],
+
+  // Bodegas
+  [Routes.BODEGA]: ["bodegas_read"],
+  [Routes.BODEGA_INFORMACION]: ["bodegas_read"],
+  [Routes.CREAR_BODEGA]: ["bodegas_manage"],
+
+  // Reservas
+  [Routes.RESERVAS]: ["reservas_read"],
+
+  // Perfil - acceso básico para usuarios autenticados
+  [Routes.PERFIL]: [],
+
+  // Página de no autorizado - acceso básico para usuarios autenticados
+  [Routes.UNAUTHORIZED]: [],
 };
 
-/**
- * Verifica si un rol tiene un permiso específico
- */
-export function hasPermission(role: Role, permission: Permission): boolean {
-  return ROLE_PERMISSIONS[role].includes(permission);
-}
-
-/**
- * Verifica si un rol tiene acceso a una ruta específica
- */
-export function hasRouteAccess(role: Role, pathname: string): boolean {
-  // Buscar coincidencia exacta primero
-  const requiredPermissions = ROUTE_PERMISSIONS[pathname];
-
-  if (requiredPermissions) {
-    return requiredPermissions.every((permission) =>
-      hasPermission(role, permission),
-    );
+// Función para verificar si un usuario tiene acceso a una ruta específica
+export function hasRouteAccess(
+  userPermissions: Permission[],
+  pathname: string,
+): boolean {
+  // Si el usuario tiene permiso sudo, tiene acceso a todo
+  if (userPermissions.includes("sudo")) {
+    return true;
   }
 
-  // Buscar coincidencias por prefijo para rutas dinámicas
-  for (const [routePattern, permissions] of Object.entries(ROUTE_PERMISSIONS)) {
-    if (pathname.startsWith(routePattern)) {
-      return permissions.every((permission) => hasPermission(role, permission));
-    }
+  // Obtener permisos requeridos para la ruta
+  const requiredPermissions = getRequiredPermissionsForRoute(pathname);
+
+  // Si no se requieren permisos específicos (como HOME o PERFIL), permitir acceso
+  if (requiredPermissions.length === 0) {
+    return true;
   }
 
-  // Si no se encuentra un mapeo específico, permitir acceso por defecto
-  // (esto se puede cambiar a false para un enfoque más restrictivo)
-  return true;
+  // Verificar si el usuario tiene al menos uno de los permisos requeridos
+  return requiredPermissions.some((permission) =>
+    userPermissions.includes(permission),
+  );
 }
 
-/**
- * Obtiene los permisos de un rol
- */
-export function getRolePermissions(role: Role): Permission[] {
-  return ROLE_PERMISSIONS[role];
-}
+// Función para obtener permisos requeridos para una ruta
+function getRequiredPermissionsForRoute(pathname: string): Permission[] {
+  // Verificar rutas exactas primero
+  if (routePermissionMap[pathname]) {
+    return routePermissionMap[pathname];
+  }
 
-/**
- * Verifica si un usuario puede acceder a múltiples rutas
- */
-export function canAccessRoutes(role: Role, pathnames: string[]): boolean {
-  return pathnames.every((pathname) => hasRouteAccess(role, pathname));
+  // Verificar rutas dinámicas
+  if (pathname.startsWith(Routes.VER_EVENTO)) {
+    return routePermissionMap[Routes.EVENTOS] || [];
+  }
+
+  // Si no se encuentra la ruta, asumir que requiere autenticación básica
+  return [];
 }

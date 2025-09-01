@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME } from "./lib/constants";
-import { hasRouteAccess, type Role } from "./lib/permissions";
+import { hasRouteAccess, Permission } from "./lib/permissions";
 import { middlewareLogger } from "./lib/middleware-logger";
 import { AuthCookieSchema } from "./api/auth/auth.type";
 import { Routes } from "./lib/routes";
-import { isTokenExpired } from "./lib/jwt.utils";
+import { decodeJWT, isTokenExpired } from "./lib/jwt.utils";
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
@@ -61,19 +61,24 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // Verificar permisos para la ruta
-    /*if (!hasRouteAccess(validatedData.role as Role, pathname)) {
+    const userPermissions = (decodeJWT(validatedData.token)?.permissions ||
+      []) as Permission[];
+    if (!hasRouteAccess(userPermissions, pathname)) {
       middlewareLogger.permissionDenied(
-        validatedData.id,
-        validatedData.role,
+        validatedData.id.toString(),
+        validatedData.roles[0].nombre,
         pathname,
       );
 
-      const homeUrl = new URL("/", request.url);
-      middlewareLogger.redirect(pathname, homeUrl.pathname, "Sin permisos");
+      const unauthorizedUrl = new URL(Routes.UNAUTHORIZED, request.url);
+      middlewareLogger.redirect(
+        pathname,
+        unauthorizedUrl.pathname,
+        "Sin permisos",
+      );
 
-      return NextResponse.redirect(homeUrl);
-    }*/
+      return NextResponse.redirect(unauthorizedUrl);
+    }
 
     // Log de autenticación exitosa solo en desarrollo
     middlewareLogger.authSuccess(
