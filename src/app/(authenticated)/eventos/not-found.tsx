@@ -6,9 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarX, ArrowLeft, Plus, List } from "lucide-react";
+import { CalendarX, Plus, List } from "lucide-react";
 import Link from "next/link";
 import { Routes } from "@/lib/routes";
+import BackButton from "@/components/common/BackButton";
 
 export default function EventoNotFound() {
   return (
@@ -45,14 +46,7 @@ export default function EventoNotFound() {
             </p>
 
             <div className="flex gap-2">
-              <Button
-                onClick={() => window.history.back()}
-                variant="outline"
-                className="flex-1 flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Volver atrás
-              </Button>
+              <BackButton className="flex-1" />
 
               <Link href="/eventos" className="flex-1">
                 <Button
