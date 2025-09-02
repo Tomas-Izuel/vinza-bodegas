@@ -18,6 +18,7 @@ export enum Routes {
   CREAR_BODEGA = "/bodega/crear",
   USUARIOS = "/usuarios",
   CREAR_USUARIO = "/usuarios/crear",
+  ESPERANDO_VALIDACION = "/esperando-validacion",
 }
 
 export const RouteSchema = z.nativeEnum(Routes);

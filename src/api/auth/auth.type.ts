@@ -74,7 +74,7 @@ export const AuthCookieSchema = z.object({
   nombre: z.string(),
   apellido: z.string(),
   email: z.string(),
-  validado: z.string().nullable(),
+  validado: z.string().nullable().optional(),
   bodegaId: z.number(),
   roles: z.array(RoleSchema),
   token: z.string(),

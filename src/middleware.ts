@@ -61,6 +61,17 @@ export function middleware(request: NextRequest) {
       }
     }
 
+    if (!validatedData.validado && pathname !== Routes.ESPERANDO_VALIDACION) {
+      middlewareLogger.authFailure(pathname, "Bodega no validada");
+      const logoutUrl = new URL(Routes.ESPERANDO_VALIDACION, request.url);
+      middlewareLogger.redirect(
+        pathname,
+        logoutUrl.pathname,
+        "Bodega no validada",
+      );
+      return NextResponse.redirect(logoutUrl);
+    }
+
     const userPermissions = (decodeJWT(validatedData.token)?.permissions ||
       []) as Permission[];
     if (!hasRouteAccess(userPermissions, pathname)) {
