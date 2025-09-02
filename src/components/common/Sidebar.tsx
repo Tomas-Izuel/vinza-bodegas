@@ -74,11 +74,11 @@ export default function SidebarNav() {
           </div>
           <div className="mt-1 space-y-1">
             <Link
-              href={Routes.BODEDA_INFORMACION}
+              href={Routes.BODEGA_INFORMACION}
               className={cn(
                 "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
                 activePage.success &&
-                  activePage.data === Routes.BODEDA_INFORMACION
+                  activePage.data === Routes.BODEGA_INFORMACION
                   ? "bg-gray-100 text-primary"
                   : "text-gray-700 hover:bg-gray-100",
               )}

@@ -113,9 +113,11 @@ const EsperandoValidacionPage = () => {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button asChild className="flex-1">
-              <Link href={Routes.LOGOUT}>Iniciar Sesión con otro usuario</Link>
-            </Button>
+            <Link href={Routes.LOGOUT} className="w-full">
+              <Button className="flex-1 w-full">
+                Iniciar Sesión con otro email
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

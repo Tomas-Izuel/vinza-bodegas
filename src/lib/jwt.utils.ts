@@ -7,6 +7,7 @@ export interface JWTPayload {
   role: number;
   iat: number;
   exp: number;
+  permissions: string[];
 }
 
 /**

@@ -11,7 +11,6 @@ import {
 import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Usuario } from "@/api/usuarios/usuario.type";
-import { RoleEnum } from "@/api/auth/auth.type";
 import { Badge } from "../ui/badge";
 import { CheckCircle, XCircle } from "lucide-react";
 
@@ -20,11 +19,11 @@ interface ListaUsuarioProps {
 }
 
 export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
-  const getRolVariant = (rol: string) => {
+  const getRolVariant = (rol: number) => {
     switch (rol) {
-      case RoleEnum.ADMIN:
+      case 1:
         return "activo";
-      case RoleEnum.USER:
+      case 2:
         return "finalizado";
       default:
         return "inactivo";
@@ -52,7 +51,7 @@ export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
               </TableCell>
               <TableCell>
                 {usuario.roles.map((role) => (
-                  <Badge key={role.id} variant={getRolVariant(role.nombre)}>
+                  <Badge key={role.id} variant={getRolVariant(role.id)}>
                     {role.nombre}
                   </Badge>
                 ))}
