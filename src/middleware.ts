@@ -61,6 +61,17 @@ export function middleware(request: NextRequest) {
       }
     }
 
+    if (validatedData.validada === null) {
+      middlewareLogger.authFailure(pathname, "Bodega no validada");
+      const logoutUrl = new URL(Routes.ESPERANDO_VALIDACION, request.url);
+      middlewareLogger.redirect(
+        pathname,
+        logoutUrl.pathname,
+        "Bodega no validada",
+      );
+      return NextResponse.redirect(logoutUrl);
+    }
+
     // Verificar permisos para la ruta
     /*if (!hasRouteAccess(validatedData.role as Role, pathname)) {
       middlewareLogger.permissionDenied(
