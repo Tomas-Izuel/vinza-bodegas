@@ -64,7 +64,7 @@ export interface LoginResponse {
 export const RoleSchema = z.object({
   id: z.number(),
   nombre: z.string(),
-  bodegaId: z.number(),
+  bodegaId: z.number().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -75,9 +75,45 @@ export const AuthCookieSchema = z.object({
   apellido: z.string(),
   email: z.string(),
   validado: z.string().nullable().optional(),
-  bodegaId: z.number(),
+  bodegaId: z.number().nullable(),
   roles: z.array(RoleSchema),
   token: z.string(),
+  bodegaValidada: z.string().nullable().optional(),
+});
+
+export const RegisterSchema = z.object({
+  email: z
+    .string({
+      message: "El email es requerido",
+    })
+    .min(1, "El email es requerido")
+    .email("Debe ser un email válido"),
+  password: z
+    .string({
+      message: "La contraseña es requerida",
+    })
+    .min(6, "La contraseña debe tener al menos 6 caracteres"),
+  nombre: z
+    .string({
+      message: "El nombre es requerido",
+    })
+    .min(1, "El nombre es requerido"),
+});
+
+export const ValidateAccountSchema = z.object({
+  email: z
+    .string({
+      message: "El email es requerido",
+    })
+    .min(1, "El email es requerido")
+    .email("Debe ser un email válido"),
+  code: z
+    .string({
+      message: "El código es requerido",
+    })
+    .min(1, "El código es requerido"),
 });
 
 export type LoginDto = z.infer<typeof LoginSchema>;
+export type RegisterDto = z.infer<typeof RegisterSchema>;
+export type ValidateAccountDto = z.infer<typeof ValidateAccountSchema>;

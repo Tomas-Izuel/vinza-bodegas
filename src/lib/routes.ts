@@ -5,6 +5,7 @@ export enum Routes {
   LOGIN = "/iniciar-sesion",
   LOGOUT = "/cerrar-sesion",
   REGISTER = "/registro",
+  VALIDATE_ACCOUNT = "/validar-cuenta",
   UNAUTHORIZED = "/no-autorizado",
   FORGOT_PASSWORD = "/forgot-password",
   RESET_PASSWORD = "/reset-password",

@@ -1,5 +1,5 @@
 import { API_URL, AUTH_COOKIE_NAME } from "./constants";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import z from "zod";
 import { errorLogger } from "./utils";
 import { AuthCookieSchema } from "@/api/auth/auth.type";

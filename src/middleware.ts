@@ -13,6 +13,8 @@ const PUBLIC_ROUTES = [
   Routes.FORGOT_PASSWORD,
   Routes.RESET_PASSWORD,
   Routes.LOGOUT,
+  Routes.VALIDATE_ACCOUNT,
+  Routes.CREAR_BODEGA,
 ];
 
 export function middleware(request: NextRequest) {
@@ -61,7 +63,30 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    if (!validatedData.validado && pathname !== Routes.ESPERANDO_VALIDACION) {
+    if (!validatedData.validado && pathname !== Routes.VALIDATE_ACCOUNT) {
+      middlewareLogger.authFailure(pathname, "Cuenta no validada");
+      const logoutUrl = new URL(Routes.VALIDATE_ACCOUNT, request.url);
+      middlewareLogger.redirect(
+        pathname,
+        logoutUrl.pathname,
+        "Cuenta no validada",
+      );
+      return NextResponse.redirect(logoutUrl);
+    }
+
+    // Si el usuario no tiene bodegaId, redirigir a crear bodega
+    if (!validatedData.bodegaId && pathname !== Routes.CREAR_BODEGA) {
+      middlewareLogger.authFailure(pathname, "Usuario sin bodega");
+      const crearBodegaUrl = new URL(Routes.CREAR_BODEGA, request.url);
+      middlewareLogger.redirect(
+        pathname,
+        crearBodegaUrl.pathname,
+        "Usuario sin bodega",
+      );
+      return NextResponse.redirect(crearBodegaUrl);
+    }
+
+    if (!validatedData.bodegaValidada && pathname !== Routes.CREAR_BODEGA) {
       middlewareLogger.authFailure(pathname, "Bodega no validada");
       const logoutUrl = new URL(Routes.ESPERANDO_VALIDACION, request.url);
       middlewareLogger.redirect(
