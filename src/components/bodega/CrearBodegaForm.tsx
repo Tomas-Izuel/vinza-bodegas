@@ -24,8 +24,11 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { crearBodega } from "@/api/bodegas/bodega.service";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Routes } from "@/lib/routes";
 
 const CrearBodegaForm = () => {
+  const router = useRouter();
   const form = useForm<CrearBodegaDto>({
     resolver: zodResolver(CrearBodegaSchema),
     defaultValues: {
@@ -38,6 +41,8 @@ const CrearBodegaForm = () => {
     try {
       await crearBodega(data);
       toast.success("Bodega creada exitosamente");
+
+      router.push(Routes.HOME);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Error al crear la bodega";

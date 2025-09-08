@@ -6,8 +6,6 @@ import { fetchApi } from "@/lib/utils.server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { AuthCookieSchema } from "@/api/auth/auth.type";
-import { redirect } from "next/navigation";
-import { Routes } from "@/lib/routes";
 
 export const crearBodega = async (data: CrearBodegaDto) => {
   try {
@@ -47,14 +45,8 @@ export const crearBodega = async (data: CrearBodegaDto) => {
       path: "/",
     });
 
-    // Redirigir al home después de crear la bodega exitosamente
-    redirect(Routes.HOME);
+    return bodegaData;
   } catch (error) {
-    // Permitir que las redirecciones de Next.js pasen sin ser capturadas
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      return;
-    }
-
     const errorMessage =
       error instanceof Error ? error.message : "Error al crear la bodega";
     errorLogger(error, "crearBodega");

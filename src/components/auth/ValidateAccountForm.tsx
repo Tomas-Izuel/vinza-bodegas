@@ -25,14 +25,17 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { validateAccount } from "@/api/auth/auth.service";
+import { validateAccount, requestValidation } from "@/api/auth/auth.service";
 import { toast } from "sonner";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
 import { Mail, Shield } from "lucide-react";
+import { useState } from "react";
 
 const ValidateAccountForm = () => {
   const router = useRouter();
+  const [isResending, setIsResending] = useState(false);
+
   const form = useForm<ValidateAccountDto>({
     resolver: zodResolver(ValidateAccountSchema),
     defaultValues: {
@@ -56,6 +59,34 @@ const ValidateAccountForm = () => {
       toast.error("Error al validar la cuenta", {
         description: errorMessage,
       });
+    }
+  };
+
+  const handleResendCode = async () => {
+    const email = form.getValues("email");
+
+    if (!email) {
+      toast.error("Email requerido", {
+        description: "Por favor ingresa tu email para reenviar el código",
+      });
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await requestValidation({ email });
+
+      toast.success("Código reenviado", {
+        description: "Hemos enviado un nuevo código a tu email",
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Error al reenviar el código";
+      toast.error("Error al reenviar el código", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -145,18 +176,25 @@ const ValidateAccountForm = () => {
 
           <div className="text-center text-sm text-muted-foreground">
             ¿No recibiste el código?{" "}
-            <Button variant="link" className="p-0 h-auto text-sm">
-              Reenviar código
+            <Button
+              variant="link"
+              type="button"
+              className="p-0 h-auto text-sm"
+              onClick={handleResendCode}
+              disabled={isResending || form.formState.isSubmitting}
+              isLoading={isResending}
+            >
+              {isResending ? "Reenviando..." : "Reenviar código"}
             </Button>
           </div>
 
-          <Link href={Routes.LOGIN} className="w-full">
+          <Link href={Routes.LOGOUT} className="w-full">
             <Button
               variant="outline"
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              Volver al inicio de sesión
+              Cerrar sesión
             </Button>
           </Link>
         </CardFooter>

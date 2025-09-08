@@ -114,6 +114,16 @@ export const ValidateAccountSchema = z.object({
     .min(1, "El código es requerido"),
 });
 
+export const RequestValidationSchema = z.object({
+  email: z
+    .string({
+      message: "El email es requerido",
+    })
+    .min(1, "El email es requerido")
+    .email("Debe ser un email válido"),
+});
+
 export type LoginDto = z.infer<typeof LoginSchema>;
 export type RegisterDto = z.infer<typeof RegisterSchema>;
 export type ValidateAccountDto = z.infer<typeof ValidateAccountSchema>;
+export type RequestValidationDto = z.infer<typeof RequestValidationSchema>;
