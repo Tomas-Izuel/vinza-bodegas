@@ -30,6 +30,7 @@ export const login = async (data: LoginDto) => {
     if (!authData.token) {
       throw new Error("Token de autenticación no recibido del servidor");
     }
+    console.log(authData);
 
     const authCookie = AuthCookieSchema.parse(authData);
 

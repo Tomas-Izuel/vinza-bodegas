@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BodegaSchema } from "../bodegas/bodega.type";
 
 export const LoginSchema = z.object({
   email: z
@@ -78,7 +79,7 @@ export const AuthCookieSchema = z.object({
   bodegaId: z.number().nullable(),
   roles: z.array(RoleSchema),
   token: z.string(),
-  bodegaValidada: z.string().nullable().optional(),
+  bodega: BodegaSchema.nullable(),
 });
 
 export const RegisterSchema = z.object({

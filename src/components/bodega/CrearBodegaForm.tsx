@@ -1,14 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -26,6 +19,7 @@ import { crearBodega } from "@/api/bodegas/bodega.service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Routes } from "@/lib/routes";
+import MapView from "./MapView";
 
 const CrearBodegaForm = () => {
   const router = useRouter();
@@ -34,8 +28,14 @@ const CrearBodegaForm = () => {
     defaultValues: {
       nombre: "",
       descripcion: "",
+      direccion: "",
+      aclaraciones: "",
+      telefono: "",
     },
   });
+
+  // Observar cambios en el campo dirección para actualizar el mapa
+  const direccionValue = form.watch("direccion");
 
   const onSubmit = async (data: CrearBodegaDto) => {
     try {
@@ -53,65 +53,145 @@ const CrearBodegaForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-center">Crear tu bodega</CardTitle>
-        <CardDescription className="text-center">
-          Para continuar, necesitas crear tu bodega
-        </CardDescription>
+        <h1>Crear tu bodega</h1>
+        <p>Para continuar, necesitas completar la información de tu bodega</p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="space-y-3"
             id="crear-bodega-form"
           >
-            <FormField
-              control={form.control}
-              name="nombre"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">
-                    Nombre de la bodega
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: Bodega El Roble" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="descripcion"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe tu bodega, sus características principales..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Primera fila - Campos principales en 3 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="nombre"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-sm font-medium">
+                      Nombre
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Nombre de la bodega"
+                        className="h-9"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="direccion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-sm font-medium">
+                      Dirección
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Dirección de la bodega"
+                        className="h-9"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="telefono"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-sm font-medium">
+                      Teléfono
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder="Teléfono de contacto"
+                        className="h-9"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Mapa - Ocupa todo el ancho */}
+            <div>
+              <MapView direccion={direccionValue} />
+            </div>
+
+            {/* Segunda fila - Descripción y Aclaraciones */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="descripcion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required text-sm font-medium">
+                      Descripción
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe tu bodega..."
+                        className="min-h-[120px] resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="aclaraciones"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">
+                      Aclaraciones
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Información adicional (opcional)"
+                        className="min-h-[120px] resize-none"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Botón de submit */}
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                form="crear-bodega-form"
+                isLoading={form.formState.isSubmitting}
+                className="px-8 h-10"
+              >
+                Crear bodega
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-        <Button
-          type="submit"
-          className="w-full"
-          form="crear-bodega-form"
-          isLoading={form.formState.isSubmitting}
-        >
-          Crear bodega
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

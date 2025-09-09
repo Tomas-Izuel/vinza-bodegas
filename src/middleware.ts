@@ -86,7 +86,11 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(crearBodegaUrl);
     }
 
-    if (!validatedData.bodegaValidada && pathname !== Routes.CREAR_BODEGA) {
+    if (
+      !validatedData.bodegaValidada &&
+      pathname !== Routes.CREAR_BODEGA &&
+      pathname !== Routes.ESPERANDO_VALIDACION
+    ) {
       middlewareLogger.authFailure(pathname, "Bodega no validada");
       const logoutUrl = new URL(Routes.ESPERANDO_VALIDACION, request.url);
       middlewareLogger.redirect(
