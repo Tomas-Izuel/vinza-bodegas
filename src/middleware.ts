@@ -87,7 +87,7 @@ export function middleware(request: NextRequest) {
     }
 
     if (
-      !validatedData.bodegaValidada &&
+      !validatedData.bodega?.validada &&
       pathname !== Routes.CREAR_BODEGA &&
       pathname !== Routes.ESPERANDO_VALIDACION
     ) {

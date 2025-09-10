@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Sucursal } from "../sucursales/sucursal.type";
 
 export type Bodega = {
   id: number;
@@ -7,7 +8,12 @@ export type Bodega = {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  validada: string | null;
 };
+
+export interface BodegaDetalle extends Bodega {
+  sucursales: Sucursal[];
+}
 
 export const BodegaSchema = z.object({
   id: z.number(),
@@ -16,8 +22,25 @@ export const BodegaSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
-  validada: z.boolean().nullable().optional(),
+  validada: z.string().nullable().optional(),
 });
+
+export const EditarBodegaSchema = z.object({
+  nombre: z
+    .string({
+      message: "El nombre de la bodega es requerido",
+    })
+    .min(1, "El nombre de la bodega es requerido")
+    .max(100, "El nombre no puede exceder 100 caracteres"),
+  descripcion: z
+    .string({
+      message: "La descripción es requerida",
+    })
+    .min(1, "La descripción es requerida")
+    .max(500, "La descripción no puede exceder 500 caracteres"),
+});
+
+export type EditarBodegaType = z.infer<typeof EditarBodegaSchema>;
 
 export const CrearBodegaSchema = z.object({
   nombre: z

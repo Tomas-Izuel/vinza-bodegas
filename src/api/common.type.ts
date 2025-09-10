@@ -5,6 +5,11 @@ export type Meta = {
   itemsPerPage: number;
 };
 
+export type PaginatedResponse<T> = {
+  items: T[];
+  meta: Meta;
+};
+
 export type CommonSearchParams = {
   page?: number;
   search?: string;

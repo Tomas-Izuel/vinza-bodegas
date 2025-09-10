@@ -128,3 +128,4 @@ export type LoginDto = z.infer<typeof LoginSchema>;
 export type RegisterDto = z.infer<typeof RegisterSchema>;
 export type ValidateAccountDto = z.infer<typeof ValidateAccountSchema>;
 export type RequestValidationDto = z.infer<typeof RequestValidationSchema>;
+export type AuthCookie = z.infer<typeof AuthCookieSchema>;

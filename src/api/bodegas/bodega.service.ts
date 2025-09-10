@@ -1,11 +1,16 @@
 "use server";
 
 import { errorLogger } from "@/lib/utils";
-import { CrearBodegaDto, CrearBodegaResponse } from "./bodega.type";
-import { fetchApi } from "@/lib/utils.server";
+import {
+  CrearBodegaDto,
+  CrearBodegaResponse,
+  BodegaDetalle,
+  EditarBodegaType,
+} from "./bodega.type";
+import { fetchApi, fetchApiWithAuth } from "@/lib/utils.server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
-import { AuthCookieSchema } from "@/api/auth/auth.type";
+import { AuthCookie, AuthCookieSchema } from "@/api/auth/auth.type";
 
 export const crearBodega = async (data: CrearBodegaDto) => {
   try {
@@ -14,11 +19,7 @@ export const crearBodega = async (data: CrearBodegaDto) => {
     // Crear la bodega
     const bodegaData = await fetchApi<CrearBodegaResponse>(`/bodegas`, {
       method: "POST",
-      body: JSON.stringify({
-        ...data,
-        roles: [],
-        users: [],
-      }),
+      body: JSON.stringify(data),
       cache: "no-store",
     });
 
@@ -54,6 +55,54 @@ export const crearBodega = async (data: CrearBodegaDto) => {
     const errorMessage =
       error instanceof Error ? error.message : "Error al crear la bodega";
     errorLogger(error, "crearBodega");
+    throw new Error(errorMessage);
+  }
+};
+
+export const getBodegaDetalle = async (): Promise<BodegaDetalle> => {
+  try {
+    const cookieStore = await cookies();
+    const authCookieValue = JSON.parse(
+      cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
+    ) as AuthCookie;
+    const response = await fetchApiWithAuth<BodegaDetalle>(
+      `/bodegas/${authCookieValue.bodegaId}`,
+    );
+    console.log(response);
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al obtener la información de la bodega";
+    errorLogger(error, "[BODEGA]: getBodegaDetalle");
+    throw new Error(errorMessage);
+  }
+};
+
+export const actualizarBodega = async (
+  data: EditarBodegaType,
+): Promise<BodegaDetalle> => {
+  try {
+    const cookieStore = await cookies();
+    const authCookieValue = JSON.parse(
+      cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
+    ) as AuthCookie;
+    const response = await fetchApiWithAuth<BodegaDetalle>(
+      `/bodegas/${authCookieValue.bodegaId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      },
+    );
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al actualizar la bodega";
+    errorLogger(error, "[BODEGA]: actualizarBodega");
     throw new Error(errorMessage);
   }
 };
