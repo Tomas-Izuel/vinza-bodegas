@@ -15,6 +15,10 @@ export interface BodegaDetalle extends Bodega {
   sucursales: Sucursal[];
 }
 
+export interface SucursalesSearchParams {
+  search?: string;
+}
+
 export const BodegaSchema = z.object({
   id: z.number(),
   nombre: z.string(),

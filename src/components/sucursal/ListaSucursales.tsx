@@ -9,11 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Eye, LandPlot, Pencil, Trash } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import Link from "next/link";
+import { Routes } from "@/lib/routes";
 
 interface ListaSucursalesProps {
   sucursales: Sucursal[];
@@ -21,7 +24,11 @@ interface ListaSucursalesProps {
 
 export function ListaSucursales({ sucursales }: ListaSucursalesProps) {
   return (
-    <section className="bg-white border">
+    <section>
+      <CommonTableHeader
+        placeholder="Buscar por nombre..."
+        filtersForm={null}
+      />
       <Table>
         <TableHeader className="bg-gray-100">
           <TableRow>
@@ -69,14 +76,18 @@ export function ListaSucursales({ sucursales }: ListaSucursalesProps) {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size={"sm"}>
-                    <Eye className="w-4 h-4" />
-                    Ver
-                  </Button>
-                  <Button variant="ghost" size={"sm"}>
-                    <Pencil className="w-4 h-4" />
-                    Editar
-                  </Button>
+                  <Link href={Routes.VER_SUCURSAL + sucursal.id}>
+                    <Button variant="ghost" size={"sm"}>
+                      <Eye className="w-4 h-4" />
+                      Ver
+                    </Button>
+                  </Link>
+                  <Link href={Routes.VER_SUCURSAL + sucursal.id + "?editar=true"}>
+                    <Button variant="ghost" size={"sm"}>
+                      <Pencil className="w-4 h-4" />
+                      Editar
+                    </Button>
+                  </Link>
                   <Button variant="ghost" size={"sm"} className="text-red-500">
                     <Trash className="w-4 h-4" />
                     Borrar

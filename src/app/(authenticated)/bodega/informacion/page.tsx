@@ -1,4 +1,5 @@
 import { getBodegaDetalle } from "@/api/bodegas/bodega.service";
+import { SucursalesSearchParams } from "@/api/bodegas/bodega.type";
 import { BodegaDetalle } from "@/components/bodega/BodegaDetalle";
 import { ListaSucursales } from "@/components/sucursal/ListaSucursales";
 import {
@@ -17,10 +18,16 @@ export const metadata: Metadata = {
   description: "Información detallada de tu bodega y lista de sucursales",
 };
 
-const BodegaInformacionPage = async () => {
+interface BodegaInformacionPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+const BodegaInformacionPage = async ({ searchParams }: BodegaInformacionPageProps) => {
+  const params = (await searchParams) as SucursalesSearchParams;
+
   try {
-    // Obtener la información de la bodega
-    const bodega = await getBodegaDetalle();
+    // Obtener la información de la bodega con parámetros de búsqueda
+    const bodega = await getBodegaDetalle(params);
 
     return (
       <>
@@ -51,7 +58,9 @@ const BodegaInformacionPage = async () => {
               <h2 className="text-2xl font-bold">Sucursales</h2>
               <Button>Crear sucursal</Button>
             </div>
-            <ListaSucursales sucursales={bodega.sucursales} />
+            <div className="bg-white border">
+              <ListaSucursales sucursales={bodega.sucursales} />
+            </div>
           </section>
         </main>
       </>

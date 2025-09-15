@@ -6,8 +6,9 @@ import {
   CrearBodegaResponse,
   BodegaDetalle,
   EditarBodegaType,
+  SucursalesSearchParams,
 } from "./bodega.type";
-import { fetchApi, fetchApiWithAuth } from "@/lib/utils.server";
+import { fetchApi, fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { AuthCookie, AuthCookieSchema } from "@/api/auth/auth.type";
@@ -59,16 +60,20 @@ export const crearBodega = async (data: CrearBodegaDto) => {
   }
 };
 
-export const getBodegaDetalle = async (): Promise<BodegaDetalle> => {
+export const getBodegaDetalle = async (
+  params?: SucursalesSearchParams,
+): Promise<BodegaDetalle> => {
   try {
     const cookieStore = await cookies();
     const authCookieValue = JSON.parse(
       cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
     ) as AuthCookie;
-    const response = await fetchApiWithAuth<BodegaDetalle>(
+
+    const url = buildApiUrl(
       `/bodegas/${authCookieValue.bodegaId}`,
+      params as Record<string, unknown>,
     );
-    console.log(response);
+    const response = await fetchApiWithAuth<BodegaDetalle>(url);
     return response;
   } catch (error) {
     const errorMessage =

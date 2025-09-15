@@ -2,7 +2,7 @@
 
 import { fetchApiWithAuth } from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
-import { Sucursal } from "./sucursal.type";
+import { Sucursal, EditarSucursalType } from "./sucursal.type";
 
 export const getSucursales = async (): Promise<Sucursal[]> => {
   try {
@@ -16,14 +16,14 @@ export const getSucursales = async (): Promise<Sucursal[]> => {
   }
 };
 
-export const getSucursalById = async (id: number): Promise<Sucursal> => {
+export const getSucursalById = async (id: string): Promise<Sucursal> => {
   try {
     const response = await fetchApiWithAuth<Sucursal>(`/sucursales/${id}`);
     return response;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al obtener la sucursal";
-    errorLogger(error, "getSucursalById");
+    errorLogger(error, "[SUCURSAL]: getSucursalById");
     throw new Error(errorMessage);
   }
 };
@@ -49,8 +49,8 @@ export const crearSucursal = async (
 };
 
 export const actualizarSucursal = async (
-  id: number,
-  data: Partial<Omit<Sucursal, "id" | "created_at">>,
+  id: string,
+  data: EditarSucursalType,
 ): Promise<Sucursal> => {
   try {
     const response = await fetchApiWithAuth<Sucursal>(`/sucursales/${id}`, {
@@ -66,7 +66,7 @@ export const actualizarSucursal = async (
       error instanceof Error
         ? error.message
         : "Error al actualizar la sucursal";
-    errorLogger(error, "actualizarSucursal");
+    errorLogger(error, "[SUCURSAL]: actualizarSucursal");
     throw new Error(errorMessage);
   }
 };

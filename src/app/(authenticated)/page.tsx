@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -114,7 +115,6 @@ const HomePage = () => {
     await generateReport(
       "Dashboard Completo - Bodegas",
       mainMetrics,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [
         monthlyRevenue as any,
         eventsByCategory as any,
