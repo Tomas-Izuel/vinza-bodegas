@@ -129,7 +129,7 @@ export type EventoStepFormData = {
 export type CrearEventoDto = {
   nombre: string;
   descripcion: string;
-  cupo: string;
+  cupo: number;
   sucursalId: number;
   estadoId: number;
   categoriaId: number;

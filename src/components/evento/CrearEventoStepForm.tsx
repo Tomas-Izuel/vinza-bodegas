@@ -9,6 +9,9 @@ import { EventoFechaStep } from "./EventoFechaStep";
 import { EventoMultimediaStep } from "./EventoMultimediaStep";
 import { EventoSuccessStep } from "./EventoSuccessStep";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Routes } from "@/lib/routes";
 
 // Variantes de animación para los pasos
 const stepVariants = {
@@ -47,10 +50,20 @@ export function CrearEventoStepForm({
   categorias,
   sucursales,
 }: CrearEventoStepFormProps) {
+  const router = useRouter();
   const stepForm = useStepForm<EventoStepFormData>({
     totalSteps: 3,
     onSubmit: async (data) => {
-      await crearEvento(data);
+      try {
+        await crearEvento(data);
+        toast.success("Evento creado exitosamente");
+        router.push(Routes.EVENTOS);
+      } catch (error) {
+        toast.error("Error al crear el evento", {
+          description:
+            error instanceof Error ? error.message : "Error al crear el evento",
+        });
+      }
     },
   });
 

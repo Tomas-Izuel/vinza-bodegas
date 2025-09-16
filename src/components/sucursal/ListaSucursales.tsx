@@ -82,7 +82,9 @@ export function ListaSucursales({ sucursales }: ListaSucursalesProps) {
                       Ver
                     </Button>
                   </Link>
-                  <Link href={Routes.VER_SUCURSAL + sucursal.id + "?editar=true"}>
+                  <Link
+                    href={Routes.VER_SUCURSAL + sucursal.id + "?editar=true"}
+                  >
                     <Button variant="ghost" size={"sm"}>
                       <Pencil className="w-4 h-4" />
                       Editar

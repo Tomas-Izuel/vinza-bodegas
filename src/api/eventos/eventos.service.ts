@@ -10,6 +10,9 @@ import {
   EditarEventoType,
   ActualizarEventoDto,
 } from "./evento.type";
+import { AUTH_COOKIE_NAME } from "@/lib/constants";
+import { AuthCookie } from "../auth/auth.type";
+import { cookies } from "next/headers";
 
 export type Evento = {
   id: string;
@@ -23,12 +26,24 @@ export const getEventos = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
   try {
+    const cookieStore = await cookies();
+    const authCookieValue = JSON.parse(
+      cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
+    ) as AuthCookie;
+    const bodegaId = authCookieValue.bodegaId;
     // Configuración de mapeo específica para eventos
     const eventosMapping = {
       search: "nombre", // mapea "search" a "nombre"
     };
 
-    const url = buildApiUrl("/eventos", params, eventosMapping);
+    const url = buildApiUrl(
+      "/eventos",
+      {
+        ...params,
+        bodegaId,
+      },
+      eventosMapping,
+    );
     const response = await fetchApiWithAuth<EventosResponse>(url);
     return response;
   } catch (error) {
@@ -40,13 +55,12 @@ export const getEventos = async (
 };
 
 export async function crearEvento(data: EventoStepFormType): Promise<void> {
-  console.log(data);
   try {
     // Transformar los datos del step form al formato del backend
     const backendData: CrearEventoDto = {
       nombre: data.nombre,
       descripcion: data.descripcion || "",
-      cupo: data.cupos.toString(),
+      cupo: data.cupos,
       sucursalId: data.sucursalId,
       estadoId: 1, // Estado activo por defecto
       categoriaId: data.categoriaId,
@@ -141,5 +155,18 @@ export const actualizarEvento = async (
   } catch (error) {
     console.error("[EVENTOS]:", error);
     throw new Error("Error al actualizar el evento");
+  }
+};
+
+export const eliminarEvento = async (id: string): Promise<void> => {
+  try {
+    await fetchApiWithAuth(`/eventos/${id}`, {
+      method: "DELETE",
+    });
+  } catch (error) {
+    errorLogger(error, "eliminarEvento");
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al eliminar el evento";
+    throw new Error(errorMessage);
   }
 };

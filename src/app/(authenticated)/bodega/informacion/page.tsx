@@ -22,7 +22,9 @@ interface BodegaInformacionPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-const BodegaInformacionPage = async ({ searchParams }: BodegaInformacionPageProps) => {
+const BodegaInformacionPage = async ({
+  searchParams,
+}: BodegaInformacionPageProps) => {
   const params = (await searchParams) as SucursalesSearchParams;
 
   try {

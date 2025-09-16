@@ -2,7 +2,20 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import L from "leaflet";
 // Componente removido - ya no usa Card
+
+// Configurar iconos de Leaflet para evitar conflictos con Next.js
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
+  ._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 // Importar Leaflet dinámicamente para evitar errores de SSR
 const MapContainer = dynamic(

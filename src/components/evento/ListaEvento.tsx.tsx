@@ -16,10 +16,11 @@ import { EventoFilters } from "./EventoFilters";
 import moment from "moment";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { CheckCircle, Eye, LandPlot, Pencil, Trash } from "lucide-react";
+import { Eye, LandPlot, Pencil } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
 import { Routes } from "@/lib/routes";
+import { EliminarEventoButton } from "./EliminarEventoButton";
 
 interface ListaEventoProps {
   eventos: Evento[];
@@ -110,10 +111,10 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
                     Editar
                   </Button>
                 </Link>
-                <Button variant="ghost" size={"sm"} className="text-red-500">
-                  <Trash className="w-4 h-4" />
-                  Eliminar
-                </Button>
+                <EliminarEventoButton
+                  eventoId={evento.id.toString()}
+                  eventoNombre={evento.nombre}
+                />
               </TableCell>
             </TableRow>
           ))}
