@@ -10,9 +10,6 @@ import {
   EditarEventoType,
   ActualizarEventoDto,
 } from "./evento.type";
-import { AUTH_COOKIE_NAME } from "@/lib/constants";
-import { AuthCookie } from "../auth/auth.type";
-import { cookies } from "next/headers";
 
 export type Evento = {
   id: string;
@@ -26,24 +23,11 @@ export const getEventos = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
   try {
-    const cookieStore = await cookies();
-    const authCookieValue = JSON.parse(
-      cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
-    ) as AuthCookie;
-    const bodegaId = authCookieValue.bodegaId;
-    // Configuración de mapeo específica para eventos
     const eventosMapping = {
       search: "nombre", // mapea "search" a "nombre"
     };
 
-    const url = buildApiUrl(
-      "/eventos",
-      {
-        ...params,
-        bodegaId,
-      },
-      eventosMapping,
-    );
+    const url = buildApiUrl("/eventos", params, eventosMapping);
     const response = await fetchApiWithAuth<EventosResponse>(url);
     return response;
   } catch (error) {

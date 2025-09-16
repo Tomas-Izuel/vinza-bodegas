@@ -7,6 +7,7 @@ import { Sucursal, EditarSucursalType } from "./sucursal.type";
 export const getSucursales = async (): Promise<Sucursal[]> => {
   try {
     const response = await fetchApiWithAuth<Sucursal[]>("/sucursales");
+    console.log(response);
     return response;
   } catch (error) {
     const errorMessage =
