@@ -19,7 +19,11 @@ import { crearBodega } from "@/api/bodegas/bodega.service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Routes } from "@/lib/routes";
-import MapView from "./MapView";
+import dynamic from "next/dynamic";
+
+const MapView = dynamic(() => import("./MapView"), {
+  ssr: false,
+});
 
 const CrearBodegaForm = () => {
   const router = useRouter();
