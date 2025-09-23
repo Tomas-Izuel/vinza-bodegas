@@ -4,7 +4,7 @@ import { Meta, CommonSearchParams } from "../common.type";
 // Tipos base para reserva
 export interface Reserva {
   id: number;
-  precio: number;
+  precio: string;
   cantidadGente: number;
   instanciaEventoId: number;
   recorridoId: number;

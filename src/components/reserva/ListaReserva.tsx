@@ -83,7 +83,7 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
               <TableCell className="font-medium">
                 {reserva.instanciaEvento.evento.nombre}
               </TableCell>
-              <TableCell>OR{reserva.id.toString().padStart(6, "0")}</TableCell>
+              <TableCell>{reserva.id.toString()}</TableCell>
               <TableCell>
                 {/* Aquí deberías tener el nombre del cliente desde el backend */}
                 Cliente #{reserva.id}
@@ -95,7 +95,7 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
                   {getEstadoActual(reserva.estados)}
                 </Badge>
               </TableCell>
-              <TableCell>{reserva.precio.toFixed(2)}</TableCell>
+              <TableCell>${parseFloat(reserva.precio).toFixed(2)}</TableCell>
               <TableCell>
                 <Link href={`/reservas/${reserva.id}`}>
                   <Button variant="ghost" size={"sm"}>

@@ -187,7 +187,7 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
               <div className="lg:col-span-1">
                 <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
                   <Image
-                    src="/placeholder-event.jpg"
+                    src="https://media.istockphoto.com/id/1195681339/photo/italy-toscana-winary.jpg?s=1024x1024&w=is&k=20&c=tk0XEwcm_uw1B2_l83J8eerFcjWSiEqEVVM2IyGEJ0c="
                     alt={bodega.nombre}
                     width={192}
                     height={192}

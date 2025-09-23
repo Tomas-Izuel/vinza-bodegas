@@ -18,7 +18,7 @@ export const crearBodega = async (data: CrearBodegaDto) => {
     const cookieStore = await cookies();
 
     // Crear la bodega
-    const bodegaData = await fetchApi<CrearBodegaResponse>(`/bodegas`, {
+    const bodegaData = await fetchApiWithAuth<CrearBodegaResponse>(`/bodegas`, {
       method: "POST",
       body: JSON.stringify(data),
       cache: "no-store",
