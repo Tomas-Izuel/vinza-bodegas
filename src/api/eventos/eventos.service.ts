@@ -81,7 +81,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     return;
   } catch (error) {
     console.error("[EVENTOS]:", error);
-    throw new Error("Error al crear el evento");
+    throw error;
   }
 }
 

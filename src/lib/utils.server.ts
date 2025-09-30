@@ -37,7 +37,8 @@ export async function fetchApi<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const error = await response.json();
+    throw new Error(error.message);
   }
 
   return response.json();
