@@ -17,6 +17,26 @@ export const getSucursales = async (): Promise<Sucursal[]> => {
   }
 };
 
+/**
+ * Obtiene las sucursales de la bodega del usuario autenticado
+ */
+export const getSucursalesMiBodega = async (): Promise<Sucursal[]> => {
+  try {
+    const response = await fetchApiWithAuth<Sucursal[]>(
+      "/sucursales/mi-bodega",
+    );
+    console.log(response);
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al obtener sucursales de mi bodega";
+    errorLogger(error, "getSucursalesMiBodega");
+    throw new Error(errorMessage);
+  }
+};
+
 export const getSucursalById = async (id: string): Promise<Sucursal> => {
   try {
     const response = await fetchApiWithAuth<Sucursal>(`/sucursales/${id}`);

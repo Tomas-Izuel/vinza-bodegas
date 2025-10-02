@@ -10,10 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash } from "lucide-react";
+import { Eye, Trash, Play } from "lucide-react";
 import Link from "next/link";
 import moment from "moment";
 import { EstadosEvento } from "@/api/eventos/evento.type";
+import {
+  suspenderInstancia,
+  reactivarInstancia,
+} from "@/api/eventos/eventos.service";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type InstanciaEvento = {
   id: number;
@@ -25,34 +31,105 @@ type InstanciaEvento = {
 interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
   eventoId: number;
+  onInstanciaUpdated?: () => void; // Callback para refrescar datos
 }
 
 export function InstanciasEvento({
   instancias,
   eventoId,
+  onInstanciaUpdated,
 }: InstanciasEventoProps) {
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
+    {},
+  );
+
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
     estadoNombre: string,
   ): "activo" | "finalizado" | "suspendido" | "inactivo" | "default" => {
     const estado = estadoNombre.toLowerCase();
-    switch (estado) {
-      case EstadosEvento.ACTIVO:
-        return "activo";
-      case EstadosEvento.FINALIZADO:
-        return "finalizado";
-      case EstadosEvento.SUSPENDIDO:
-        return "suspendido";
-      case EstadosEvento.INACTIVO:
-        return "inactivo";
-      default:
-        return "default";
+    // console.log("🎨 Obteniendo variante para estado:", estado);
+
+    // Mapear estados del backend a variantes de badge
+    if (estado === "activo" || estado === "activa") {
+      return "activo";
+    } else if (estado === "suspendido" || estado === "suspendida") {
+      return "suspendido";
+    } else if (estado === "finalizado" || estado === "finalizada") {
+      return "finalizado";
+    } else if (estado === "inactivo" || estado === "inactiva") {
+      return "inactivo";
+    } else {
+      console.warn("⚠️ Estado no reconocido:", estado);
+      return "default";
     }
   };
 
-  const handleSuspender = (instanciaId: number) => {
-    // TODO: Implementar lógica de suspensión
-    console.log(`Suspender instancia ${instanciaId}`);
+  const handleSuspender = async (instanciaId: number) => {
+    try {
+      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
+
+      await suspenderInstancia(instanciaId);
+
+      toast.success("Instancia suspendida exitosamente");
+
+      // Refrescar los datos inmediatamente con un pequeño delay
+      if (onInstanciaUpdated) {
+        setTimeout(() => {
+          onInstanciaUpdated();
+        }, 500); // 500ms de delay para asegurar que el backend haya procesado
+      }
+    } catch (error) {
+      console.error("Error al suspender instancia:", error);
+      toast.error("Error al suspender la instancia");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
+    }
+  };
+
+  const handleReactivar = async (instanciaId: number) => {
+    try {
+      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
+
+      await reactivarInstancia(instanciaId);
+
+      toast.success("Instancia reactivada exitosamente");
+
+      // Refrescar los datos inmediatamente con un pequeño delay
+      if (onInstanciaUpdated) {
+        setTimeout(() => {
+          onInstanciaUpdated();
+        }, 500); // 500ms de delay para asegurar que el backend haya procesado
+      }
+    } catch (error) {
+      console.error("Error al reactivar instancia:", error);
+      toast.error("Error al reactivar la instancia");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
+    }
+  };
+
+  // Función para formatear el texto del estado (mayúsculas)
+  const formatEstadoTexto = (estado: string): string => {
+    const estadoLower = estado.toLowerCase();
+    if (estadoLower === "activo" || estadoLower === "activa") {
+      return "ACTIVO";
+    } else if (estadoLower === "suspendido" || estadoLower === "suspendida") {
+      return "SUSPENDIDO";
+    } else if (estadoLower === "finalizado" || estadoLower === "finalizada") {
+      return "FINALIZADO";
+    } else if (estadoLower === "inactivo" || estadoLower === "inactiva") {
+      return "INACTIVO";
+    } else {
+      return estado.toUpperCase();
+    }
+  };
+
+  const isInstanciaSuspendida = (estado: string) => {
+    // console.log("🔍 Verificando estado:", estado, "vs", EstadosEvento.SUSPENDIDO);
+    const estadoLower = estado.toLowerCase();
+    // Manejar tanto "suspendido" como "suspendida"
+    return estadoLower === "suspendido" || estadoLower === "suspendida";
   };
 
   return (
@@ -65,45 +142,73 @@ export function InstanciasEvento({
       <Table>
         <TableHeader className="bg-gray-100">
           <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Reservas</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead> </TableHead>
+            <TableHead className="w-1/5">Fecha</TableHead>
+            <TableHead className="w-1/5">Cantidad de reservas</TableHead>
+            <TableHead className="w-1/5">Estado</TableHead>
+            <TableHead className="w-1/5">Ver reservas</TableHead>
+            <TableHead className="w-1/5">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {instancias.map((instancia) => (
-            <TableRow key={instancia.id}>
-              <TableCell className="font-medium">
-                {moment(instancia.fecha).format("DD/MM/YYYY")}
-              </TableCell>
-              <TableCell>{instancia.reservas}</TableCell>
-              <TableCell>
-                <Badge variant={getEstadoVariant(instancia.estado)}>
-                  {instancia.estado}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Link
-                  href={`/eventos/${eventoId}/instancias/${instancia.id}/reservas`}
-                >
-                  <Button variant="ghost" size={"sm"}>
-                    <Eye className="w-4 h-4" />
-                    Ver reservas
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size={"sm"}
-                  className="text-red-500"
-                  onClick={() => handleSuspender(instancia.id)}
-                >
-                  <Trash className="w-4 h-4" />
-                  Suspender
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {instancias.map((instancia) => {
+            const esSuspendida = isInstanciaSuspendida(instancia.estado);
+            // console.log(`📋 Instancia ${instancia.id}: estado="${instancia.estado}", esSuspendida=${esSuspendida}`);
+            return (
+              <TableRow key={instancia.id}>
+                <TableCell className="font-medium w-1/5">
+                  {moment(instancia.fecha).format("DD/MM/YYYY")}
+                </TableCell>
+                <TableCell className="w-1/5">
+                  {instancia.reservas} Reservas
+                </TableCell>
+                <TableCell className="w-1/5">
+                  <Badge variant={getEstadoVariant(instancia.estado)}>
+                    {formatEstadoTexto(instancia.estado)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="w-1/5">
+                  <Link
+                    href={`/eventos/${eventoId}/instancias/${instancia.id}/reservas`}
+                  >
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-gray-600"
+                    >
+                      Ver reservas
+                    </Button>
+                  </Link>
+                </TableCell>
+                <TableCell className="w-1/5">
+                  {esSuspendida ? (
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-green-600 hover:text-green-700"
+                      onClick={() => handleReactivar(instancia.id)}
+                      disabled={loadingStates[instancia.id]}
+                    >
+                      {loadingStates[instancia.id]
+                        ? "Reactivando..."
+                        : "Reactivar"}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => handleSuspender(instancia.id)}
+                      disabled={loadingStates[instancia.id]}
+                    >
+                      {loadingStates[instancia.id]
+                        ? "Suspendiendo..."
+                        : "Suspender"}
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </section>

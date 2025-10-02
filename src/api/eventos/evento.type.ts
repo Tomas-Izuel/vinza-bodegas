@@ -203,7 +203,7 @@ export type EditarEventoType = z.infer<typeof EditarEventoSchema>;
 export type ActualizarEventoDto = {
   nombre: string;
   descripcion: string;
-  cupo: string;
+  cupo: number; // Cambiado de string a number
   precio: number;
   categoriaId: number;
   sucursalId: number;

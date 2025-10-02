@@ -1,5 +1,5 @@
 import { EventosParams } from "@/api/eventos/evento.type";
-import { getEventos } from "@/api/eventos/eventos.service";
+import { getEventosMiBodega } from "@/api/eventos/eventos.service";
 import { ListaEvento } from "@/components/evento/ListaEvento.tsx";
 import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
@@ -17,7 +17,7 @@ interface EventosPageProps {
 export default async function EventosPage({ searchParams }: EventosPageProps) {
   const params = (await searchParams) as EventosParams;
 
-  const eventos = await getEventos({
+  const eventos = await getEventosMiBodega({
     ...params,
   });
 

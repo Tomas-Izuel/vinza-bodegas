@@ -1,8 +1,8 @@
-import { getEvento } from "@/api/eventos/eventos.service";
+import { getEvento, getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
 import { getSucursales } from "@/api/sucursales/sucursal.service";
 import { EventoDetalle } from "@/components/evento/EventoDetalle";
-import { InstanciasEvento } from "@/components/evento/InstanciasEvento";
+import { InstanciasEventoWrapper } from "../../../../components/evento/InstanciasEventoWrapper";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -67,7 +67,7 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
             categorias={categorias}
             sucursales={sucursales}
           />
-          <InstanciasEvento instancias={[]} eventoId={evento.id} />
+          <InstanciasEventoWrapper eventoId={evento.id} />
         </main>
       </>
     );
