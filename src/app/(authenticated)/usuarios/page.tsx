@@ -1,5 +1,5 @@
 import { CommonSearchParams } from "@/api/common.type";
-import { getUsuarios } from "@/api/usuarios/usuario.service";
+import { getUsuariosMiBodega } from "@/api/usuarios/usuario.service";
 import { obtenerRoles } from "@/api/roles/rol.service";
 import { ListaUsuario } from "@/components/usuario/ListaUsuario";
 import { ListaRoles } from "@/components/usuario/ListaRoles";
@@ -27,7 +27,10 @@ export default async function UsuariosPage({
   const params = (await searchParams) as UsuariosPageParams;
   const activeTab = (params.tab as string) || "usuarios";
 
-  const [usuarios, roles] = await Promise.all([getUsuarios(), obtenerRoles()]);
+  const [usuarios, roles] = await Promise.all([
+    getUsuariosMiBodega(),
+    obtenerRoles(),
+  ]);
 
   return (
     <>
@@ -36,7 +39,7 @@ export default async function UsuariosPage({
         <div className="flex gap-2">
           <Link
             href={Routes.CREAR_USUARIO}
-            className="bg-primary text-white px-4 py-2 rounded"
+            className="bg-primary text-white px-4 py-2 rounded h-10 flex items-center"
           >
             Crear usuario
           </Link>

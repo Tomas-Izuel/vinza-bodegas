@@ -10,16 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Play } from "lucide-react";
 import Link from "next/link";
 import moment from "moment";
-import { EstadosEvento } from "@/api/eventos/evento.type";
-import {
-  suspenderInstancia,
-  reactivarInstancia,
-} from "@/api/eventos/eventos.service";
 import { useState } from "react";
-import { toast } from "sonner";
+import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 
 type InstanciaEvento = {
   id: number;
@@ -31,17 +25,22 @@ type InstanciaEvento = {
 interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
   eventoId: number;
+  eventoNombre: string;
   onInstanciaUpdated?: () => void; // Callback para refrescar datos
 }
 
 export function InstanciasEvento({
   instancias,
   eventoId,
+  eventoNombre,
   onInstanciaUpdated,
 }: InstanciasEventoProps) {
-  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
-    {},
-  );
+  const [modalData, setModalData] = useState<{
+    id: number;
+    eventoNombre: string;
+    fecha: string;
+  } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
@@ -65,48 +64,21 @@ export function InstanciasEvento({
     }
   };
 
-  const handleSuspender = async (instanciaId: number) => {
-    try {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
-
-      await suspenderInstancia(instanciaId);
-
-      toast.success("Instancia suspendida exitosamente");
-
-      // Refrescar los datos inmediatamente con un pequeño delay
-      if (onInstanciaUpdated) {
-        setTimeout(() => {
-          onInstanciaUpdated();
-        }, 500); // 500ms de delay para asegurar que el backend haya procesado
-      }
-    } catch (error) {
-      console.error("Error al suspender instancia:", error);
-      toast.error("Error al suspender la instancia");
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
-    }
+  const handleSuspenderClick = (instancia: InstanciaEvento) => {
+    setModalData({
+      id: instancia.id,
+      eventoNombre,
+      fecha: instancia.fecha,
+    });
+    setIsModalOpen(true);
   };
 
-  const handleReactivar = async (instanciaId: number) => {
-    try {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
-
-      await reactivarInstancia(instanciaId);
-
-      toast.success("Instancia reactivada exitosamente");
-
-      // Refrescar los datos inmediatamente con un pequeño delay
-      if (onInstanciaUpdated) {
-        setTimeout(() => {
-          onInstanciaUpdated();
-        }, 500); // 500ms de delay para asegurar que el backend haya procesado
-      }
-    } catch (error) {
-      console.error("Error al reactivar instancia:", error);
-      toast.error("Error al reactivar la instancia");
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
+  const handleModalConfirm = () => {
+    if (onInstanciaUpdated) {
+      onInstanciaUpdated();
     }
+    setIsModalOpen(false);
+    setModalData(null);
   };
 
   // Función para formatear el texto del estado (mayúsculas)
@@ -181,28 +153,18 @@ export function InstanciasEvento({
                 </TableCell>
                 <TableCell className="w-1/5">
                   {esSuspendida ? (
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      className="text-green-600 hover:text-green-700"
-                      onClick={() => handleReactivar(instancia.id)}
-                      disabled={loadingStates[instancia.id]}
-                    >
-                      {loadingStates[instancia.id]
-                        ? "Reactivando..."
-                        : "Reactivar"}
-                    </Button>
+                    // Espacio vacío cuando está suspendido - no se puede reactivar
+                    <div className="text-gray-400 text-sm italic">
+                      Acción no disponible
+                    </div>
                   ) : (
                     <Button
                       variant="ghost"
                       size={"sm"}
                       className="text-red-500 hover:text-red-600"
-                      onClick={() => handleSuspender(instancia.id)}
-                      disabled={loadingStates[instancia.id]}
+                      onClick={() => handleSuspenderClick(instancia)}
                     >
-                      {loadingStates[instancia.id]
-                        ? "Suspendiendo..."
-                        : "Suspender"}
+                      Suspender
                     </Button>
                   )}
                 </TableCell>
@@ -211,6 +173,13 @@ export function InstanciasEvento({
           })}
         </TableBody>
       </Table>
+
+      <SuspenderInstanciaModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        instanciaData={modalData}
+        onInstanciaSuspendida={handleModalConfirm}
+      />
     </section>
   );
 }

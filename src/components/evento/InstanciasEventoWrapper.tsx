@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getInstanciasEvento } from "@/api/eventos/eventos.service";
+import { getInstanciasEvento, getEvento } from "@/api/eventos/eventos.service";
 import { InstanciasEvento } from "./InstanciasEvento";
 
 interface InstanciasEventoWrapperProps {
@@ -19,23 +19,28 @@ export function InstanciasEventoWrapper({
       estado: string;
     }>
   >([]);
+  const [eventoNombre, setEventoNombre] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchInstancias = async (showLoading = true) => {
+  const fetchData = async (showLoading = true) => {
     try {
       if (showLoading) {
         setLoading(true);
       }
       setError(null);
-      const data = await getInstanciasEvento(eventoId.toString());
-      // console.log("📊 Datos de instancias recibidos:", data);
-      setInstancias(data);
+
+      // Obtener instancias y datos del evento en paralelo
+      const [instanciasData, eventoData] = await Promise.all([
+        getInstanciasEvento(eventoId.toString()),
+        getEvento(eventoId.toString()),
+      ]);
+
+      setInstancias(instanciasData);
+      setEventoNombre(eventoData.nombre);
     } catch (err) {
-      console.error("Error al cargar instancias:", err);
-      setError(
-        err instanceof Error ? err.message : "Error al cargar instancias",
-      );
+      console.error("Error al cargar datos:", err);
+      setError(err instanceof Error ? err.message : "Error al cargar datos");
     } finally {
       if (showLoading) {
         setLoading(false);
@@ -44,13 +49,21 @@ export function InstanciasEventoWrapper({
   };
 
   useEffect(() => {
-    fetchInstancias(true); // Mostrar loading en carga inicial
+    fetchData(true); // Mostrar loading en carga inicial
   }, [eventoId]);
 
   const handleInstanciaUpdated = () => {
     // Refrescar las instancias cuando se actualiza una (sin mostrar loading)
-    // console.log("🔄 Refrescando instancias después de actualización...");
-    fetchInstancias(false);
+    // Solo refrescar las instancias, no los datos completos del evento
+    const fetchInstanciasOnly = async () => {
+      try {
+        const instanciasData = await getInstanciasEvento(eventoId.toString());
+        setInstancias(instanciasData);
+      } catch (err) {
+        console.error("Error al cargar instancias:", err);
+      }
+    };
+    fetchInstanciasOnly();
   };
 
   if (loading) {
@@ -79,7 +92,7 @@ export function InstanciasEventoWrapper({
         <div className="p-8 text-center">
           <div className="text-red-500 mb-4">Error: {error}</div>
           <button
-            onClick={() => fetchInstancias(true)}
+            onClick={() => fetchData(true)}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Reintentar
@@ -93,6 +106,7 @@ export function InstanciasEventoWrapper({
     <InstanciasEvento
       instancias={instancias}
       eventoId={eventoId}
+      eventoNombre={eventoNombre}
       onInstanciaUpdated={handleInstanciaUpdated}
     />
   );
