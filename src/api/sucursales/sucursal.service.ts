@@ -2,7 +2,11 @@
 
 import { fetchApiWithAuth } from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
-import { Sucursal, EditarSucursalType } from "./sucursal.type";
+import {
+  Sucursal,
+  EditarSucursalType,
+  CrearSucursalDto,
+} from "./sucursal.type";
 
 export const getSucursales = async (): Promise<Sucursal[]> => {
   try {
@@ -50,7 +54,7 @@ export const getSucursalById = async (id: string): Promise<Sucursal> => {
 };
 
 export const crearSucursal = async (
-  data: Omit<Sucursal, "id" | "created_at">,
+  data: CrearSucursalDto,
 ): Promise<Sucursal> => {
   try {
     const response = await fetchApiWithAuth<Sucursal>("/sucursales", {

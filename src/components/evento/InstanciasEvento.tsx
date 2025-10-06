@@ -10,16 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Play } from "lucide-react";
 import Link from "next/link";
 import moment from "moment";
-import { EstadosEvento } from "@/api/eventos/evento.type";
 import {
   suspenderInstancia,
   reactivarInstancia,
 } from "@/api/eventos/eventos.service";
-import { useState } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type InstanciaEvento = {
   id: number;
@@ -31,17 +30,14 @@ type InstanciaEvento = {
 interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
   eventoId: number;
-  onInstanciaUpdated?: () => void; // Callback para refrescar datos
 }
 
 export function InstanciasEvento({
   instancias,
   eventoId,
-  onInstanciaUpdated,
 }: InstanciasEventoProps) {
-  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
-    {},
-  );
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
@@ -65,48 +61,30 @@ export function InstanciasEvento({
     }
   };
 
-  const handleSuspender = async (instanciaId: number) => {
-    try {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
+  const handleSuspender = (instanciaId: number) => {
+    startTransition(async () => {
+      const result = await suspenderInstancia(instanciaId);
 
-      await suspenderInstancia(instanciaId);
-
-      toast.success("Instancia suspendida exitosamente");
-
-      // Refrescar los datos inmediatamente con un pequeño delay
-      if (onInstanciaUpdated) {
-        setTimeout(() => {
-          onInstanciaUpdated();
-        }, 500); // 500ms de delay para asegurar que el backend haya procesado
+      if (result.message) {
+        toast.success(result.message);
+        router.refresh(); // Refrescar la página para obtener datos actualizados
+      } else {
+        toast.error(result.message);
       }
-    } catch (error) {
-      console.error("Error al suspender instancia:", error);
-      toast.error("Error al suspender la instancia");
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
-    }
+    });
   };
 
-  const handleReactivar = async (instanciaId: number) => {
-    try {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: true }));
+  const handleReactivar = (instanciaId: number) => {
+    startTransition(async () => {
+      const result = await reactivarInstancia(instanciaId);
 
-      await reactivarInstancia(instanciaId);
-
-      toast.success("Instancia reactivada exitosamente");
-
-      // Refrescar los datos inmediatamente con un pequeño delay
-      if (onInstanciaUpdated) {
-        setTimeout(() => {
-          onInstanciaUpdated();
-        }, 500); // 500ms de delay para asegurar que el backend haya procesado
+      if (result.message) {
+        toast.success(result.message);
+        router.refresh(); // Refrescar la página para obtener datos actualizados
+      } else {
+        toast.error(result.message);
       }
-    } catch (error) {
-      console.error("Error al reactivar instancia:", error);
-      toast.error("Error al reactivar la instancia");
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, [instanciaId]: false }));
-    }
+    });
   };
 
   // Función para formatear el texto del estado (mayúsculas)
@@ -186,11 +164,9 @@ export function InstanciasEvento({
                       size={"sm"}
                       className="text-green-600 hover:text-green-700"
                       onClick={() => handleReactivar(instancia.id)}
-                      disabled={loadingStates[instancia.id]}
+                      disabled={isPending}
                     >
-                      {loadingStates[instancia.id]
-                        ? "Reactivando..."
-                        : "Reactivar"}
+                      {isPending ? "Reactivando..." : "Reactivar"}
                     </Button>
                   ) : (
                     <Button
@@ -198,11 +174,9 @@ export function InstanciasEvento({
                       size={"sm"}
                       className="text-red-500 hover:text-red-600"
                       onClick={() => handleSuspender(instancia.id)}
-                      disabled={loadingStates[instancia.id]}
+                      disabled={isPending}
                     >
-                      {loadingStates[instancia.id]
-                        ? "Suspendiendo..."
-                        : "Suspender"}
+                      {isPending ? "Suspendiendo..." : "Suspender"}
                     </Button>
                   )}
                 </TableCell>

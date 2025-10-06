@@ -2,7 +2,7 @@ import { getEvento, getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
 import { getSucursales } from "@/api/sucursales/sucursal.service";
 import { EventoDetalle } from "@/components/evento/EventoDetalle";
-import { InstanciasEventoWrapper } from "../../../../components/evento/InstanciasEventoWrapper";
+import { InstanciasEvento } from "@/components/evento/InstanciasEvento";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,10 +26,11 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
 
   try {
     // Obtener todos los datos necesarios en paralelo
-    const [evento, categorias, sucursales] = await Promise.all([
+    const [evento, categorias, sucursales, instancias] = await Promise.all([
       getEvento(id),
       getCategorias(),
       getSucursales(),
+      getInstanciasEvento(id),
     ]);
 
     // Si el evento no existe, mostrar página not-found
@@ -67,7 +68,7 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
             categorias={categorias}
             sucursales={sucursales}
           />
-          <InstanciasEventoWrapper eventoId={evento.id} />
+          <InstanciasEvento instancias={instancias} eventoId={evento.id} />
         </main>
       </>
     );
