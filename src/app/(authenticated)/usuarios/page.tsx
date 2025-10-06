@@ -7,6 +7,8 @@ import { CrearRolButton } from "@/components/usuario/CrearRolButton";
 import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
 import Link from "next/link";
+import { UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Vinza - Usuarios y permisos",
@@ -34,11 +36,11 @@ export default async function UsuariosPage({
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Usuarios y permisos</h1>
         <div className="flex gap-2">
-          <Link
-            href={Routes.CREAR_USUARIO}
-            className="bg-primary text-white px-4 py-2 rounded"
-          >
-            Crear usuario
+          <Link href={Routes.CREAR_USUARIO}>
+            <Button className="bg-primary text-white px-4 py-2 h-10 rounded">
+              <UserPlus className="w-4 h-4" />
+              Crear usuario
+            </Button>
           </Link>
           <CrearRolButton />
         </div>

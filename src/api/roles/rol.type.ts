@@ -66,3 +66,24 @@ export const CrearRolSchema = z.object({
 });
 
 export type CrearRolDto = z.infer<typeof CrearRolSchema>;
+
+export type EditarRolRequest = {
+  name: string;
+  permissions: number[];
+};
+
+export type EditarRolResponse = CrearRolResponse;
+
+export const EditarRolSchema = z.object({
+  name: z
+    .string()
+    .min(1, "El nombre es requerido")
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(50, "El nombre no puede tener más de 50 caracteres"),
+  permissions: z
+    .array(z.number())
+    .min(1, "Debe seleccionar al menos un permiso")
+    .max(20, "No puede seleccionar más de 20 permisos"),
+});
+
+export type EditarRolDto = z.infer<typeof EditarRolSchema>;

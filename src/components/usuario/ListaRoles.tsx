@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -12,13 +14,19 @@ import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Rol } from "@/api/roles/rol.type";
 import { Badge } from "../ui/badge";
-import { Building2, Globe } from "lucide-react";
+import { Building2, Globe, Edit } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EditarRolModal } from "./EditarRolModal";
+import { EliminarRolButton } from "./EliminarRolButton";
 
 interface ListaRolesProps {
   roles: Rol[];
 }
 
 export function ListaRoles({ roles }: ListaRolesProps) {
+  const router = useRouter();
+  const [editingRol, setEditingRol] = useState<Rol | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const getTipoRolVariant = (bodegaId: number | null) => {
     return bodegaId ? "finalizado" : "activo";
   };
@@ -35,6 +43,19 @@ export function ListaRoles({ roles }: ListaRolesProps) {
     );
   };
 
+  const handleEdit = (rol: Rol) => {
+    setEditingRol(rol);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
+
+  const handleDeleteSuccess = () => {
+    router.refresh();
+  };
+
   return (
     <section className="bg-white border">
       <CommonTableHeader />
@@ -45,6 +66,7 @@ export function ListaRoles({ roles }: ListaRolesProps) {
             <TableHead>Tipo</TableHead>
             <TableHead>Permisos</TableHead>
             <TableHead>Última modificación</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,10 +96,36 @@ export function ListaRoles({ roles }: ListaRolesProps) {
               <TableCell>
                 {moment(rol.updated_at).format("DD/MM/YYYY")}
               </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(rol)}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar
+                  </Button>
+                  <EliminarRolButton
+                    rol={rol}
+                    onSuccess={handleDeleteSuccess}
+                  />
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <EditarRolModal
+        rol={editingRol}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingRol(null);
+        }}
+        onSuccess={handleEditSuccess}
+      />
     </section>
   );
 }

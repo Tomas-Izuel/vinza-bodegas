@@ -3,21 +3,32 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
 import { User, LogOut } from "lucide-react";
+import { getAuthCookie } from "@/lib/utils.server";
 
-export default function TopNav() {
+export default async function TopNav() {
+  const authCookie = await getAuthCookie();
+
   return (
     <nav className="bg-primary text-white px-6 py-2 flex items-center justify-between h-16">
       <div className="flex items-center">
         <h1 className="text-lg font-bold tracking-wider font-inria-serif">
-          VINZA
+          VINZA {authCookie.bodega ? " - " + authCookie.bodega.nombre : ""}
         </h1>
       </div>
 
       <Popover>
         <PopoverTrigger asChild>
-          <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <div className="flex flex-col items-end">
+              <p className="text-sm font-bold">{authCookie.email}</p>
+              <p className="text-xs text-gray-300">
+                {authCookie.roles[0].nombre}
+              </p>
+            </div>
+            <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </div>
         </PopoverTrigger>
         <PopoverContent className="w-48 p-0" align="end">
           <div className="py-1">
