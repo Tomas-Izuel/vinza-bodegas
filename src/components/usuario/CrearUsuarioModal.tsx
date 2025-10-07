@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -65,18 +65,7 @@ export function CrearUsuarioModal({
 
   const { isSubmitting } = form.formState;
 
-  // Cargar roles cuando se abre el modal
-  useEffect(() => {
-    if (isOpen) {
-      cargarRoles();
-      // Sincronizar el estado inicial cuando se abre el modal
-      form.clearErrors();
-      form.setValue("roles", []);
-      setRolesSeleccionados([]);
-    }
-  }, [isOpen]); // Removemos 'form' de las dependencias para evitar loops
-
-  const cargarRoles = async () => {
+  const cargarRoles = useCallback(async () => {
     try {
       setCargandoRoles(true);
       const rolesData = await obtenerRolesMiBodega();
@@ -88,7 +77,18 @@ export function CrearUsuarioModal({
     } finally {
       setCargandoRoles(false);
     }
-  };
+  }, []);
+
+  // Cargar roles cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      cargarRoles();
+      // Sincronizar el estado inicial cuando se abre el modal
+      form.clearErrors();
+      form.setValue("roles", []);
+      setRolesSeleccionados([]);
+    }
+  }, [isOpen, cargarRoles]); // Usamos cargarRoles memoizada
 
   const onSubmit = async (data: CrearUsuarioDto) => {
     try {
@@ -149,13 +149,13 @@ export function CrearUsuarioModal({
         ? prev.filter((id) => id !== rolId)
         : [...prev, rolId];
 
-      // Actualizar el campo del formulario
-      form.setValue("roles", newRoles);
-
-      // Limpiar error si se selecciona al menos un rol
-      if (newRoles.length > 0) {
-        form.clearErrors("roles");
-      }
+      // Usar setTimeout para evitar actualizaciones durante renderizado
+      setTimeout(() => {
+        form.setValue("roles", newRoles);
+        if (newRoles.length > 0) {
+          form.clearErrors("roles");
+        }
+      }, 0);
 
       return newRoles;
     });
