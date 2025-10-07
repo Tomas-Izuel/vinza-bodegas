@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -12,13 +14,19 @@ import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Usuario } from "@/api/usuarios/usuario.type";
 import { Badge } from "../ui/badge";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Edit } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EditarUsuarioModal } from "./EditarUsuarioModal";
+import { EliminarUsuarioButton } from "./EliminarUsuarioButton";
 
 interface ListaUsuarioProps {
   usuarios: Usuario[];
 }
 
 export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
+  const router = useRouter();
+  const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const getRolVariant = (rol: number) => {
     switch (rol) {
       case 1:
@@ -28,6 +36,19 @@ export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
       default:
         return "inactivo";
     }
+  };
+
+  const handleEdit = (usuario: Usuario) => {
+    setEditingUsuario(usuario);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
+
+  const handleDeleteSuccess = () => {
+    router.refresh();
   };
   return (
     <section className="bg-white border">
@@ -40,7 +61,7 @@ export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
             <TableHead>Email</TableHead>
             <TableHead>Última modificación</TableHead>
             <TableHead>Validado</TableHead>
-            <TableHead> </TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -73,10 +94,36 @@ export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
                   </Badge>
                 )}
               </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(usuario)}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar
+                  </Button>
+                  <EliminarUsuarioButton
+                    usuario={usuario}
+                    onSuccess={handleDeleteSuccess}
+                  />
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <EditarUsuarioModal
+        usuario={editingUsuario}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingUsuario(null);
+        }}
+        onSuccess={handleEditSuccess}
+      />
     </section>
   );
 }

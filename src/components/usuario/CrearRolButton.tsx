@@ -16,9 +16,9 @@ export function CrearRolButton({ onRolCreado }: CrearRolButtonProps) {
     <>
       <Button
         onClick={() => setIsModalOpen(true)}
-        className="bg-primary text-white px-4 py-2 rounded h-10"
+        className="bg-primary text-white px-4 py-2 h-10 rounded"
       >
-        <UserPlus className="w-4 h-4 mr-2" />
+        <UserPlus className="w-4 h-4" />
         Crear rol
       </Button>
 

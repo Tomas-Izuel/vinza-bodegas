@@ -58,7 +58,9 @@ const BodegaInformacionPage = async ({
           <section className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Sucursales</h2>
-              <Button>Crear sucursal</Button>
+              <Link href={Routes.CREAR_SUCURSAL}>
+                <Button>Crear sucursal</Button>
+              </Link>
             </div>
             <div className="bg-white border">
               <ListaSucursales sucursales={bodega.sucursales} />

@@ -14,6 +14,13 @@ import Link from "next/link";
 import moment from "moment";
 import { useState } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
+import {
+  suspenderInstancia,
+  reactivarInstancia,
+} from "@/api/eventos/eventos.service";
+import { useTransition } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type InstanciaEvento = {
   id: number;
@@ -41,6 +48,8 @@ export function InstanciasEvento({
     fecha: string;
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
@@ -79,6 +88,19 @@ export function InstanciasEvento({
     }
     setIsModalOpen(false);
     setModalData(null);
+  };
+
+  const handleReactivar = (instanciaId: number) => {
+    startTransition(async () => {
+      const result = await reactivarInstancia(instanciaId);
+
+      if (result.message) {
+        toast.success(result.message);
+        router.refresh(); // Refrescar la página para obtener datos actualizados
+      } else {
+        toast.error(result.message);
+      }
+    });
   };
 
   // Función para formatear el texto del estado (mayúsculas)
@@ -153,10 +175,15 @@ export function InstanciasEvento({
                 </TableCell>
                 <TableCell className="w-1/5">
                   {esSuspendida ? (
-                    // Espacio vacío cuando está suspendido - no se puede reactivar
-                    <div className="text-gray-400 text-sm italic">
-                      Acción no disponible
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-green-600 hover:text-green-700"
+                      onClick={() => handleReactivar(instancia.id)}
+                      disabled={isPending}
+                    >
+                      {isPending ? "Reactivando..." : "Reactivar"}
+                    </Button>
                   ) : (
                     <Button
                       variant="ghost"

@@ -71,3 +71,41 @@ export const CrearUsuarioSchema = z.object({
 });
 
 export type CrearUsuarioDto = z.infer<typeof CrearUsuarioSchema>;
+
+export type EditarUsuarioRequest = {
+  nombre: string;
+  apellido: string;
+  email: string;
+  contrasena?: string;
+  roles: number[];
+};
+
+export type EditarUsuarioResponse = Usuario;
+
+export const EditarUsuarioSchema = z.object({
+  nombre: z
+    .string()
+    .min(1, "El nombre es requerido")
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(50, "El nombre no puede tener más de 50 caracteres"),
+  apellido: z
+    .string()
+    .min(1, "El apellido es requerido")
+    .min(2, "El apellido debe tener al menos 2 caracteres")
+    .max(50, "El apellido no puede tener más de 50 caracteres"),
+  email: z
+    .string()
+    .min(1, "El email es requerido")
+    .email("El formato del email no es válido"),
+  contrasena: z
+    .string()
+    .min(6, "La contraseña debe tener al menos 6 caracteres")
+    .max(100, "La contraseña no puede tener más de 100 caracteres")
+    .optional(),
+  roles: z
+    .array(z.number())
+    .min(1, "Debe seleccionar al menos un rol")
+    .max(10, "No puede seleccionar más de 10 roles"),
+});
+
+export type EditarUsuarioDto = z.infer<typeof EditarUsuarioSchema>;

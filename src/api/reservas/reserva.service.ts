@@ -1,10 +1,11 @@
 "use server";
-import { fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
+import {
+  fetchApiWithAuth,
+  buildApiUrl,
+  getAuthCookie,
+} from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
 import { ReservasParams, ReservasResponse, Reserva } from "./reserva.type";
-import { AUTH_COOKIE_NAME } from "@/lib/constants";
-import { AuthCookie } from "../auth/auth.type";
-import { cookies } from "next/headers";
 
 /**
  * Obtiene la lista de reservas con filtros y paginación
@@ -13,10 +14,7 @@ export const getReservas = async (
   params?: ReservasParams,
 ): Promise<ReservasResponse> => {
   try {
-    const cookieStore = await cookies();
-    const authCookieValue = JSON.parse(
-      cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
-    ) as AuthCookie;
+    const authCookieValue = await getAuthCookie();
     const bodegaId = authCookieValue.bodegaId;
 
     // Configuración de mapeo específica para reservas

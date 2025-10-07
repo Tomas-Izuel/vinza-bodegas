@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -14,9 +15,9 @@ import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Rol } from "@/api/roles/rol.type";
 import { Badge } from "../ui/badge";
-import { Building2, Globe, Pencil, Trash2 } from "lucide-react";
-import { ModalEditarRol } from "./ModalEditarRol";
-import { ModalEliminarRol } from "./ModalEliminarRol";
+import { Building2, Globe, Edit } from "lucide-react";
+import { EditarRolModal } from "./EditarRolModal";
+import { EliminarRolButton } from "./EliminarRolButton";
 
 interface ListaRolesProps {
   roles: Rol[];
@@ -24,10 +25,9 @@ interface ListaRolesProps {
 }
 
 export function ListaRoles({ roles, onRolActualizado }: ListaRolesProps) {
-  const [rolEditando, setRolEditando] = useState<Rol | null>(null);
-  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
-  const [rolEliminando, setRolEliminando] = useState<Rol | null>(null);
-  const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+  const router = useRouter();
+  const [editingRol, setEditingRol] = useState<Rol | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const getTipoRolVariant = (bodegaId: number | null) => {
     return bodegaId ? "finalizado" : "activo";
   };
@@ -44,22 +44,27 @@ export function ListaRoles({ roles, onRolActualizado }: ListaRolesProps) {
     );
   };
 
-  const handleEditarRol = (rol: Rol) => {
-    setRolEditando(rol);
-    setModalEditarAbierto(true);
+  const handleEdit = (rol: Rol) => {
+    setEditingRol(rol);
+    setIsEditModalOpen(true);
   };
 
-  const handleEliminarRol = (rol: Rol) => {
-    setRolEliminando(rol);
-    setModalEliminarAbierto(true);
+  const handleEditSuccess = () => {
+    setIsEditModalOpen(false);
+    setEditingRol(null);
+    if (onRolActualizado) {
+      onRolActualizado();
+    } else {
+      router.refresh();
+    }
   };
 
-  const handleRolActualizado = () => {
-    setModalEditarAbierto(false);
-    setModalEliminarAbierto(false);
-    setRolEditando(null);
-    setRolEliminando(null);
-    onRolActualizado?.();
+  const handleDeleteSuccess = () => {
+    if (onRolActualizado) {
+      onRolActualizado();
+    } else {
+      router.refresh();
+    }
   };
 
   return (
@@ -103,25 +108,19 @@ export function ListaRoles({ roles, onRolActualizado }: ListaRolesProps) {
                 {moment(rol.updated_at).format("DD/MM/YYYY")}
               </TableCell>
               <TableCell>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleEditarRol(rol)}
-                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    onClick={() => handleEdit(rol)}
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Edit className="w-4 h-4" />
                     Editar
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEliminarRol(rol)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Borrar
-                  </Button>
+                  <EliminarRolButton
+                    rol={rol}
+                    onSuccess={handleDeleteSuccess}
+                  />
                 </div>
               </TableCell>
             </TableRow>
@@ -129,19 +128,14 @@ export function ListaRoles({ roles, onRolActualizado }: ListaRolesProps) {
         </TableBody>
       </Table>
 
-      {/* Modales */}
-      <ModalEditarRol
-        isOpen={modalEditarAbierto}
-        onOpenChange={setModalEditarAbierto}
-        rol={rolEditando}
-        onRolEditado={handleRolActualizado}
-      />
-
-      <ModalEliminarRol
-        isOpen={modalEliminarAbierto}
-        onOpenChange={setModalEliminarAbierto}
-        rol={rolEliminando}
-        onRolEliminado={handleRolActualizado}
+      <EditarRolModal
+        rol={editingRol}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingRol(null);
+        }}
+        onSuccess={handleEditSuccess}
       />
     </section>
   );

@@ -2,7 +2,7 @@ import { API_URL, AUTH_COOKIE_NAME } from "./constants";
 import { cookies } from "next/headers";
 import z from "zod";
 import { errorLogger } from "./utils";
-import { AuthCookieSchema } from "@/api/auth/auth.type";
+import { AuthCookie, AuthCookieSchema } from "@/api/auth/auth.type";
 
 export const validateAuthCookie = async (): Promise<z.infer<
   typeof AuthCookieSchema
@@ -115,4 +115,13 @@ export const buildApiUrl = <T extends Record<string, unknown>>(
   const queryString = searchParams.toString();
 
   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+};
+
+export const getAuthCookie = async () => {
+  const cookieStore = await cookies();
+  const authCookieValue = JSON.parse(
+    cookieStore.get(AUTH_COOKIE_NAME)?.value || "{}",
+  ) as AuthCookie;
+
+  return authCookieValue;
 };

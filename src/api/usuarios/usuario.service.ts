@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { errorLogger } from "@/lib/utils";
 import { fetchApiWithAuth } from "@/lib/utils.server";
 import {
@@ -7,6 +8,8 @@ import {
   CrearUsuarioRequest,
   CrearUsuarioResponse,
   CrearUsuarioDto,
+  EditarUsuarioRequest,
+  EditarUsuarioResponse,
 } from "./usuario.type";
 
 export const getUsuarios = async () => {
@@ -54,6 +57,8 @@ export const crearUsuario = async (
       },
       body: JSON.stringify(data),
     });
+
+    revalidatePath("/usuarios");
     console.log("Respuesta exitosa:", response);
     return response;
   } catch (error) {
@@ -66,5 +71,42 @@ export const crearUsuario = async (
     } else {
       throw new Error("Error desconocido al crear usuario");
     }
+  }
+};
+
+export const editarUsuario = async (
+  id: number,
+  data: EditarUsuarioRequest,
+): Promise<EditarUsuarioResponse> => {
+  try {
+    const response = await fetchApiWithAuth<EditarUsuarioResponse>(
+      `/users/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      },
+    );
+
+    revalidatePath("/usuarios");
+    return response;
+  } catch (error) {
+    console.error("[USUARIOS]: Error al editar usuario:", error);
+    throw error;
+  }
+};
+
+export const eliminarUsuario = async (id: number): Promise<void> => {
+  try {
+    await fetchApiWithAuth(`/users/${id}`, {
+      method: "DELETE",
+    });
+
+    revalidatePath("/usuarios");
+  } catch (error) {
+    console.error("[USUARIOS]: Error al eliminar usuario:", error);
+    throw error;
   }
 };
