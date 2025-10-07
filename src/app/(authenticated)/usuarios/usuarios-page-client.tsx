@@ -1,25 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CommonSearchParams } from "@/api/common.type";
+import { useState } from "react";
 import { getUsuariosMiBodega } from "@/api/usuarios/usuario.service";
 import { obtenerRolesMiBodega } from "@/api/roles/rol.service";
 import { ListaUsuario } from "@/components/usuario/ListaUsuario";
 import { ListaRoles } from "@/components/usuario/ListaRoles";
 import { CrearRolButton } from "@/components/usuario/CrearRolButton";
-import { Routes } from "@/lib/routes";
+import { CrearUsuarioButton } from "@/components/usuario/CrearUsuarioButton";
 import { Rol } from "@/api/roles/rol.type";
 import { Usuario } from "@/api/usuarios/usuario.type";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
-export function UsuariosPageClient() {
+interface UsuariosPageClientProps {
+  usuariosIniciales: Usuario[];
+  rolesIniciales: Rol[];
+}
+
+export function UsuariosPageClient({
+  usuariosIniciales,
+  rolesIniciales,
+}: UsuariosPageClientProps) {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "usuarios";
 
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [roles, setRoles] = useState<Rol[]>([]);
-  const [cargando, setCargando] = useState(true);
+  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosIniciales);
+  const [roles, setRoles] = useState<Rol[]>(rolesIniciales);
+  const [cargando, setCargando] = useState(false);
 
   const cargarDatos = async () => {
     setCargando(true);
@@ -37,11 +44,11 @@ export function UsuariosPageClient() {
     }
   };
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
-
   const handleRolActualizado = () => {
+    cargarDatos();
+  };
+
+  const handleUsuarioCreado = () => {
     cargarDatos();
   };
 
@@ -58,12 +65,7 @@ export function UsuariosPageClient() {
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Usuarios y permisos</h1>
         <div className="flex gap-2">
-          <Link
-            href={Routes.CREAR_USUARIO}
-            className="bg-primary text-white px-4 py-2 rounded h-10 flex items-center"
-          >
-            Crear usuario
-          </Link>
+          <CrearUsuarioButton onUsuarioCreado={handleUsuarioCreado} />
           <CrearRolButton onRolCreado={handleRolActualizado} />
         </div>
       </header>

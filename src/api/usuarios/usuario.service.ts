@@ -2,7 +2,12 @@
 
 import { errorLogger } from "@/lib/utils";
 import { fetchApiWithAuth } from "@/lib/utils.server";
-import { UsuariosResponse } from "./usuario.type";
+import {
+  UsuariosResponse,
+  CrearUsuarioRequest,
+  CrearUsuarioResponse,
+  CrearUsuarioDto,
+} from "./usuario.type";
 
 export const getUsuarios = async () => {
   try {
@@ -31,5 +36,35 @@ export const getUsuariosMiBodega = async (): Promise<UsuariosResponse> => {
         : "Error al obtener usuarios de mi bodega";
     errorLogger(error, "getUsuariosMiBodega");
     throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Crea un nuevo usuario en la bodega del administrador autenticado
+ */
+export const crearUsuario = async (
+  data: CrearUsuarioDto,
+): Promise<CrearUsuarioResponse> => {
+  try {
+    console.log("Datos a enviar:", data);
+    const response = await fetchApiWithAuth<CrearUsuarioResponse>("/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    console.log("Respuesta exitosa:", response);
+    return response;
+  } catch (error) {
+    console.error("Error detallado:", error);
+    errorLogger(error, "crearUsuario");
+
+    // Mejorar el manejo de errores para obtener más información
+    if (error instanceof Error) {
+      throw new Error(`Error al crear usuario: ${error.message}`);
+    } else {
+      throw new Error("Error desconocido al crear usuario");
+    }
   }
 };

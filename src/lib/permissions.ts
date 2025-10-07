@@ -29,7 +29,6 @@ export const routePermissionMap: Record<string, Permission[]> = {
 
   // Usuarios
   [Routes.USUARIOS]: ["users_read"],
-  [Routes.CREAR_USUARIO]: ["users_manage"],
 
   // Bodegas
   [Routes.BODEGA]: ["bodegas_read"],

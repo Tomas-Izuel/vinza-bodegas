@@ -71,21 +71,21 @@ export function SuspenderInstanciaModal({
         </DialogHeader>
 
         <DialogDescription className="space-y-4 py-4">
-          <div>
+          <span className="block">
             Estás a punto de suspender el evento{" "}
             <strong>{instanciaData.eventoNombre}</strong> el día{" "}
             <strong>{formatDate(instanciaData.fecha)}</strong>.
-          </div>
+          </span>
 
-          <div>
+          <span className="block">
             Esta acción <strong>no</strong> se puede revertir.
-          </div>
+          </span>
 
-          <div>
+          <span className="block">
             Se enviará una notificación a los usuarios que hayan reservado.
-          </div>
+          </span>
 
-          <div>¿Estás seguro que deseas continuar?</div>
+          <span className="block">¿Estás seguro que deseas continuar?</span>
         </DialogDescription>
 
         <DialogFooter className="gap-3 sm:gap-4">
