@@ -72,8 +72,9 @@ export function CrearUsuarioModal({
       // Sincronizar el estado inicial cuando se abre el modal
       form.clearErrors();
       form.setValue("roles", []);
+      setRolesSeleccionados([]);
     }
-  }, [isOpen, form]);
+  }, [isOpen]); // Removemos 'form' de las dependencias para evitar loops
 
   const cargarRoles = async () => {
     try {
