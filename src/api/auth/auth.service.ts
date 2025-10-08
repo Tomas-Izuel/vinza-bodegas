@@ -41,8 +41,6 @@ export const login = async (data: LoginDto) => {
       path: "/",
     });
 
-    console.log(authData);
-
     return authData;
   } catch (error) {
     const errorMessage =

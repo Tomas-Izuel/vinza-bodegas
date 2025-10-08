@@ -56,7 +56,6 @@ export function InstanciasEvento({
     estadoNombre: string,
   ): "activo" | "finalizado" | "suspendido" | "inactivo" | "default" => {
     const estado = estadoNombre.toLowerCase();
-    // console.log("🎨 Obteniendo variante para estado:", estado);
 
     // Mapear estados del backend a variantes de badge
     if (estado === "activo" || estado === "activa") {
@@ -120,7 +119,6 @@ export function InstanciasEvento({
   };
 
   const isInstanciaSuspendida = (estado: string) => {
-    // console.log("🔍 Verificando estado:", estado, "vs", EstadosEvento.SUSPENDIDO);
     const estadoLower = estado.toLowerCase();
     // Manejar tanto "suspendido" como "suspendida"
     return estadoLower === "suspendido" || estadoLower === "suspendida";
@@ -146,7 +144,6 @@ export function InstanciasEvento({
         <TableBody>
           {instancias.map((instancia) => {
             const esSuspendida = isInstanciaSuspendida(instancia.estado);
-            // console.log(`📋 Instancia ${instancia.id}: estado="${instancia.estado}", esSuspendida=${esSuspendida}`);
             return (
               <TableRow key={instancia.id}>
                 <TableCell className="font-medium w-1/5">

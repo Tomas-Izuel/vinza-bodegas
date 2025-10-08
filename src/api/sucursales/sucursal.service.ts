@@ -11,7 +11,6 @@ import {
 export const getSucursales = async (): Promise<Sucursal[]> => {
   try {
     const response = await fetchApiWithAuth<Sucursal[]>("/sucursales");
-    console.log(response);
     return response;
   } catch (error) {
     const errorMessage =
@@ -29,7 +28,6 @@ export const getSucursalesMiBodega = async (): Promise<Sucursal[]> => {
     const response = await fetchApiWithAuth<Sucursal[]>(
       "/sucursales/mi-bodega",
     );
-    console.log(response);
     return response;
   } catch (error) {
     const errorMessage =

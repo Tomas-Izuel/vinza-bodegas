@@ -227,11 +227,6 @@ export const getInstanciasEvento = async (
           ? instancia.estado.toLowerCase()
           : instancia.estado?.nombre?.toLowerCase() || "activo";
 
-      // console.log(`🔄 Transformando instancia ${instancia.id}:`, {
-      //   estadoOriginal: instancia.estado,
-      //   estadoTransformado: estadoTransformado
-      // });
-
       return {
         id: instancia.id,
         fecha: instancia.fecha,
@@ -240,7 +235,6 @@ export const getInstanciasEvento = async (
       };
     });
 
-    // console.log("📦 Datos transformados finales:", transformedData);
     return transformedData;
   } catch (error) {
     const errorMessage =

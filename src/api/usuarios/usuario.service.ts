@@ -49,7 +49,6 @@ export const crearUsuario = async (
   data: CrearUsuarioDto,
 ): Promise<CrearUsuarioResponse> => {
   try {
-    console.log("Datos a enviar:", data);
     const response = await fetchApiWithAuth<CrearUsuarioResponse>("/users", {
       method: "POST",
       headers: {
@@ -59,7 +58,6 @@ export const crearUsuario = async (
     });
 
     revalidatePath("/usuarios");
-    console.log("Respuesta exitosa:", response);
     return response;
   } catch (error) {
     console.error("Error detallado:", error);
