@@ -21,7 +21,6 @@ export enum Routes {
   VER_SUCURSAL = "/sucursales/",
   CREAR_SUCURSAL = "/sucursales/crear",
   USUARIOS = "/usuarios",
-  CREAR_USUARIO = "/usuarios/crear",
   ESPERANDO_VALIDACION = "/esperando-validacion",
 }
 

@@ -32,7 +32,6 @@ export const getReservas = async (
     );
 
     const response = await fetchApiWithAuth<ReservasResponse>(url);
-    console.log(response);
     return response;
   } catch (error) {
     const errorMessage =

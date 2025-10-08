@@ -1,6 +1,6 @@
 import { getEvento, getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
-import { getSucursales } from "@/api/sucursales/sucursal.service";
+import { getSucursalesMiBodega } from "@/api/sucursales/sucursal.service";
 import { EventoDetalle } from "@/components/evento/EventoDetalle";
 import { InstanciasEvento } from "@/components/evento/InstanciasEvento";
 import {
@@ -29,7 +29,7 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
     const [evento, categorias, sucursales, instancias] = await Promise.all([
       getEvento(id),
       getCategorias(),
-      getSucursales(),
+      getSucursalesMiBodega(),
       getInstanciasEvento(id),
     ]);
 
@@ -68,7 +68,11 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
             categorias={categorias}
             sucursales={sucursales}
           />
-          <InstanciasEvento instancias={instancias} eventoId={evento.id} />
+          <InstanciasEvento
+            instancias={instancias}
+            eventoId={evento.id}
+            eventoNombre={evento.nombre}
+          />
         </main>
       </>
     );

@@ -32,6 +32,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { actualizarEvento } from "@/api/eventos/eventos.service";
+import { toast } from "sonner";
 
 interface EventoDetalleProps {
   evento: EventoDetalleType;
@@ -71,19 +72,19 @@ export function EventoDetalle({
   };
 
   const onSubmit = async (data: EditarEventoType) => {
-    try {
-      const eventoActualizado = await actualizarEvento(
-        evento.id.toString(),
-        data,
-      );
-      onEventoUpdated?.(eventoActualizado);
+    const result = await actualizarEvento(evento.id.toString(), data);
+
+    if (result.success && result.data) {
+      onEventoUpdated?.(result.data);
 
       // Remover el parámetro de edición de la URL
       const params = new URLSearchParams(searchParams.toString());
       params.delete("editar");
       router.push(`?${params.toString()}`);
-    } catch (error) {
-      console.error("Error al actualizar evento:", error);
+    } else {
+      toast.error("Error al actualizar el evento", {
+        description: result.error || "Error al actualizar el evento",
+      });
     }
   };
 

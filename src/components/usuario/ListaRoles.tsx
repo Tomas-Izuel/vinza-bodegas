@@ -10,20 +10,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Rol } from "@/api/roles/rol.type";
 import { Badge } from "../ui/badge";
 import { Building2, Globe, Edit } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { EditarRolModal } from "./EditarRolModal";
 import { EliminarRolButton } from "./EliminarRolButton";
 
 interface ListaRolesProps {
   roles: Rol[];
+  onRolActualizado?: () => void;
 }
 
-export function ListaRoles({ roles }: ListaRolesProps) {
+export function ListaRoles({ roles, onRolActualizado }: ListaRolesProps) {
   const router = useRouter();
   const [editingRol, setEditingRol] = useState<Rol | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -49,11 +50,21 @@ export function ListaRoles({ roles }: ListaRolesProps) {
   };
 
   const handleEditSuccess = () => {
-    router.refresh();
+    setIsEditModalOpen(false);
+    setEditingRol(null);
+    if (onRolActualizado) {
+      onRolActualizado();
+    } else {
+      router.refresh();
+    }
   };
 
   const handleDeleteSuccess = () => {
-    router.refresh();
+    if (onRolActualizado) {
+      onRolActualizado();
+    } else {
+      router.refresh();
+    }
   };
 
   return (

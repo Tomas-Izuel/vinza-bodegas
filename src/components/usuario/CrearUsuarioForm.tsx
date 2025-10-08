@@ -37,9 +37,9 @@ export function CrearUsuarioForm() {
     defaultValues: {
       nombre: "",
       apellido: "",
-      edad: 18,
       email: "",
       contrasena: "",
+      fecha_nacimiento: "",
       roles: [],
     },
   });
@@ -127,18 +127,15 @@ export function CrearUsuarioForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="edad"
+                name="fecha_nacimiento"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Edad</FormLabel>
+                    <FormLabel>Fecha de Nacimiento</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        placeholder="Ingrese la edad"
+                        type="date"
+                        placeholder="Seleccione la fecha de nacimiento"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
                       />
                     </FormControl>
                     <FormMessage />

@@ -115,7 +115,7 @@ export const getEvento = async (id: string): Promise<EventoDetalle> => {
 export const actualizarEvento = async (
   id: string,
   data: EditarEventoType,
-): Promise<EventoDetalle> => {
+): Promise<{ success: boolean; data?: EventoDetalle; error?: string }> => {
   try {
     // Transformar los datos al formato del backend
     const backendData = {
@@ -135,10 +135,12 @@ export const actualizarEvento = async (
       body: JSON.stringify(backendData),
     });
 
-    return response;
+    return { success: true, data: response };
   } catch (error) {
     console.error("[EVENTOS]:", error);
-    throw new Error("Error al actualizar el evento");
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al actualizar el evento";
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -225,11 +227,6 @@ export const getInstanciasEvento = async (
           ? instancia.estado.toLowerCase()
           : instancia.estado?.nombre?.toLowerCase() || "activo";
 
-      // console.log(`🔄 Transformando instancia ${instancia.id}:`, {
-      //   estadoOriginal: instancia.estado,
-      //   estadoTransformado: estadoTransformado
-      // });
-
       return {
         id: instancia.id,
         fecha: instancia.fecha,
@@ -238,7 +235,6 @@ export const getInstanciasEvento = async (
       };
     });
 
-    // console.log("📦 Datos transformados finales:", transformedData);
     return transformedData;
   } catch (error) {
     const errorMessage =

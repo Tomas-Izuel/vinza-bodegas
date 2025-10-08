@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import moment from "moment";
+import { useState } from "react";
+import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import {
   suspenderInstancia,
   reactivarInstancia,
@@ -30,12 +32,22 @@ type InstanciaEvento = {
 interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
   eventoId: number;
+  eventoNombre: string;
+  onInstanciaUpdated?: () => void; // Callback para refrescar datos
 }
 
 export function InstanciasEvento({
   instancias,
   eventoId,
+  eventoNombre,
+  onInstanciaUpdated,
 }: InstanciasEventoProps) {
+  const [modalData, setModalData] = useState<{
+    id: number;
+    eventoNombre: string;
+    fecha: string;
+  } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -44,7 +56,6 @@ export function InstanciasEvento({
     estadoNombre: string,
   ): "activo" | "finalizado" | "suspendido" | "inactivo" | "default" => {
     const estado = estadoNombre.toLowerCase();
-    // console.log("🎨 Obteniendo variante para estado:", estado);
 
     // Mapear estados del backend a variantes de badge
     if (estado === "activo" || estado === "activa") {
@@ -61,17 +72,21 @@ export function InstanciasEvento({
     }
   };
 
-  const handleSuspender = (instanciaId: number) => {
-    startTransition(async () => {
-      const result = await suspenderInstancia(instanciaId);
-
-      if (result.message) {
-        toast.success(result.message);
-        router.refresh(); // Refrescar la página para obtener datos actualizados
-      } else {
-        toast.error(result.message);
-      }
+  const handleSuspenderClick = (instancia: InstanciaEvento) => {
+    setModalData({
+      id: instancia.id,
+      eventoNombre,
+      fecha: instancia.fecha,
     });
+    setIsModalOpen(true);
+  };
+
+  const handleModalConfirm = () => {
+    if (onInstanciaUpdated) {
+      onInstanciaUpdated();
+    }
+    setIsModalOpen(false);
+    setModalData(null);
   };
 
   const handleReactivar = (instanciaId: number) => {
@@ -104,7 +119,6 @@ export function InstanciasEvento({
   };
 
   const isInstanciaSuspendida = (estado: string) => {
-    // console.log("🔍 Verificando estado:", estado, "vs", EstadosEvento.SUSPENDIDO);
     const estadoLower = estado.toLowerCase();
     // Manejar tanto "suspendido" como "suspendida"
     return estadoLower === "suspendido" || estadoLower === "suspendida";
@@ -130,7 +144,6 @@ export function InstanciasEvento({
         <TableBody>
           {instancias.map((instancia) => {
             const esSuspendida = isInstanciaSuspendida(instancia.estado);
-            // console.log(`📋 Instancia ${instancia.id}: estado="${instancia.estado}", esSuspendida=${esSuspendida}`);
             return (
               <TableRow key={instancia.id}>
                 <TableCell className="font-medium w-1/5">
@@ -173,10 +186,9 @@ export function InstanciasEvento({
                       variant="ghost"
                       size={"sm"}
                       className="text-red-500 hover:text-red-600"
-                      onClick={() => handleSuspender(instancia.id)}
-                      disabled={isPending}
+                      onClick={() => handleSuspenderClick(instancia)}
                     >
-                      {isPending ? "Suspendiendo..." : "Suspender"}
+                      Suspender
                     </Button>
                   )}
                 </TableCell>
@@ -185,6 +197,13 @@ export function InstanciasEvento({
           })}
         </TableBody>
       </Table>
+
+      <SuspenderInstanciaModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        instanciaData={modalData}
+        onInstanciaSuspendida={handleModalConfirm}
+      />
     </section>
   );
 }

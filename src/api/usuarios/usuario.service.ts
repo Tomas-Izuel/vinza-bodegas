@@ -7,6 +7,7 @@ import {
   UsuariosResponse,
   CrearUsuarioRequest,
   CrearUsuarioResponse,
+  CrearUsuarioDto,
   EditarUsuarioRequest,
   EditarUsuarioResponse,
 } from "./usuario.type";
@@ -23,11 +24,32 @@ export const getUsuarios = async () => {
   }
 };
 
+/**
+ * Obtiene los usuarios de la bodega del usuario autenticado
+ */
+export const getUsuariosMiBodega = async (): Promise<UsuariosResponse> => {
+  try {
+    const response =
+      await fetchApiWithAuth<UsuariosResponse>("/users/mi-bodega");
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al obtener usuarios de mi bodega";
+    errorLogger(error, "getUsuariosMiBodega");
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Crea un nuevo usuario en la bodega del administrador autenticado
+ */
 export const crearUsuario = async (
-  data: CrearUsuarioRequest,
+  data: CrearUsuarioDto,
 ): Promise<CrearUsuarioResponse> => {
   try {
-    const response = await fetchApiWithAuth<CrearUsuarioResponse>(`/users`, {
+    const response = await fetchApiWithAuth<CrearUsuarioResponse>("/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,8 +60,15 @@ export const crearUsuario = async (
     revalidatePath("/usuarios");
     return response;
   } catch (error) {
-    console.error("[USUARIOS]: Error al crear usuario:", error);
-    throw error;
+    console.error("Error detallado:", error);
+    errorLogger(error, "crearUsuario");
+
+    // Mejorar el manejo de errores para obtener más información
+    if (error instanceof Error) {
+      throw new Error(`Error al crear usuario: ${error.message}`);
+    } else {
+      throw new Error("Error desconocido al crear usuario");
+    }
   }
 };
 

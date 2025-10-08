@@ -1,4 +1,5 @@
 import { Role } from "../auth/auth.type";
+import { z } from "zod";
 
 export type Usuario = {
   id: number;
@@ -16,31 +17,19 @@ export type Usuario = {
 
 export type UsuariosResponse = Usuario[];
 
+// Tipos para crear usuario
 export type CrearUsuarioRequest = {
   nombre: string;
   apellido: string;
-  edad: number;
   email: string;
   contrasena: string;
-  roles: number[];
+  fecha_nacimiento?: string;
+  roles?: number[];
 };
 
-export type CrearUsuarioResponse = {
-  id: number;
-  nombre: string;
-  apellido: string;
-  email: string;
-  validado: boolean | null;
-  fecha_nacimiento: string | null;
-  bodegaId: number | null;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  roles: Role[];
-};
+export type CrearUsuarioResponse = Usuario;
 
-import { z } from "zod";
-
+// Esquema de validación para crear usuario
 export const CrearUsuarioSchema = z.object({
   nombre: z
     .string()
@@ -52,10 +41,6 @@ export const CrearUsuarioSchema = z.object({
     .min(1, "El apellido es requerido")
     .min(2, "El apellido debe tener al menos 2 caracteres")
     .max(50, "El apellido no puede tener más de 50 caracteres"),
-  edad: z
-    .number()
-    .min(18, "La edad mínima es 18 años")
-    .max(100, "La edad máxima es 100 años"),
   email: z
     .string()
     .min(1, "El email es requerido")
@@ -65,6 +50,20 @@ export const CrearUsuarioSchema = z.object({
     .min(1, "La contraseña es requerida")
     .min(6, "La contraseña debe tener al menos 6 caracteres")
     .max(100, "La contraseña no puede tener más de 100 caracteres"),
+  fecha_nacimiento: z
+    .string()
+    .optional()
+    .refine(
+      (date) => {
+        if (!date || date === "") return true;
+        // Validar que sea una fecha válida en formato ISO
+        const fecha = new Date(date);
+        return !isNaN(fecha.getTime());
+      },
+      {
+        message: "Formato de fecha inválido",
+      },
+    ),
   roles: z
     .array(z.number())
     .min(1, "Debe seleccionar al menos un rol")
@@ -76,13 +75,12 @@ export type CrearUsuarioDto = z.infer<typeof CrearUsuarioSchema>;
 export type EditarUsuarioRequest = {
   nombre: string;
   apellido: string;
-  edad: number;
   email: string;
   contrasena?: string;
   roles: number[];
 };
 
-export type EditarUsuarioResponse = CrearUsuarioResponse;
+export type EditarUsuarioResponse = Usuario;
 
 export const EditarUsuarioSchema = z.object({
   nombre: z
@@ -95,14 +93,15 @@ export const EditarUsuarioSchema = z.object({
     .min(1, "El apellido es requerido")
     .min(2, "El apellido debe tener al menos 2 caracteres")
     .max(50, "El apellido no puede tener más de 50 caracteres"),
-  edad: z
-    .number()
-    .min(18, "La edad mínima es 18 años")
-    .max(100, "La edad máxima es 100 años"),
   email: z
     .string()
     .min(1, "El email es requerido")
     .email("El formato del email no es válido"),
+  contrasena: z
+    .string()
+    .min(6, "La contraseña debe tener al menos 6 caracteres")
+    .max(100, "La contraseña no puede tener más de 100 caracteres")
+    .optional(),
   roles: z
     .array(z.number())
     .min(1, "Debe seleccionar al menos un rol")
