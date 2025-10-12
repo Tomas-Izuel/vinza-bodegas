@@ -21,7 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 import {
   EditarUsuarioSchema,
@@ -108,18 +109,6 @@ export function EditarUsuarioModal({
     }
   };
 
-  const handleRoleChange = (roleId: number, checked: boolean) => {
-    const currentRoles = form.getValues("roles");
-    if (checked) {
-      form.setValue("roles", [...currentRoles, roleId]);
-    } else {
-      form.setValue(
-        "roles",
-        currentRoles.filter((id) => id !== roleId),
-      );
-    }
-  };
-
   if (!usuario) return null;
 
   return (
@@ -184,28 +173,36 @@ export function EditarUsuarioModal({
             <FormField
               control={form.control}
               name="roles"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Roles</FormLabel>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                    {roles.map((rol) => (
-                      <div key={rol.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`role-${rol.id}`}
-                          checked={form.watch("roles").includes(rol.id)}
-                          onCheckedChange={(checked) =>
-                            handleRoleChange(rol.id, checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`role-${rol.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  <FormLabel>Rol</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={(value) => {
+                        field.onChange([Number(value)]);
+                      }}
+                      value={field.value[0]?.toString() || ""}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2"
+                    >
+                      {roles.map((rol) => (
+                        <div
+                          key={rol.id}
+                          className="flex items-center space-x-2"
                         >
-                          {rol.nombre}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+                          <RadioGroupItem
+                            value={rol.id.toString()}
+                            id={`role-${rol.id}`}
+                          />
+                          <Label
+                            htmlFor={`role-${rol.id}`}
+                            className="cursor-pointer"
+                          >
+                            {rol.nombre}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

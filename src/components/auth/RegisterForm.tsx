@@ -26,21 +26,41 @@ import { register } from "@/api/auth/auth.service";
 import { toast } from "sonner";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
+import { z } from "zod";
+
+// Schema extendido para el formulario con confirmación de contraseña
+const RegisterFormSchema = RegisterSchema.extend({
+  confirmarPassword: z.string({
+    message: "La confirmación de contraseña es requerida",
+  }),
+}).refine((data) => data.password === data.confirmarPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmarPassword"],
+});
+
+type RegisterFormData = z.infer<typeof RegisterFormSchema>;
 
 const RegisterForm = () => {
   const router = useRouter();
-  const form = useForm<RegisterDto>({
-    resolver: zodResolver(RegisterSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
       email: "",
       password: "",
       nombre: "",
+      confirmarPassword: "",
     },
   });
 
-  const onSubmit = async (data: RegisterDto) => {
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register(data);
+      // Extraer solo los campos necesarios para el backend
+      const registerData: RegisterDto = {
+        email: data.email,
+        password: data.password,
+        nombre: data.nombre,
+      };
+      await register(registerData);
 
       toast.success("Registro exitoso", {
         description: "Tu cuenta ha sido creada correctamente",
@@ -103,6 +123,21 @@ const RegisterForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="required">Contraseña</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmarPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="required">
+                    Confirmar contraseña
+                  </FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>

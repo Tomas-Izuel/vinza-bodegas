@@ -98,11 +98,18 @@ export function EditarRolModal({
   const handlePermissionChange = (permissionId: number, checked: boolean) => {
     const currentPermissions = form.getValues("permissions");
     if (checked) {
-      form.setValue("permissions", [...currentPermissions, permissionId]);
+      form.setValue("permissions", [...currentPermissions, permissionId], {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     } else {
       form.setValue(
         "permissions",
         currentPermissions.filter((id) => id !== permissionId),
+        {
+          shouldDirty: true,
+          shouldValidate: true,
+        },
       );
     }
   };
