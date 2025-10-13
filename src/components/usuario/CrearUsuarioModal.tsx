@@ -32,7 +32,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
@@ -50,7 +51,6 @@ export function CrearUsuarioModal({
   const router = useRouter();
   const [roles, setRoles] = useState<Rol[]>([]);
   const [cargandoRoles, setCargandoRoles] = useState(false);
-  const [rolesSeleccionados, setRolesSeleccionados] = useState<number[]>([]);
 
   const form = useForm<CrearUsuarioDto>({
     resolver: zodResolver(CrearUsuarioSchema),
@@ -70,7 +70,7 @@ export function CrearUsuarioModal({
       setCargandoRoles(true);
       const rolesData = await obtenerRolesMiBodega();
       setRoles(rolesData);
-    } catch (error) {
+    } catch {
       toast.error("Error al cargar roles", {
         description: "No se pudieron cargar los roles disponibles",
       });
@@ -86,9 +86,9 @@ export function CrearUsuarioModal({
       // Sincronizar el estado inicial cuando se abre el modal
       form.clearErrors();
       form.setValue("roles", []);
-      setRolesSeleccionados([]);
     }
-  }, [isOpen, cargarRoles]); // Usamos cargarRoles memoizada
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, cargarRoles]); // form no se incluye para evitar renders innecesarios
 
   const onSubmit = async (data: CrearUsuarioDto) => {
     try {
@@ -98,7 +98,7 @@ export function CrearUsuarioModal({
         apellido: data.apellido,
         email: data.email,
         contrasena: data.contrasena,
-        roles: rolesSeleccionados,
+        roles: data.roles,
       };
 
       // Solo agregar fecha_nacimiento si no está vacía
@@ -114,7 +114,6 @@ export function CrearUsuarioModal({
 
       // Limpiar formulario
       form.reset();
-      setRolesSeleccionados([]);
 
       // Cerrar modal
       onOpenChange(false);
@@ -138,27 +137,8 @@ export function CrearUsuarioModal({
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       form.reset();
-      setRolesSeleccionados([]);
     }
     onOpenChange(open);
-  };
-
-  const toggleRol = (rolId: number) => {
-    setRolesSeleccionados((prev) => {
-      const newRoles = prev.includes(rolId)
-        ? prev.filter((id) => id !== rolId)
-        : [...prev, rolId];
-
-      // Usar setTimeout para evitar actualizaciones durante renderizado
-      setTimeout(() => {
-        form.setValue("roles", newRoles);
-        if (newRoles.length > 0) {
-          form.clearErrors("roles");
-        }
-      }, 0);
-
-      return newRoles;
-    });
   };
 
   return (
@@ -245,13 +225,13 @@ export function CrearUsuarioModal({
                   )}
                 />
 
-                {/* Selección de Roles */}
+                {/* Selección de Rol */}
                 <FormField
                   control={form.control}
                   name="roles"
-                  render={() => (
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Roles *</FormLabel>
+                      <FormLabel>Rol *</FormLabel>
                       <div className="border border-dashed rounded-lg p-4">
                         {cargandoRoles ? (
                           <div className="text-center py-4 text-gray-500">
@@ -267,34 +247,45 @@ export function CrearUsuarioModal({
                             </span>
                           </div>
                         ) : (
-                          <div className="space-y-2 max-h-32 overflow-y-auto">
-                            {roles.map((rol) => (
-                              <div
-                                key={rol.id}
-                                className="flex items-center space-x-2"
-                              >
-                                <Checkbox
-                                  id={`rol-${rol.id}`}
-                                  checked={rolesSeleccionados.includes(rol.id)}
-                                  onCheckedChange={() => toggleRol(rol.id)}
-                                />
-                                <label
-                                  htmlFor={`rol-${rol.id}`}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                                >
-                                  {rol.nombre}
-                                </label>
-                                <Badge variant="secondary" className="text-xs">
-                                  {rol.permisos.length} permisos
-                                </Badge>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={(value: string) => {
+                                field.onChange([Number(value)]);
+                              }}
+                              value={field.value[0]?.toString() || ""}
+                            >
+                              <div className="space-y-2 max-h-32 overflow-y-auto">
+                                {roles.map((rol) => (
+                                  <div
+                                    key={rol.id}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <RadioGroupItem
+                                      value={rol.id.toString()}
+                                      id={`rol-${rol.id}`}
+                                    />
+                                    <Label
+                                      htmlFor={`rol-${rol.id}`}
+                                      className="cursor-pointer flex-1 flex items-center justify-between"
+                                    >
+                                      <span>{rol.nombre}</span>
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                      >
+                                        {rol.permisos.length} permisos
+                                      </Badge>
+                                    </Label>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
+                            </RadioGroup>
+                          </FormControl>
                         )}
                       </div>
                       <FormMessage />
                       <p className="text-xs text-gray-500 mt-2">
-                        Selecciona los roles que tendrá este empleado.
+                        Selecciona el rol que tendrá este empleado.
                       </p>
                     </FormItem>
                   )}

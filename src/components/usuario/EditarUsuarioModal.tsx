@@ -192,7 +192,7 @@ export function EditarUsuarioModal({
             <FormField
               control={form.control}
               name="roles"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Roles</FormLabel>
                   {isLoadingRoles ? (

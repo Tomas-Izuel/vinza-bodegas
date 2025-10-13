@@ -5,11 +5,13 @@ import { errorLogger } from "@/lib/utils";
 import { fetchApiWithAuth } from "@/lib/utils.server";
 import {
   UsuariosResponse,
-  CrearUsuarioRequest,
   CrearUsuarioResponse,
   CrearUsuarioDto,
   EditarUsuarioRequest,
   EditarUsuarioResponse,
+  PerfilUsuario,
+  ActualizarPerfilDto,
+  ActualizarPerfilResponse,
 } from "./usuario.type";
 
 export const getUsuarios = async () => {
@@ -106,5 +108,69 @@ export const eliminarUsuario = async (id: number): Promise<void> => {
   } catch (error) {
     console.error("[USUARIOS]: Error al eliminar usuario:", error);
     throw error;
+  }
+};
+
+/**
+ * Obtiene el perfil del usuario autenticado
+ */
+export const obtenerPerfilUsuario = async (): Promise<PerfilUsuario> => {
+  try {
+    const response = await fetchApiWithAuth<PerfilUsuario>("/users/me");
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al obtener el perfil del usuario";
+    errorLogger(error, "obtenerPerfilUsuario");
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Actualiza el perfil del usuario autenticado
+ */
+export const actualizarPerfilUsuario = async (
+  data: ActualizarPerfilDto,
+): Promise<ActualizarPerfilResponse> => {
+  try {
+    // Preparar datos para enviar (remover campos vacíos)
+    const dataToSend: Partial<ActualizarPerfilDto> = {
+      nombre: data.nombre,
+      apellido: data.apellido,
+      email: data.email,
+    };
+
+    // Solo incluir fecha_nacimiento si tiene valor
+    if (data.fecha_nacimiento && data.fecha_nacimiento !== "") {
+      dataToSend.fecha_nacimiento = data.fecha_nacimiento;
+    }
+
+    // Solo incluir contraseña si tiene valor
+    if (data.contrasena && data.contrasena !== "") {
+      dataToSend.contrasena = data.contrasena;
+    }
+
+    const response = await fetchApiWithAuth<ActualizarPerfilResponse>(
+      "/users/me",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      },
+    );
+
+    revalidatePath("/perfil");
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al actualizar el perfil del usuario";
+    errorLogger(error, "actualizarPerfilUsuario");
+    throw new Error(errorMessage);
   }
 };
