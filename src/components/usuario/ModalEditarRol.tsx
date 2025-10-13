@@ -80,16 +80,16 @@ export function ModalEditarRol({
 
     // Validar datos
     const validacion = CrearRolSchema.safeParse({
-      name: nombre,
-      permissions: permisosSeleccionados,
+      nombre: nombre,
+      permisos: permisosSeleccionados,
     });
 
     if (!validacion.success) {
       const errores = validacion.error.flatten().fieldErrors;
       let mensajeError = "";
 
-      if (errores.name) mensajeError += errores.name[0] + " ";
-      if (errores.permissions) mensajeError += errores.permissions[0];
+      if (errores.nombre) mensajeError += errores.nombre[0] + " ";
+      if (errores.permisos) mensajeError += errores.permisos[0];
 
       setError(mensajeError.trim());
       return;
@@ -100,8 +100,8 @@ export function ModalEditarRol({
 
     try {
       await editarRol(rol.id, {
-        name: nombre,
-        permissions: permisosSeleccionados,
+        nombre: nombre,
+        permisos: permisosSeleccionados,
       });
 
       toast.success("Rol actualizado correctamente");

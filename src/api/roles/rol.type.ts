@@ -38,8 +38,9 @@ export type PermisoSimple = {
 export type PermisosResponse = PermisoSimple[];
 
 export type CrearRolRequest = {
-  name: string;
-  permissions: number[];
+  nombre: string;
+  permisos: number[];
+  bodegaId?: number;
 };
 
 export type CrearRolResponse = {
@@ -54,12 +55,12 @@ export type CrearRolResponse = {
 import { z } from "zod";
 
 export const CrearRolSchema = z.object({
-  name: z
+  nombre: z
     .string()
     .min(1, "El nombre es requerido")
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(50, "El nombre no puede tener más de 50 caracteres"),
-  permissions: z
+  permisos: z
     .array(z.number())
     .min(1, "Debe seleccionar al menos un permiso")
     .max(20, "No puede seleccionar más de 20 permisos"),
@@ -68,19 +69,20 @@ export const CrearRolSchema = z.object({
 export type CrearRolDto = z.infer<typeof CrearRolSchema>;
 
 export type EditarRolRequest = {
-  name: string;
-  permissions: number[];
+  nombre: string;
+  permisos: number[];
+  bodegaId?: number;
 };
 
 export type EditarRolResponse = CrearRolResponse;
 
 export const EditarRolSchema = z.object({
-  name: z
+  nombre: z
     .string()
     .min(1, "El nombre es requerido")
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(50, "El nombre no puede tener más de 50 caracteres"),
-  permissions: z
+  permisos: z
     .array(z.number())
     .min(1, "Debe seleccionar al menos un permiso")
     .max(20, "No puede seleccionar más de 20 permisos"),

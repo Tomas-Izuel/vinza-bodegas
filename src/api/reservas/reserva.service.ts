@@ -1,9 +1,5 @@
 "use server";
-import {
-  fetchApiWithAuth,
-  buildApiUrl,
-  getAuthCookie,
-} from "@/lib/utils.server";
+import { fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
 import { ReservasParams, ReservasResponse, Reserva } from "./reserva.type";
 
@@ -14,20 +10,14 @@ export const getReservas = async (
   params?: ReservasParams,
 ): Promise<ReservasResponse> => {
   try {
-    const authCookieValue = await getAuthCookie();
-    const bodegaId = authCookieValue.bodegaId;
-
     // Configuración de mapeo específica para reservas
     const reservasMapping = {
-      search: "cliente", // mapea "search" a "cliente" para buscar por nombre de cliente
+      search: "recorrido.user", // mapea "search" a "recorrido.user" para buscar por nombre de cliente
     };
 
     const url = buildApiUrl(
-      "/reserva",
-      {
-        ...params,
-        bodegaId,
-      },
+      "/reserva/mi-bodega",
+      params as Record<string, unknown>,
       reservasMapping,
     );
 
@@ -51,5 +41,20 @@ export const getReservaPorId = async (id: string): Promise<Reserva> => {
   } catch (error) {
     errorLogger(error, "getReservaPorId");
     throw new Error("Error al obtener la reserva");
+  }
+};
+
+/**
+ * Cancela una reserva específica por ID
+ */
+export const cancelarReserva = async (id: string): Promise<Reserva> => {
+  try {
+    const response = await fetchApiWithAuth<Reserva>(`/reserva/${id}`, {
+      method: "DELETE",
+    });
+    return response;
+  } catch (error) {
+    errorLogger(error, "cancelarReserva");
+    throw new Error("Error al cancelar la reserva");
   }
 };

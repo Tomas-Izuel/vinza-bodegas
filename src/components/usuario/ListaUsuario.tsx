@@ -21,9 +21,13 @@ import { EliminarUsuarioButton } from "./EliminarUsuarioButton";
 
 interface ListaUsuarioProps {
   usuarios: Usuario[];
+  onUsuarioActualizado?: () => void;
 }
 
-export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
+export function ListaUsuario({
+  usuarios,
+  onUsuarioActualizado,
+}: ListaUsuarioProps) {
   const router = useRouter();
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,11 +48,21 @@ export function ListaUsuario({ usuarios }: ListaUsuarioProps) {
   };
 
   const handleEditSuccess = () => {
-    router.refresh();
+    setIsEditModalOpen(false);
+    setEditingUsuario(null);
+    if (onUsuarioActualizado) {
+      onUsuarioActualizado();
+    } else {
+      router.refresh();
+    }
   };
 
   const handleDeleteSuccess = () => {
-    router.refresh();
+    if (onUsuarioActualizado) {
+      onUsuarioActualizado();
+    } else {
+      router.refresh();
+    }
   };
   return (
     <section className="bg-white border">

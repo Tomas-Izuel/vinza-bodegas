@@ -25,7 +25,7 @@ import {
   CrearUsuarioDto,
 } from "@/api/usuarios/usuario.type";
 import { crearUsuario } from "@/api/usuarios/usuario.service";
-import { obtenerRoles } from "@/api/roles/rol.service";
+import { obtenerRolesMiBodega } from "@/api/roles/rol.service";
 import { Rol } from "@/api/roles/rol.type";
 
 export function CrearUsuarioForm() {
@@ -50,7 +50,7 @@ export function CrearUsuarioForm() {
   useEffect(() => {
     const cargarRoles = async () => {
       try {
-        const rolesData = await obtenerRoles();
+        const rolesData = await obtenerRolesMiBodega();
         setRoles(rolesData);
       } catch (error) {
         console.error("Error al cargar roles:", error);
@@ -177,7 +177,7 @@ export function CrearUsuarioForm() {
                   <FormLabel>Rol</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value) => {
+                      onValueChange={(value: string) => {
                         field.onChange([Number(value)]);
                       }}
                       value={field.value[0]?.toString() || ""}

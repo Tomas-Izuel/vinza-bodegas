@@ -249,7 +249,7 @@ export function CrearUsuarioModal({
                         ) : (
                           <FormControl>
                             <RadioGroup
-                              onValueChange={(value) => {
+                              onValueChange={(value: string) => {
                                 field.onChange([Number(value)]);
                               }}
                               value={field.value[0]?.toString() || ""}

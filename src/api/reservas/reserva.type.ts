@@ -10,12 +10,28 @@ export interface Reserva {
   recorridoId: number;
   created_at: string;
   updated_at: string;
-  instanciaEvento: {
+  recorrido?: {
     id: number;
-    fecha: string;
-    evento: {
+    user: {
       id: number;
       nombre: string;
+      apellido: string;
+      email: string;
+    };
+  };
+  instanciaEvento?: {
+    id: number;
+    fecha: string;
+    evento?: {
+      id: number;
+      nombre: string;
+      descripcion?: string;
+      cupo?: number;
+      sucursal?: {
+        id: number;
+        nombre: string;
+        bodegaId: number;
+      };
     };
   };
   estados: EstadoReserva[];

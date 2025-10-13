@@ -51,8 +51,8 @@ export function CrearRolModal({
   const form = useForm<CrearRolDto>({
     resolver: zodResolver(CrearRolSchema),
     defaultValues: {
-      name: "",
-      permissions: [],
+      nombre: "",
+      permisos: [],
     },
   });
 
@@ -84,7 +84,7 @@ export function CrearRolModal({
       await crearRol(data);
 
       toast.success("Rol creado exitosamente", {
-        description: `El rol "${data.name}" ha sido creado correctamente`,
+        description: `El rol "${data.nombre}" ha sido creado correctamente`,
       });
 
       // Limpiar formulario
@@ -116,7 +116,7 @@ export function CrearRolModal({
     onOpenChange(open);
   };
 
-  const selectedPermissions = form.watch("permissions");
+  const selectedPermissions = form.watch("permisos");
 
   // Agrupar permisos por módulo
   const permisosAgrupados = permisos.reduce(
@@ -145,7 +145,7 @@ export function CrearRolModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="name"
+              name="nombre"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nombre del Rol *</FormLabel>
@@ -162,7 +162,7 @@ export function CrearRolModal({
 
             <FormField
               control={form.control}
-              name="permissions"
+              name="permisos"
               render={() => (
                 <FormItem>
                   <FormLabel>Permisos *</FormLabel>
@@ -210,7 +210,7 @@ export function CrearRolModal({
                                   <FormField
                                     key={permiso.id}
                                     control={form.control}
-                                    name="permissions"
+                                    name="permisos"
                                     render={({ field }) => {
                                       return (
                                         <FormItem
