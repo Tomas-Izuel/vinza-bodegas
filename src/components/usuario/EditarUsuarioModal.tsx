@@ -29,7 +29,7 @@ import {
   Usuario,
 } from "@/api/usuarios/usuario.type";
 import { editarUsuario } from "@/api/usuarios/usuario.service";
-import { obtenerRoles } from "@/api/roles/rol.service";
+import { obtenerRolesMiBodega } from "@/api/roles/rol.service";
 import { Rol } from "@/api/roles/rol.type";
 
 interface EditarUsuarioModalProps {
@@ -47,6 +47,7 @@ export function EditarUsuarioModal({
 }: EditarUsuarioModalProps) {
   const [roles, setRoles] = useState<Rol[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
 
   const form = useForm<EditarUsuarioDto>({
     resolver: zodResolver(EditarUsuarioSchema),
@@ -63,11 +64,16 @@ export function EditarUsuarioModal({
   useEffect(() => {
     const cargarRoles = async () => {
       try {
-        const rolesData = await obtenerRoles();
+        setIsLoadingRoles(true);
+        console.log("Cargando roles para editar usuario...");
+        const rolesData = await obtenerRolesMiBodega();
+        console.log("Roles cargados:", rolesData);
         setRoles(rolesData);
       } catch (error) {
         console.error("Error al cargar roles:", error);
         toast.error("Error al cargar los roles disponibles");
+      } finally {
+        setIsLoadingRoles(false);
       }
     };
 
@@ -98,6 +104,8 @@ export function EditarUsuarioModal({
 
       await editarUsuario(usuario.id, dataToSend);
       toast.success("Usuario editado exitosamente");
+
+      // Llamar a onSuccess antes de cerrar para refrescar los datos
       onSuccess();
       onClose();
     } catch (error) {
@@ -108,16 +116,16 @@ export function EditarUsuarioModal({
     }
   };
 
-  const handleRoleChange = (roleId: number, checked: boolean) => {
-    const currentRoles = form.getValues("roles");
-    if (checked) {
-      form.setValue("roles", [...currentRoles, roleId]);
-    } else {
-      form.setValue(
-        "roles",
-        currentRoles.filter((id) => id !== roleId),
-      );
-    }
+  const handleRoleChange = (roleId: number) => {
+    // Solo permitir un rol seleccionado
+    const newRoles = [roleId];
+
+    // Marcar el campo como modificado para que isDirty funcione correctamente
+    form.setValue("roles", newRoles, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   if (!usuario) return null;
@@ -187,25 +195,42 @@ export function EditarUsuarioModal({
               render={() => (
                 <FormItem>
                   <FormLabel>Roles</FormLabel>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                    {roles.map((rol) => (
-                      <div key={rol.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`role-${rol.id}`}
-                          checked={form.watch("roles").includes(rol.id)}
-                          onCheckedChange={(checked) =>
-                            handleRoleChange(rol.id, checked as boolean)
-                          }
-                        />
-                        <label
-                          htmlFor={`role-${rol.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {rol.nombre}
-                        </label>
+                  {isLoadingRoles ? (
+                    <div className="text-center py-4">
+                      <div className="text-sm text-gray-500">
+                        Cargando roles...
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                      {roles.map((rol) => (
+                        <div
+                          key={rol.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`role-${rol.id}`}
+                            checked={form.watch("roles").includes(rol.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                // Si se selecciona este rol, deseleccionar todos los demás
+                                handleRoleChange(rol.id);
+                              } else {
+                                // Si se deselecciona, no permitir (debe haber al menos un rol)
+                                // No hacer nada
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`role-${rol.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {rol.nombre}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

@@ -98,9 +98,18 @@ export function UsuariosPageClient({
       </div>
 
       <main>
-        {activeTab === "usuarios" && <ListaUsuario usuarios={usuarios} />}
+        {activeTab === "usuarios" && (
+          <ListaUsuario
+            usuarios={usuarios}
+            onUsuarioActualizado={handleUsuarioCreado}
+          />
+        )}
         {activeTab === "roles" && (
-          <ListaRoles roles={roles} onRolActualizado={handleRolActualizado} />
+          <ListaRoles
+            roles={roles}
+            usuarios={usuarios}
+            onRolActualizado={handleRolActualizado}
+          />
         )}
       </main>
     </>

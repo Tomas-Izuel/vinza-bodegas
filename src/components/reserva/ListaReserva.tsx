@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Reserva, EstadosReserva } from "@/api/reservas/reserva.type";
 import { Meta } from "@/api/common.type";
 import {
@@ -13,17 +14,40 @@ import {
 import { CommonTableHeader } from "../common/CommonTableHeader";
 import { CommonTableFooter } from "../common/CommonTableFooter";
 import { ReservaFilters } from "./ReservaFilters";
+import { DetalleReservaModal } from "./DetalleReservaModal";
 import moment from "moment";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import Link from "next/link";
 
 interface ListaReservaProps {
   reservas: Reserva[];
   meta: Meta;
+  onRefresh?: () => void;
 }
 
-export function ListaReserva({ reservas, meta }: ListaReservaProps) {
+export function ListaReserva({ reservas, meta, onRefresh }: ListaReservaProps) {
+  const [selectedReservaId, setSelectedReservaId] = useState<number | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Función para abrir el modal de detalle
+  const handleVerReserva = (reservaId: number) => {
+    setSelectedReservaId(reservaId);
+    setIsModalOpen(true);
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedReservaId(null);
+  };
+
+  // Función para manejar cuando se cancela una reserva
+  const handleReservaCancelada = () => {
+    onRefresh?.();
+  };
+
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
     estadoNombre: string,
@@ -59,7 +83,7 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
   return (
     <section className="bg-white border">
       <CommonTableHeader
-        placeholder="Buscar por nombre cliente"
+        placeholder="Buscar por nombre de cliente o email"
         filtersForm={<ReservaFilters />}
       />
       <Table>
@@ -67,7 +91,7 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
           <TableRow>
             <TableHead>Fecha</TableHead>
             <TableHead>Evento</TableHead>
-            <TableHead>Numero</TableHead>
+            <TableHead>Identificador</TableHead>
             <TableHead>Cliente</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead>Precio</TableHead>
@@ -78,15 +102,34 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
           {reservas.map((reserva) => (
             <TableRow key={reserva.id}>
               <TableCell>
-                {moment(reserva.instanciaEvento.fecha).format("MMM DD, YYYY")}
+                {reserva.instanciaEvento?.fecha
+                  ? moment(reserva.instanciaEvento.fecha).format("MMM DD, YYYY")
+                  : "Sin fecha"}
               </TableCell>
               <TableCell className="font-medium">
-                {reserva.instanciaEvento.evento.nombre}
+                {reserva.instanciaEvento?.evento?.nombre ||
+                  "Evento no disponible"}
               </TableCell>
               <TableCell>{reserva.id.toString()}</TableCell>
               <TableCell>
-                {/* Aquí deberías tener el nombre del cliente desde el backend */}
-                Cliente #{reserva.id}
+                {reserva.recorrido?.user?.nombre ? (
+                  <div>
+                    <div className="font-medium">
+                      {reserva.recorrido.user.nombre}{" "}
+                      {reserva.recorrido.user.apellido || ""}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {reserva.recorrido.user.email || "Sin email"}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="font-medium">Cliente #{reserva.id}</div>
+                    <div className="text-sm text-gray-500">
+                      Sin información de contacto
+                    </div>
+                  </div>
+                )}
               </TableCell>
               <TableCell>
                 <Badge
@@ -97,11 +140,13 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
               </TableCell>
               <TableCell>${parseFloat(reserva.precio).toFixed(2)}</TableCell>
               <TableCell>
-                <Link href={`/reservas/${reserva.id}`}>
-                  <Button variant="ghost" size={"sm"}>
-                    Ver
-                  </Button>
-                </Link>
+                <Button
+                  variant="ghost"
+                  size={"sm"}
+                  onClick={() => handleVerReserva(reserva.id)}
+                >
+                  Ver
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -112,6 +157,14 @@ export function ListaReserva({ reservas, meta }: ListaReservaProps) {
         totalPages={meta.totalPages}
         totalItems={meta.totalItems}
         itemsPerPage={meta.itemsPerPage}
+      />
+
+      {/* Modal de detalle de reserva */}
+      <DetalleReservaModal
+        reservaId={selectedReservaId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onReservaCancelada={handleReservaCancelada}
       />
     </section>
   );

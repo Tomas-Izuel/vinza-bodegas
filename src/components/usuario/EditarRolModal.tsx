@@ -46,8 +46,8 @@ export function EditarRolModal({
   const form = useForm<EditarRolDto>({
     resolver: zodResolver(EditarRolSchema),
     defaultValues: {
-      name: "",
-      permissions: [],
+      nombre: "",
+      permisos: [],
     },
   });
 
@@ -71,10 +71,11 @@ export function EditarRolModal({
 
   useEffect(() => {
     if (rol && isOpen) {
-      form.reset({
-        name: rol.nombre,
-        permissions: rol.permisos.map((permiso) => permiso.id),
-      });
+      const initialData = {
+        nombre: rol.nombre,
+        permisos: rol.permisos.map((permiso) => permiso.id),
+      };
+      form.reset(initialData);
     }
   }, [rol, isOpen, form]);
 
@@ -85,6 +86,8 @@ export function EditarRolModal({
       setIsLoading(true);
       await editarRol(rol.id, data);
       toast.success("Rol editado exitosamente");
+
+      // Llamar a onSuccess antes de cerrar para refrescar los datos
       onSuccess();
       onClose();
     } catch (error) {
@@ -96,15 +99,17 @@ export function EditarRolModal({
   };
 
   const handlePermissionChange = (permissionId: number, checked: boolean) => {
-    const currentPermissions = form.getValues("permissions");
-    if (checked) {
-      form.setValue("permissions", [...currentPermissions, permissionId]);
-    } else {
-      form.setValue(
-        "permissions",
-        currentPermissions.filter((id) => id !== permissionId),
-      );
-    }
+    const currentPermissions = form.getValues("permisos");
+    const newPermissions = checked
+      ? [...currentPermissions, permissionId]
+      : currentPermissions.filter((id) => id !== permissionId);
+
+    // Marcar el campo como modificado para que isDirty funcione correctamente
+    form.setValue("permisos", newPermissions, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   if (!rol) return null;
@@ -120,7 +125,7 @@ export function EditarRolModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="name"
+              name="nombre"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nombre del Rol</FormLabel>
@@ -134,7 +139,7 @@ export function EditarRolModal({
 
             <FormField
               control={form.control}
-              name="permissions"
+              name="permisos"
               render={() => (
                 <FormItem>
                   <FormLabel>Permisos</FormLabel>
@@ -146,9 +151,7 @@ export function EditarRolModal({
                       >
                         <Checkbox
                           id={`permission-${permiso.id}`}
-                          checked={form
-                            .watch("permissions")
-                            .includes(permiso.id)}
+                          checked={form.watch("permisos").includes(permiso.id)}
                           onCheckedChange={(checked) =>
                             handlePermissionChange(
                               permiso.id,

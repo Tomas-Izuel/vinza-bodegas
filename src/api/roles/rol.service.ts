@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fetchApiWithAuth } from "@/lib/utils.server";
+import { fetchApiWithAuth, getAuthCookie } from "@/lib/utils.server";
 import {
   RolesResponse,
   PermisosResponse,
@@ -53,12 +53,22 @@ export async function crearRol(
   data: CrearRolRequest,
 ): Promise<CrearRolResponse> {
   try {
+    // Obtener el bodegaId del usuario autenticado
+    const authCookie = await getAuthCookie();
+    const bodegaId = authCookie.bodegaId;
+
+    // Preparar los datos con el bodegaId
+    const dataWithBodega = {
+      ...data,
+      bodegaId: bodegaId,
+    };
+
     const response = await fetchApiWithAuth<CrearRolResponse>(`/rbac/roles`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(dataWithBodega),
     });
 
     revalidatePath("/usuarios");
@@ -74,6 +84,16 @@ export async function editarRol(
   data: EditarRolRequest,
 ): Promise<EditarRolResponse> {
   try {
+    // Obtener el bodegaId del usuario autenticado
+    const authCookie = await getAuthCookie();
+    const bodegaId = authCookie.bodegaId;
+
+    // Preparar los datos con el bodegaId
+    const dataWithBodega = {
+      ...data,
+      bodegaId: bodegaId,
+    };
+
     const response = await fetchApiWithAuth<EditarRolResponse>(
       `/rbac/roles/${id}`,
       {
@@ -81,7 +101,7 @@ export async function editarRol(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataWithBodega),
       },
     );
 
