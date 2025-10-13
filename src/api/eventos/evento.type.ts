@@ -41,6 +41,8 @@ export type EventoDetalle = {
   estado: EstadoEvento;
   sucursal: SucursalCompleta;
   recurrencias: RecurrenciaEvento[];
+  multimedia?: string[]; // Array de URLs de imágenes
+  multimediaPortada?: string; // URL de la imagen de portada
 };
 
 export type Evento = {
@@ -123,6 +125,7 @@ export type EventoStepFormData = {
 
   // Paso 3: Multimedia
   imagenes: File[];
+  imagenPortada?: string; // Nombre del archivo que será la portada
 };
 
 // Tipo para enviar al backend
@@ -172,6 +175,7 @@ export const EventoFechaSchema = z.object({
 // Schema de validación para el paso 3 (Multimedia)
 export const EventoMultimediaSchema = z.object({
   imagenes: z.array(z.instanceof(File)).optional(),
+  imagenPortada: z.string().optional(),
 });
 
 // Schema completo para el step form
@@ -208,3 +212,33 @@ export type ActualizarEventoDto = {
   categoriaId: number;
   sucursalId: number;
 };
+
+// Tipos para reservas de instancia de evento
+export type UsuarioReserva = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  validado: string;
+  fecha_nacimiento: string;
+  bodegaId: number;
+};
+
+export type EstadoReserva = {
+  id: number;
+  nombre: string;
+};
+
+export type ReservaInstancia = {
+  id: number;
+  instanciaEventoId: number;
+  recorridoId: number;
+  precio: number;
+  cantidadGente: number;
+  estados: EstadoReserva[];
+  user: UsuarioReserva;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReservasInstanciaResponse = ReservaInstancia[];

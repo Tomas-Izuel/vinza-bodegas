@@ -1,7 +1,8 @@
 import { getEvento, getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
 import { getSucursalesMiBodega } from "@/api/sucursales/sucursal.service";
-import { EventoDetalleClient } from "./evento-detalle-client";
+import { EventoDetalle } from "@/components/evento/EventoDetalle";
+import { InstanciasEvento } from "@/components/evento/InstanciasEvento";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -61,12 +62,17 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
             </Link>
           </div>
         </section>
-        <EventoDetalleClient
-          evento={evento}
-          categorias={categorias}
-          sucursales={sucursales}
-          instanciasIniciales={instancias}
-        />
+        <main className="flex flex-col gap-4">
+          <EventoDetalle
+            evento={evento}
+            categorias={categorias}
+            sucursales={sucursales}
+          />
+          <InstanciasEvento
+            instancias={instancias}
+            eventoNombre={evento.nombre}
+          />
+        </main>
       </>
     );
   } catch (error) {

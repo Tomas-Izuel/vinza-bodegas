@@ -62,6 +62,46 @@ export async function fetchApiWithAuth<T>(
   });
 }
 
+export async function fetchApiWithAuthFormData<T>(
+  url: string,
+  formData: FormData,
+  options: RequestInit = {},
+): Promise<T> {
+  const authCookie = await validateAuthCookie();
+  if (!authCookie) {
+    throw new Error("No auth cookie found");
+  }
+
+  const response = await fetch(`${API_URL}${url}`, {
+    ...options,
+    method: "POST",
+    body: formData,
+    headers: {
+      Authorization: `Bearer ${authCookie.token}`,
+      // No establecer Content-Type para FormData, el navegador lo hará automáticamente
+    },
+  });
+
+  if (!response.ok) {
+    // Intentar parsear como JSON, si falla, usar el texto de la respuesta
+    let errorMessage = "Error desconocido";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      errorMessage = await response.text();
+    }
+    throw new Error(errorMessage);
+  }
+
+  // Intentar parsear como JSON, si falla, devolver texto
+  try {
+    return await response.json();
+  } catch {
+    return response.text() as T;
+  }
+}
+
 //BUILD SEARCH PARAMS GENERICO
 /**
  * Configuración para mapeo de parámetros de búsqueda

@@ -10,13 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
 import moment from "moment";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
-import { suspenderInstancia } from "@/api/eventos/eventos.service";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { VerReservasModal } from "./VerReservasModal";
 
 type InstanciaEvento = {
   id: number;
@@ -27,16 +24,12 @@ type InstanciaEvento = {
 
 interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
-  eventoId: number;
   eventoNombre: string;
-  onInstanciaUpdated?: () => void; // Callback para refrescar datos
 }
 
 export function InstanciasEvento({
   instancias,
-  eventoId,
   eventoNombre,
-  onInstanciaUpdated,
 }: InstanciasEventoProps) {
   const [modalData, setModalData] = useState<{
     id: number;
@@ -44,8 +37,14 @@ export function InstanciasEvento({
     fecha: string;
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+
+  // Estados para el modal de reservas
+  const [reservasModalData, setReservasModalData] = useState<{
+    id: number;
+    eventoNombre: string;
+    fecha: string;
+  } | null>(null);
+  const [isReservasModalOpen, setIsReservasModalOpen] = useState(false);
 
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
@@ -77,12 +76,23 @@ export function InstanciasEvento({
     setIsModalOpen(true);
   };
 
-  const handleModalConfirm = () => {
-    if (onInstanciaUpdated) {
-      onInstanciaUpdated();
-    }
+  const handleModalClose = () => {
     setIsModalOpen(false);
     setModalData(null);
+  };
+
+  const handleVerReservasClick = (instancia: InstanciaEvento) => {
+    setReservasModalData({
+      id: instancia.id,
+      eventoNombre,
+      fecha: instancia.fecha,
+    });
+    setIsReservasModalOpen(true);
+  };
+
+  const handleReservasModalClose = () => {
+    setIsReservasModalOpen(false);
+    setReservasModalData(null);
   };
 
   // Función para formatear el texto del estado (mayúsculas)
@@ -141,17 +151,20 @@ export function InstanciasEvento({
                   </Badge>
                 </TableCell>
                 <TableCell className="w-1/5">
-                  <Link
-                    href={`/eventos/${eventoId}/instancias/${instancia.id}/reservas`}
-                  >
+                  {instancia.reservas > 0 ? (
                     <Button
                       variant="ghost"
                       size={"sm"}
                       className="text-gray-600"
+                      onClick={() => handleVerReservasClick(instancia)}
                     >
                       Ver reservas
                     </Button>
-                  </Link>
+                  ) : (
+                    <span className="text-gray-400 text-sm">
+                      No hay reservas
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="w-1/5">
                   {esSuspendida ? (
@@ -175,9 +188,14 @@ export function InstanciasEvento({
 
       <SuspenderInstanciaModal
         isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={handleModalClose}
         instanciaData={modalData}
-        onInstanciaSuspendida={handleModalConfirm}
+      />
+
+      <VerReservasModal
+        isOpen={isReservasModalOpen}
+        onOpenChange={handleReservasModalClose}
+        instanciaData={reservasModalData}
       />
     </section>
   );

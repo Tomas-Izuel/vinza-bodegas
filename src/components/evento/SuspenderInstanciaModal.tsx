@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { suspenderInstancia } from "@/api/eventos/eventos.service";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface SuspenderInstanciaModalProps {
   isOpen: boolean;
@@ -21,16 +22,15 @@ interface SuspenderInstanciaModalProps {
     eventoNombre: string;
     fecha: string;
   } | null;
-  onInstanciaSuspendida: () => void;
 }
 
 export function SuspenderInstanciaModal({
   isOpen,
   onOpenChange,
   instanciaData,
-  onInstanciaSuspendida,
 }: SuspenderInstanciaModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSuspender = async () => {
     if (!instanciaData) return;
@@ -40,10 +40,10 @@ export function SuspenderInstanciaModal({
       await suspenderInstancia(instanciaData.id);
 
       toast.success("Instancia suspendida exitosamente");
-
-      // Cerrar modal y refrescar datos
       onOpenChange(false);
-      onInstanciaSuspendida();
+
+      // Refrescar la página para mostrar los cambios
+      router.refresh();
     } catch (error) {
       console.error("Error al suspender instancia:", error);
       toast.error("Error al suspender la instancia");

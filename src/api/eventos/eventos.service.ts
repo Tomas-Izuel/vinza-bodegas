@@ -1,14 +1,18 @@
 "use server";
-import { fetchApiWithAuth, buildApiUrl } from "@/lib/utils.server";
+import {
+  fetchApiWithAuth,
+  fetchApiWithAuthFormData,
+  buildApiUrl,
+} from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
 import {
   EventosParams,
   EventosResponse,
   EventoStepFormType,
-  CrearEventoDto,
   EventoDetalle,
   EditarEventoType,
   ActualizarEventoDto,
+  ReservasInstanciaResponse,
 } from "./evento.type";
 
 export type Evento = {
@@ -40,43 +44,53 @@ export const getEventos = async (
 
 export async function crearEvento(data: EventoStepFormType): Promise<void> {
   try {
-    // Transformar los datos del step form al formato del backend
-    const backendData: CrearEventoDto = {
-      nombre: data.nombre,
-      descripcion: data.descripcion || "",
-      cupo: data.cupos,
-      sucursalId: data.sucursalId,
-      estadoId: 1, // Estado activo por defecto
-      categoriaId: data.categoriaId,
-      precio: data.precio,
-      recurrencias: data.fechas.map((fecha) => {
-        const date = new Date(fecha);
-        const diasSemana = [
-          "Domingo",
-          "Lunes",
-          "Martes",
-          "Miércoles",
-          "Jueves",
-          "Viernes",
-          "Sábado",
-        ];
-        const dia = diasSemana[date.getDay()];
+    // Crear FormData para enviar archivos multimedia
+    const formData = new FormData();
 
-        return {
-          dia,
-          hora: data.hora,
-        };
-      }),
-    };
+    // Agregar campos básicos del evento
+    formData.append("nombre", data.nombre);
+    formData.append("descripcion", data.descripcion || "");
+    formData.append("cupo", data.cupos.toString());
+    formData.append("sucursalId", data.sucursalId.toString());
+    formData.append("estadoId", "1"); // Estado activo por defecto
+    formData.append("categoriaId", data.categoriaId.toString());
+    formData.append("precio", data.precio.toString());
 
-    // Hacer POST al backend
-    await fetchApiWithAuth<Evento>("/eventos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(backendData),
+    // Agregar recurrencias como JSON string
+    const recurrencias = data.fechas.map((fecha) => {
+      const date = new Date(fecha);
+      const diasSemana = [
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+      ];
+      const dia = diasSemana[date.getDay()];
+
+      return {
+        dia,
+        hora: data.hora,
+      };
     });
+    formData.append("recurrencias", JSON.stringify(recurrencias));
+
+    // Agregar archivos multimedia
+    if (data.imagenes && data.imagenes.length > 0) {
+      // Agregar todas las imágenes
+      data.imagenes.forEach((imagen) => {
+        formData.append("multimedia", imagen);
+      });
+
+      // Agregar imagen de portada (por defecto la primera, o la seleccionada)
+      const imagenPortada = data.imagenPortada || data.imagenes[0]?.name || "";
+      formData.append("multimediaPortada", imagenPortada);
+    }
+
+    // Hacer POST al backend con FormData
+    await fetchApiWithAuthFormData<Evento>("/eventos", formData);
 
     return;
   } catch (error) {
@@ -105,6 +119,7 @@ export async function obtenerSucursales(): Promise<
 export const getEvento = async (id: string): Promise<EventoDetalle> => {
   try {
     const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`);
+    console.log(response);
     return response;
   } catch (error) {
     console.error("[EVENTOS]:", error);
@@ -308,6 +323,35 @@ export const reactivarInstancia = async (
         ? error.message
         : "Error al reactivar la instancia";
     errorLogger(error, "reactivarInstancia");
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Obtiene las reservas de una instancia de evento
+ */
+export const getReservasInstancia = async (
+  instanciaId: string,
+): Promise<ReservasInstanciaResponse> => {
+  try {
+    const url = buildApiUrl(`/eventos/instancias/${instanciaId}/reservas`);
+    const response = (await fetchApiWithAuth(url, {
+      method: "GET",
+    })) as Response;
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("No se encontraron reservas para esta instancia");
+      }
+      throw new Error("Error al obtener las reservas");
+    }
+
+    const data: ReservasInstanciaResponse = await response.json();
+    return data;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al obtener las reservas";
+    errorLogger(error, "getReservasInstancia");
     throw new Error(errorMessage);
   }
 };

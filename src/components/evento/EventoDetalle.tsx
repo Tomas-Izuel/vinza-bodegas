@@ -26,13 +26,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import Image from "next/image";
 import moment from "moment";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { actualizarEvento } from "@/api/eventos/eventos.service";
 import { toast } from "sonner";
+import { EventoImagenes } from "./EventoImagenes";
 
 interface EventoDetalleProps {
   evento: EventoDetalleType;
@@ -330,17 +330,13 @@ export function EventoDetalle({
                 )}
               </div>
 
-              {/* Imagen del evento */}
+              {/* Imágenes del evento */}
               <div className="lg:col-span-1">
-                <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src="/placeholder-event.jpg"
-                    alt={evento.nombre}
-                    width={100}
-                    height={100}
-                    className="w-48 h-48 object-cover"
-                  />
-                </div>
+                <EventoImagenes
+                  imagenes={evento.multimedia || []}
+                  imagenPortada={evento.multimediaPortada}
+                  nombreEvento={evento.nombre}
+                />
               </div>
             </div>
           </form>

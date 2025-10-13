@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState, useCallback } from "react";
 import { Upload, X } from "lucide-react";
+import Image from "next/image";
 
 // Tipo inferido del schema de Zod
 type EventoMultimediaFields = z.infer<typeof EventoMultimediaSchema>;
@@ -23,6 +24,9 @@ export function EventoMultimediaStep({
   const [selectedFiles, setSelectedFiles] = useState<File[]>(
     initialData?.imagenes || [],
   );
+  const [imagenPortada, setImagenPortada] = useState<string>(
+    initialData?.imagenPortada || "",
+  );
   const [dragActive, setDragActive] = useState(false);
 
   const handleFileSelect = useCallback(
@@ -33,14 +37,38 @@ export function EventoMultimediaStep({
             file.type.startsWith("image/") &&
             !selectedFiles.some((existing) => existing.name === file.name),
         );
-        setSelectedFiles((prev) => [...prev, ...newFiles]);
+        setSelectedFiles((prev) => {
+          const updatedFiles = [...prev, ...newFiles];
+          // Si es la primera imagen cargada y no hay portada seleccionada, establecerla como portada
+          if (prev.length === 0 && updatedFiles.length > 0 && !imagenPortada) {
+            setImagenPortada(updatedFiles[0].name);
+          }
+          return updatedFiles;
+        });
       }
     },
-    [selectedFiles],
+    [selectedFiles, imagenPortada],
   );
 
-  const removeFile = useCallback((index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeFile = useCallback(
+    (index: number) => {
+      setSelectedFiles((prev) => {
+        const fileToRemove = prev[index];
+        const updatedFiles = prev.filter((_, i) => i !== index);
+
+        // Si se elimina la imagen de portada, establecer la primera disponible como nueva portada
+        if (fileToRemove.name === imagenPortada) {
+          setImagenPortada(updatedFiles.length > 0 ? updatedFiles[0].name : "");
+        }
+
+        return updatedFiles;
+      });
+    },
+    [imagenPortada],
+  );
+
+  const setAsPortada = useCallback((fileName: string) => {
+    setImagenPortada(fileName);
   }, []);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -67,7 +95,12 @@ export function EventoMultimediaStep({
   );
 
   const handleSubmit = () => {
-    onSubmit({ imagenes: selectedFiles });
+    onSubmit({
+      imagenes: selectedFiles,
+      imagenPortada:
+        imagenPortada ||
+        (selectedFiles.length > 0 ? selectedFiles[0].name : ""),
+    });
   };
 
   return (
@@ -118,25 +151,49 @@ export function EventoMultimediaStep({
           <h4 className="font-medium">
             Imágenes seleccionadas ({selectedFiles.length})
           </h4>
+          <p className="text-sm text-gray-600">
+            Haz clic derecho en una imagen para establecerla como portada
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {selectedFiles.map((file, index) => (
-              <div key={index} className="relative group">
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
-                <button
-                  onClick={() => removeFile(index)}
-                  className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                <p className="text-xs text-gray-600 mt-1 truncate">
-                  {file.name}
-                </p>
-              </div>
-            ))}
+            {selectedFiles.map((file, index) => {
+              const isPortada = file.name === imagenPortada;
+              return (
+                <div key={index} className="relative group">
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    width={128}
+                    height={128}
+                    className={`w-full h-32 object-cover rounded-lg ${
+                      isPortada ? "ring-2 ring-primary ring-offset-2" : ""
+                    }`}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      setAsPortada(file.name);
+                    }}
+                  />
+
+                  {/* Indicador de portada */}
+                  {isPortada && (
+                    <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Portada
+                    </div>
+                  )}
+
+                  {/* Botón de eliminar */}
+                  <button
+                    onClick={() => removeFile(index)}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <p className="text-xs text-gray-600 mt-1 truncate">
+                    {file.name}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
