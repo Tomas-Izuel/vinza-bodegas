@@ -254,8 +254,6 @@ export function VerReservasModal({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Usuario</TableHead>
-                          <TableHead>Email</TableHead>
                           <TableHead>Personas</TableHead>
                           <TableHead>Precio</TableHead>
                           <TableHead>Estado</TableHead>
@@ -265,10 +263,6 @@ export function VerReservasModal({
                       <TableBody>
                         {reservas.map((reserva) => (
                           <TableRow key={reserva.id}>
-                            <TableCell className="font-medium">
-                              {reserva?.user?.nombre} {reserva?.user?.apellido}
-                            </TableCell>
-                            <TableCell>{reserva.user?.email}</TableCell>
                             <TableCell>{reserva.cantidadGente}</TableCell>
                             <TableCell>
                               {formatCurrency(reserva.precio)}

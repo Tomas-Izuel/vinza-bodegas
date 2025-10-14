@@ -243,9 +243,6 @@ export function CrearRolModal({
                                             <FormLabel className="text-sm font-normal">
                                               {permiso.nombre}
                                             </FormLabel>
-                                            <div className="text-xs text-gray-500">
-                                              {permiso.clave}
-                                            </div>
                                           </div>
                                         </FormItem>
                                       );
