@@ -45,9 +45,6 @@ export default function SidebarNav() {
               <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <FileText className="h-4 w-4 mr-3" />
                 <span className="flex-1">Reservas</span>
-                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs font-medium">
-                  217
-                </span>
               </div>
             </Link>
             <Link
