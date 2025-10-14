@@ -61,6 +61,7 @@ export function VerReservasModal({
     try {
       setIsLoading(true);
       const data = await getReservasInstancia(instanciaData.id.toString());
+      console.log("DATA", data);
       setReservas(data);
       calcularEstadisticas(data);
     } catch (error) {
@@ -84,7 +85,7 @@ export function VerReservasModal({
       0,
     );
     const totalIngresos = reservasData.reduce(
-      (sum, reserva) => sum + reserva.precio,
+      (sum, reserva) => sum + +reserva.precio,
       0,
     );
     const promedioPersonasPorReserva =
@@ -213,7 +214,7 @@ export function VerReservasModal({
                     {reservas.slice(0, 10).map((reserva) => (
                       <div key={reserva.id} className="flex items-center gap-3">
                         <div className="w-16 text-sm text-gray-600 truncate">
-                          {reserva.user.nombre} {reserva.user.apellido}
+                          {reserva?.user?.nombre} {reserva?.user?.apellido}
                         </div>
                         <div className="flex-1 bg-gray-200 rounded-full h-4 relative">
                           <div
@@ -265,9 +266,9 @@ export function VerReservasModal({
                         {reservas.map((reserva) => (
                           <TableRow key={reserva.id}>
                             <TableCell className="font-medium">
-                              {reserva.user.nombre} {reserva.user.apellido}
+                              {reserva?.user?.nombre} {reserva?.user?.apellido}
                             </TableCell>
-                            <TableCell>{reserva.user.email}</TableCell>
+                            <TableCell>{reserva.user?.email}</TableCell>
                             <TableCell>{reserva.cantidadGente}</TableCell>
                             <TableCell>
                               {formatCurrency(reserva.precio)}

@@ -14,11 +14,12 @@ import moment from "moment";
 import { useState } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import { VerReservasModal } from "./VerReservasModal";
+import { Reserva } from "@/api/reservas/reserva.type";
 
 type InstanciaEvento = {
   id: number;
   fecha: string;
-  reservas: number;
+  reservas: Reserva[];
   estado: string;
 };
 
@@ -143,7 +144,7 @@ export function InstanciasEvento({
                   {moment(instancia.fecha).format("DD/MM/YYYY")}
                 </TableCell>
                 <TableCell className="w-1/5">
-                  {instancia.reservas} Reservas
+                  {instancia.reservas.length} Reservas
                 </TableCell>
                 <TableCell className="w-1/5">
                   <Badge variant={getEstadoVariant(instancia.estado)}>
@@ -151,7 +152,7 @@ export function InstanciasEvento({
                   </Badge>
                 </TableCell>
                 <TableCell className="w-1/5">
-                  {instancia.reservas > 0 ? (
+                  {instancia.reservas.length > 0 ? (
                     <Button
                       variant="ghost"
                       size={"sm"}

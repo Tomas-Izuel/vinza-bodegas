@@ -14,6 +14,7 @@ import {
   ActualizarEventoDto,
   ReservasInstanciaResponse,
 } from "./evento.type";
+import { Reserva } from "../reservas/reserva.type";
 
 export type Evento = {
   id: string;
@@ -179,6 +180,7 @@ export const getEventosMiBodega = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
   try {
+    console.log(params);
     const eventosMapping = {
       search: "nombre", // mapea "search" a "nombre"
     };
@@ -205,7 +207,7 @@ export const getInstanciasEvento = async (
   Array<{
     id: number;
     fecha: string;
-    reservas: number;
+    reservas: Reserva[];
     estado: string;
   }>
 > => {
@@ -218,7 +220,7 @@ export const getInstanciasEvento = async (
         hora: string;
         estado: string | { nombre: string; id: number };
         cupoDisponible: number;
-        cantidadReservas?: number;
+        reservas: Reserva[];
         recurrenciaEvento: {
           id: number;
           dia: string;
@@ -245,7 +247,7 @@ export const getInstanciasEvento = async (
       return {
         id: instancia.id,
         fecha: instancia.fecha,
-        reservas: instancia.cantidadReservas || 0, // Usar cantidadReservas si está disponible, sino 0
+        reservas: instancia.reservas, // Usar cantidadReservas si está disponible, sino 0
         estado: estadoTransformado,
       };
     });
@@ -335,19 +337,10 @@ export const getReservasInstancia = async (
 ): Promise<ReservasInstanciaResponse> => {
   try {
     const url = buildApiUrl(`/eventos/instancias/${instanciaId}/reservas`);
-    const response = (await fetchApiWithAuth(url, {
+    const response = await fetchApiWithAuth<ReservasInstanciaResponse>(url, {
       method: "GET",
-    })) as Response;
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error("No se encontraron reservas para esta instancia");
-      }
-      throw new Error("Error al obtener las reservas");
-    }
-
-    const data: ReservasInstanciaResponse = await response.json();
-    return data;
+    });
+    return response;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al obtener las reservas";
