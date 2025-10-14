@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.istockphoto.com",
       },
+      {
+        protocol: "https",
+        hostname: "vinza-media-bucket.s3.us-east-1.amazonaws.com",
+      },
     ],
   },
 };

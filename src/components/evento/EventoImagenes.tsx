@@ -1,15 +1,16 @@
 "use client";
 
+import { EventoMultimedia } from "@/api/eventos/evento.type";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface EventoImagenesProps {
-  imagenes: string[];
-  imagenPortada?: string;
+  imagenes: EventoMultimedia[];
+  imagenPortada?: EventoMultimedia;
   nombreEvento: string;
 }
 
@@ -18,6 +19,7 @@ export function EventoImagenes({
   imagenPortada,
   nombreEvento,
 }: EventoImagenesProps) {
+  console.log("imagenes", imagenes);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -51,7 +53,7 @@ export function EventoImagenes({
       {/* Imagen principal */}
       <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden relative group cursor-pointer">
         <Image
-          src={imagenPrincipal}
+          src={imagenPrincipal.url || ""}
           alt={`${nombreEvento} - Portada`}
           width={192}
           height={192}
@@ -91,7 +93,7 @@ export function EventoImagenes({
               onClick={() => openModal(index)}
             >
               <Image
-                src={imagen}
+                src={imagen.url || ""}
                 alt={`${nombreEvento} - Imagen ${index + 1}`}
                 width={64}
                 height={64}
@@ -109,7 +111,7 @@ export function EventoImagenes({
             {/* Imagen principal */}
             <div className="relative aspect-video w-full">
               <Image
-                src={imagenes[selectedImageIndex]}
+                src={imagenes[selectedImageIndex].url || ""}
                 alt={`${nombreEvento} - Imagen ${selectedImageIndex + 1}`}
                 width={800}
                 height={600}

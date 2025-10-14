@@ -17,6 +17,7 @@ export interface StepFormActions<T> {
   getCurrentData: () => Partial<T>;
   getAllData: () => T;
   setCanGoNext: (canGo: boolean) => void;
+  setDataAndSubmit: (data: Partial<T>) => Promise<void>;
 }
 
 export interface UseStepFormOptions<T> {
@@ -56,6 +57,20 @@ export function useStepForm<T extends Record<string, unknown>>({
     },
     [state.currentStep, onStepDataChange],
   );
+
+  const setDataAndSubmit = async (data: Partial<T>) => {
+    const newData = {
+      ...state.stepData,
+      ...data,
+    };
+    setState((prev) => ({
+      ...prev,
+      stepData: newData,
+      isSubmitting: true,
+    }));
+    await onSubmit(newData as T);
+    updateState({ isSubmitting: false });
+  };
 
   const nextStep = useCallback(
     (data?: Partial<T>) => {
@@ -160,5 +175,6 @@ export function useStepForm<T extends Record<string, unknown>>({
     getCurrentData,
     getAllData,
     setCanGoNext,
+    setDataAndSubmit,
   };
 }

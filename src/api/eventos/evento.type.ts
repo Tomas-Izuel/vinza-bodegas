@@ -41,8 +41,19 @@ export type EventoDetalle = {
   estado: EstadoEvento;
   sucursal: SucursalCompleta;
   recurrencias: RecurrenciaEvento[];
-  multimedia?: string[]; // Array de URLs de imágenes
-  multimediaPortada?: string; // URL de la imagen de portada
+  multimedia?: EventoMultimedia[]; // Array de URLs de imágenes
+  multimediaPortada?: EventoMultimedia; // URL de la imagen de portada
+};
+
+export type EventoMultimedia = {
+  created_at: string;
+  deleted_at: string | null;
+  es_portada: string | null;
+  eventoId: number;
+  id: number;
+  tipoId: string | null;
+  updated_at: string;
+  url: string;
 };
 
 export type Evento = {

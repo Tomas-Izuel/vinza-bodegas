@@ -73,8 +73,7 @@ export function CrearEventoStepForm({
   };
 
   const handleFinalSubmit = async (data: Partial<EventoStepFormData>) => {
-    stepForm.setStepData(data);
-    await stepForm.submit();
+    await stepForm.setDataAndSubmit(data);
   };
 
   const handleCancel = () => {
