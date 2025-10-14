@@ -39,61 +39,7 @@ interface AlertsPanelProps {
   onConfigureAlerts?: () => void;
 }
 
-const mockAlerts: AlertItem[] = [
-  {
-    id: "1",
-    type: "error",
-    title: "Sistema de Pagos Inactivo",
-    description:
-      "El procesador de pagos principal no responde. Se recomienda revisar inmediatamente.",
-    timestamp: "Hace 5 minutos",
-    source: "Pagos",
-    isRead: false,
-    priority: "high",
-  },
-  {
-    id: "2",
-    type: "warning",
-    title: "Capacidad de Bodega al 85%",
-    description:
-      "La bodega central está cerca de su capacidad máxima. Considerar redistribución.",
-    timestamp: "Hace 15 minutos",
-    source: "Inventario",
-    isRead: false,
-    priority: "medium",
-  },
-  {
-    id: "3",
-    type: "success",
-    title: "Evento Completado Exitosamente",
-    description: "El evento 'Cata Premium' se completó con 95% de asistencia.",
-    timestamp: "Hace 1 hora",
-    source: "Eventos",
-    isRead: true,
-    priority: "low",
-  },
-  {
-    id: "4",
-    type: "warning",
-    title: "Personal Requiere Capacitación",
-    description:
-      "3 empleados del área de turismo necesitan capacitación en protocolos.",
-    timestamp: "Hace 2 horas",
-    source: "Personal",
-    isRead: false,
-    priority: "medium",
-  },
-  {
-    id: "5",
-    type: "info",
-    title: "Backup Completado",
-    description: "Respaldo automático de datos completado correctamente.",
-    timestamp: "Hace 3 horas",
-    source: "Sistema",
-    isRead: true,
-    priority: "low",
-  },
-];
+const mockAlerts: AlertItem[] = [];
 
 export function AlertsPanel({
   alerts = mockAlerts,

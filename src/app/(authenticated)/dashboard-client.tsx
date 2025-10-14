@@ -302,7 +302,7 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Sucursales</p>
-                <p className="text-2xl font-bold">45</p>
+                <p className="text-2xl font-bold">-</p>
               </div>
             </div>
           </CardContent>
@@ -316,7 +316,7 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Valoraciones</p>
-                <p className="text-2xl font-bold">1,247</p>
+                <p className="text-2xl font-bold">-</p>
               </div>
             </div>
           </CardContent>
@@ -330,7 +330,7 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Este Mes</p>
-                <p className="text-2xl font-bold">89</p>
+                <p className="text-2xl font-bold">-</p>
               </div>
             </div>
           </CardContent>
@@ -344,7 +344,7 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Crecimiento</p>
-                <p className="text-2xl font-bold">+23%</p>
+                <p className="text-2xl font-bold">-</p>
               </div>
             </div>
           </CardContent>
