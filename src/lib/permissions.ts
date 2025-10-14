@@ -1,21 +1,50 @@
 import { Routes } from "./routes";
 
-export type Permission =
-  | "sudo" // Acceso a todo
-  | "bodegas_read" // Ver bodegas
-  | "bodegas_manage" // Gestionar bodegas
-  | "users_read" // Ver usuarios
-  | "users_manage" // Gestionar usuarios
-  | "roles_read" // Ver roles
-  | "roles_manage" // Gestionar roles
-  | "eventos_read" // Ver eventos
-  | "eventos_manage" // Gestionar eventos
-  | "reservas_read" // Ver reservas
-  | "reservas_manage" // Gestionar reservas
-  | "valoraciones_read" // Ver valoraciones
-  | "valoraciones_manage" // Gestionar valoraciones
-  | "instancia_eventos_read" // Ver instancia de eventos
-  | "instancia_eventos_manage"; // Gestionar instancia de eventos
+// This must be kept in sync with the permissions in the database
+export enum Permissions {
+  SUDO = "SUDO",
+  BODEGAS_READ = "BODEGAS:READ",
+  BODEGAS_MANAGE = "BODEGAS:MANAGE",
+  BODEGAS_VALIDATE = "BODEGAS:VALIDATE",
+  USERS_READ = "USERS:READ",
+  USERS_MANAGE = "USERS:MANAGE",
+  ROLES_READ = "ROLES:READ",
+  ROLES_MANAGE = "ROLES:MANAGE",
+  EVENTOS_READ = "EVENTOS:READ",
+  EVENTOS_MANAGE = "EVENTOS:MANAGE",
+  RESERVAS_READ = "RESERVAS:READ",
+  RESERVAS_MANAGE = "RESERVAS:MANAGE",
+  RECORRIDO_READ = "RECORRIDO:READ",
+  RECORRIDO_MANAGE = "RECORRIDO:MANAGE",
+  VALORACIONES_READ = "VALORACIONES:READ",
+  VALORACIONES_MANAGE = "VALORACIONES:MANAGE",
+  INSTANCIA_EVENTOS_READ = "INSTANCIA_EVENTOS:READ",
+  INSTANCIA_EVENTOS_MANAGE = "INSTANCIA_EVENTOS:MANAGE",
+  FAQ_MANAGE = "FAQ:MANAGE",
+}
+
+export type Permission = `${Permissions}`;
+
+// Función para extraer todos los permisos de los roles de un usuario
+export function extractPermissionsFromRoles(
+  roles: Array<{ permisos: Array<{ clave: string }> }>,
+): Permission[] {
+  const permissions: Permission[] = [];
+
+  roles.forEach((role) => {
+    role.permisos.forEach((permiso) => {
+      // La clave del permiso ya viene en el formato correcto (ej: "BODEGAS:READ")
+      // Solo necesitamos verificar que existe en nuestro enum
+      const permissionValue = permiso.clave as Permission;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (Object.values(Permissions).includes(permissionValue as any)) {
+        permissions.push(permissionValue);
+      }
+    });
+  });
+
+  return permissions;
+}
 
 // Mapeo de rutas a permisos requeridos
 export const routePermissionMap: Record<string, Permission[]> = {
@@ -23,20 +52,20 @@ export const routePermissionMap: Record<string, Permission[]> = {
   [Routes.HOME]: [],
 
   // Eventos
-  [Routes.EVENTOS]: ["eventos_read"],
-  [Routes.CREAR_EVENTO]: ["eventos_manage"],
+  [Routes.EVENTOS]: [Permissions.EVENTOS_READ],
+  [Routes.CREAR_EVENTO]: [Permissions.EVENTOS_MANAGE],
   // Para rutas dinámicas como /eventos/[id], usaremos un patrón de matching
 
   // Usuarios
-  [Routes.USUARIOS]: ["users_read"],
+  [Routes.USUARIOS]: [Permissions.USERS_READ],
 
   // Bodegas
-  [Routes.BODEGA]: ["bodegas_read"],
-  [Routes.BODEGA_INFORMACION]: ["bodegas_read"],
-  [Routes.CREAR_BODEGA]: ["bodegas_manage"],
+  [Routes.BODEGA]: [Permissions.BODEGAS_READ],
+  [Routes.BODEGA_INFORMACION]: [Permissions.BODEGAS_READ],
+  [Routes.CREAR_BODEGA]: [Permissions.BODEGAS_MANAGE],
 
   // Reservas
-  [Routes.RESERVAS]: ["reservas_read"],
+  [Routes.RESERVAS]: [Permissions.RESERVAS_READ],
 
   // Perfil - acceso básico para usuarios autenticados
   [Routes.PERFIL]: [],
@@ -50,9 +79,8 @@ export function hasRouteAccess(
   userPermissions: Permission[],
   pathname: string,
 ): boolean {
-  return true;
-  // Si el usuario tiene permiso sudo, tiene acceso a todo
-  if (userPermissions.includes("sudo")) {
+  // Si el usuario tiene permiso SUDO, tiene acceso a todo
+  if (userPermissions.includes(Permissions.SUDO)) {
     return true;
   }
 

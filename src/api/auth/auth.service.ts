@@ -9,7 +9,7 @@ import {
   ValidateAccountDto,
   RequestValidationDto,
 } from "./auth.type";
-import { AUTH_COOKIE_NAME } from "@/lib/constants";
+import { AUTH_COOKIE_NAME, PERMISSIONS_COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
 import { fetchApi } from "@/lib/utils.server";
 
@@ -33,13 +33,57 @@ export const login = async (data: LoginDto) => {
 
     const authCookie = AuthCookieSchema.parse(authData);
 
-    cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(authCookie), {
+    // Cookie principal con información básica del usuario (sin roles)
+    const mainCookie = {
+      id: authCookie.id,
+      nombre: authCookie.nombre,
+      apellido: authCookie.apellido,
+      email: authCookie.email,
+      validado: authCookie.validado,
+      bodegaId: authCookie.bodegaId,
+      token: authCookie.token,
+      bodega: authCookie.bodega,
+      // Array vacío para roles para mantener compatibilidad con AuthCookieSchema
+      roles: [],
+    };
+
+    // Cookie separada para roles y permisos
+    const permissionsCookie = {
+      roles: authCookie.roles.map((role) => ({
+        id: role.id,
+        nombre: role.nombre,
+        permisos: role.permisos.map((permiso) => ({
+          clave: permiso.clave,
+        })),
+      })),
+    };
+
+    console.log("Setting main cookie:", AUTH_COOKIE_NAME);
+    console.log("Setting permissions cookie:", PERMISSIONS_COOKIE_NAME);
+
+    // Guardar cookie principal
+    cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(mainCookie), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30, // 30 días
       path: "/",
     });
+
+    // Guardar cookie de permisos
+    cookieStore.set(
+      PERMISSIONS_COOKIE_NAME,
+      JSON.stringify(permissionsCookie),
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 días
+        path: "/",
+      },
+    );
+
+    console.log("Both cookies set successfully");
 
     return authData;
   } catch (error) {

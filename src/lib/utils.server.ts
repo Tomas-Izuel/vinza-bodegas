@@ -1,8 +1,16 @@
-import { API_URL, AUTH_COOKIE_NAME } from "./constants";
+import {
+  API_URL,
+  AUTH_COOKIE_NAME,
+  PERMISSIONS_COOKIE_NAME,
+} from "./constants";
 import { cookies } from "next/headers";
 import z from "zod";
 import { errorLogger } from "./utils";
-import { AuthCookie, AuthCookieSchema } from "@/api/auth/auth.type";
+import {
+  AuthCookie,
+  AuthCookieSchema,
+  PermissionsCookie,
+} from "@/api/auth/auth.type";
 
 export const validateAuthCookie = async (): Promise<z.infer<
   typeof AuthCookieSchema
@@ -164,4 +172,13 @@ export const getAuthCookie = async () => {
   ) as AuthCookie;
 
   return authCookieValue;
+};
+
+export const getPermissionsCookie = async () => {
+  const cookieStore = await cookies();
+  const permissionsCookieValue = JSON.parse(
+    cookieStore.get(PERMISSIONS_COOKIE_NAME)?.value || "{}",
+  ) as PermissionsCookie;
+
+  return permissionsCookieValue;
 };

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME } from "./lib/constants";
-import { hasRouteAccess, Permission } from "./lib/permissions";
+import { AUTH_COOKIE_NAME, PERMISSIONS_COOKIE_NAME } from "./lib/constants";
+import { hasRouteAccess, extractPermissionsFromRoles } from "./lib/permissions";
 import { middlewareLogger } from "./lib/middleware-logger";
 import { AuthCookieSchema } from "./api/auth/auth.type";
 import { Routes } from "./lib/routes";
-import { decodeJWT, isTokenExpired } from "./lib/jwt.utils";
+import { isTokenExpired } from "./lib/jwt.utils";
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
@@ -25,12 +25,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Obtener la cookie de autenticación
+  // Obtener las cookies de autenticación
   const authCookie = request.cookies.get(AUTH_COOKIE_NAME);
+  const permissionsCookie = request.cookies.get(PERMISSIONS_COOKIE_NAME);
 
-  // Si no hay cookie, redirigir al login
-  if (!authCookie) {
-    middlewareLogger.authFailure(pathname, "Cookie no encontrada");
+  // Si no hay cookies, redirigir al login
+  if (!authCookie || !permissionsCookie) {
+    middlewareLogger.authFailure(pathname, "Cookies no encontradas");
 
     const loginUrl = new URL(Routes.LOGIN, request.url);
     middlewareLogger.redirect(pathname, loginUrl.pathname, "Sin autenticación");
@@ -38,10 +39,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Validar el contenido de la cookie
+  // Validar el contenido de las cookies
   try {
-    const cookieData = JSON.parse(authCookie.value);
-    const validatedData = AuthCookieSchema.parse(cookieData);
+    const mainCookieData = JSON.parse(authCookie.value);
+    const permissionsCookieData = JSON.parse(permissionsCookie.value);
+
+    const validatedData = AuthCookieSchema.parse(mainCookieData);
+
+    // Validar estructura básica de la cookie de permisos
+    if (
+      !permissionsCookieData.roles ||
+      !Array.isArray(permissionsCookieData.roles)
+    ) {
+      throw new Error("Estructura de permisos inválida");
+    }
 
     if (validatedData.token) {
       // Verificar si el token ha expirado
@@ -56,8 +67,9 @@ export function middleware(request: NextRequest) {
         );
 
         const response = NextResponse.redirect(logoutUrl);
-        // Limpiar la cookie expirada
+        // Limpiar las cookies expiradas
         response.cookies.delete(AUTH_COOKIE_NAME);
+        response.cookies.delete(PERMISSIONS_COOKIE_NAME);
 
         return response;
       }
@@ -101,12 +113,15 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(logoutUrl);
     }
 
-    const userPermissions = (decodeJWT(validatedData.token)?.permissions ||
-      []) as Permission[];
+    // Extraer permisos de los roles del usuario
+    const userPermissions = extractPermissionsFromRoles(
+      permissionsCookieData.roles,
+    );
+
     if (!hasRouteAccess(userPermissions, pathname)) {
       middlewareLogger.permissionDenied(
         validatedData.id.toString(),
-        validatedData.roles[0].nombre,
+        permissionsCookieData.roles[0]?.nombre || "unknown",
         pathname,
       );
 
@@ -123,14 +138,17 @@ export function middleware(request: NextRequest) {
     // Log de autenticación exitosa solo en desarrollo
     middlewareLogger.authSuccess(
       validatedData.id.toString(),
-      validatedData.roles[0].nombre,
+      permissionsCookieData.roles[0]?.nombre || "unknown",
       pathname,
     );
 
     // Añadir headers con información del usuario
     const response = NextResponse.next();
     response.headers.set("x-user-id", validatedData.id.toString());
-    response.headers.set("x-user-role", validatedData.roles[0].nombre);
+    response.headers.set(
+      "x-user-role",
+      permissionsCookieData.roles[0]?.nombre || "unknown",
+    );
     response.headers.set("x-user-email", validatedData.email);
     response.headers.set("x-user-name", validatedData.nombre);
 
@@ -143,9 +161,10 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL(Routes.LOGIN, request.url);
     const response = NextResponse.redirect(loginUrl);
 
-    // Limpiar la cookie inválida
+    // Limpiar las cookies inválidas
     response.cookies.delete(AUTH_COOKIE_NAME);
-    middlewareLogger.redirect(pathname, loginUrl.pathname, "Cookie inválida");
+    response.cookies.delete(PERMISSIONS_COOKIE_NAME);
+    middlewareLogger.redirect(pathname, loginUrl.pathname, "Cookies inválidas");
 
     return response;
   }

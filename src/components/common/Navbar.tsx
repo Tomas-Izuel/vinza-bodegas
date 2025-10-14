@@ -3,10 +3,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
 import { User, LogOut } from "lucide-react";
-import { getAuthCookie } from "@/lib/utils.server";
+import { getAuthCookie, getPermissionsCookie } from "@/lib/utils.server";
 
 export default async function TopNav() {
   const authCookie = await getAuthCookie();
+  const permissionsCookie = await getPermissionsCookie();
 
   return (
     <nav className="bg-primary text-white px-6 py-2 flex items-center justify-between h-16">
@@ -22,7 +23,7 @@ export default async function TopNav() {
             <div className="flex flex-col items-end">
               <p className="text-sm font-bold">{authCookie.email}</p>
               <p className="text-xs text-gray-300">
-                {authCookie.roles[0].nombre}
+                {permissionsCookie.roles[0].nombre}
               </p>
             </div>
             <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">

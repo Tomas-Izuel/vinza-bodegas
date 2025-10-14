@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { BodegaSchema } from "../bodegas/bodega.type";
 
 export const LoginSchema = z.object({
   email: z
@@ -39,12 +38,40 @@ export const LoginSchema = z.object({
   ],
   token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJyb2xlIjoxLCJpYXQiOjE3NTUzODYxNzcsImV4cCI6MTc1NTQ3MjU3N30.U1o6ojnnePOmAEgcm7QETZOjfXj9_ErBgYvO06bVZhI'
 } */
+export interface Permiso {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  clave: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  HRolPermiso: {
+    rolId: number;
+    permisoId: number;
+    created_at: string;
+    updatedAt: string;
+    deleted_at: string | null;
+  };
+}
+
+export interface HRolUsuario {
+  userId: number;
+  rolId: number;
+  created_at: string;
+  updatedAt: string;
+  deleted_at: string | null;
+}
+
 export interface Role {
   id: number;
   nombre: string;
   bodegaId: number;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
+  HRolUsuario: HRolUsuario;
+  permisos: Permiso[];
 }
 
 export interface LoginResponse {
@@ -59,15 +86,65 @@ export interface LoginResponse {
   updated_at: string;
   deleted_at: string | null;
   roles: Role[];
+  bodega: {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    telefono: string;
+    validada: string | null;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+  };
   token: string;
 }
+
+export const PermisoSchema = z.object({
+  id: z.number(),
+  nombre: z.string(),
+  descripcion: z.string(),
+  clave: z.string(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
+  HRolPermiso: z.object({
+    rolId: z.number(),
+    permisoId: z.number(),
+    created_at: z.string(),
+    updatedAt: z.string(),
+    deleted_at: z.string().nullable(),
+  }),
+});
+
+export const HRolUsuarioSchema = z.object({
+  userId: z.number(),
+  rolId: z.number(),
+  created_at: z.string(),
+  updatedAt: z.string(),
+  deleted_at: z.string().nullable(),
+});
 
 export const RoleSchema = z.object({
   id: z.number(),
   nombre: z.string(),
-  bodegaId: z.number().nullable(),
+  bodegaId: z.number(),
   created_at: z.string(),
   updated_at: z.string(),
+  deleted_at: z.string().nullable(),
+  HRolUsuario: HRolUsuarioSchema,
+  permisos: z.array(PermisoSchema),
+});
+
+// Schema específico para la bodega que viene en el login
+const LoginBodegaSchema = z.object({
+  id: z.number(),
+  nombre: z.string(),
+  descripcion: z.string(),
+  telefono: z.string(),
+  validada: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  deleted_at: z.string().nullable(),
 });
 
 export const AuthCookieSchema = z.object({
@@ -79,7 +156,21 @@ export const AuthCookieSchema = z.object({
   bodegaId: z.number().nullable(),
   roles: z.array(RoleSchema),
   token: z.string(),
-  bodega: BodegaSchema.nullable(),
+  bodega: LoginBodegaSchema.nullable(),
+});
+
+export const PermissionsCookieSchema = z.object({
+  roles: z.array(
+    z.object({
+      id: z.number(),
+      nombre: z.string(),
+      permisos: z.array(
+        z.object({
+          clave: z.string(),
+        }),
+      ),
+    }),
+  ),
 });
 
 export const RegisterSchema = z.object({
@@ -129,3 +220,4 @@ export type RegisterDto = z.infer<typeof RegisterSchema>;
 export type ValidateAccountDto = z.infer<typeof ValidateAccountSchema>;
 export type RequestValidationDto = z.infer<typeof RequestValidationSchema>;
 export type AuthCookie = z.infer<typeof AuthCookieSchema>;
+export type PermissionsCookie = z.infer<typeof PermissionsCookieSchema>;
