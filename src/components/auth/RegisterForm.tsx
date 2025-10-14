@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
 import { z } from "zod";
+import Image from "next/image";
+import VinzaLogo from "./VinzaLogo";
 
 // Schema extendido para el formulario con confirmación de contraseña
 const RegisterFormSchema = RegisterSchema.extend({
@@ -77,97 +79,118 @@ const RegisterForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-center">Crear cuenta</CardTitle>
-        <CardDescription className="text-center">
-          Completa los datos para crear tu cuenta
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-            id="register-form"
-          >
-            <FormField
-              control={form.control}
-              name="nombre"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">Nombre</FormLabel>
-                  <FormControl>
-                    <Input type="text" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">Contraseña</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmarPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="required">
-                    Confirmar contraseña
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button
-          type="submit"
-          className="w-full"
-          form="register-form"
-          isLoading={form.formState.isSubmitting}
-        >
-          Registrarme
-        </Button>
-        <Link href={Routes.LOGIN} className="w-full">
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            Ya tengo una cuenta
-          </Button>
-        </Link>
-      </CardFooter>
-    </Card>
+    <div className="flex w-full h-full">
+      {/* Lado izquierdo - Formulario */}
+      <div className="flex-1 flex items-center justify-center bg-white">
+        <div className="w-full max-w-md px-8">
+          <VinzaLogo />
+          <Card className="shadow-none border-0">
+            <CardHeader>
+              <CardTitle className="text-center text-2xl">
+                Crear cuenta
+              </CardTitle>
+              <CardDescription className="text-center">
+                Completa los datos para crear tu cuenta
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                  id="register-form"
+                >
+                  <FormField
+                    control={form.control}
+                    name="nombre"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="required">Nombre</FormLabel>
+                        <FormControl>
+                          <Input type="text" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="required">Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="required">Contraseña</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmarPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="required">
+                          Confirmar contraseña
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="flex-col gap-2">
+              <Button
+                type="submit"
+                className="w-full"
+                form="register-form"
+                isLoading={form.formState.isSubmitting}
+              >
+                Registrarme
+              </Button>
+              <Link href={Routes.LOGIN} className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  Ya tengo una cuenta
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+
+      {/* Lado derecho - Ilustración */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <Image
+          src="/auth-illustrarion.svg"
+          alt="Ilustración de autenticación"
+          width={600}
+          height={600}
+          className="w-full h-auto max-w-lg"
+        />
+      </div>
+    </div>
   );
 };
 
