@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Home, FileText, Calendar, Users } from "lucide-react";
+import { Home, FileText, Calendar, Users, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Routes, RouteSchema } from "@/lib/routes";
 import { usePathname } from "next/navigation";
@@ -97,6 +97,20 @@ export default function SidebarNav() {
               <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                 <Users className="h-4 w-4 mr-3" />
                 Usuarios y permisos
+              </div>
+            </Link>
+            <Link
+              href={Routes.FAQS}
+              className={cn(
+                "flex items-center px-1 py-1 rounded-md text-sm font-medium cursor-pointer",
+                activePage.success && activePage.data === Routes.FAQS
+                  ? "bg-gray-100 text-primary"
+                  : "text-gray-700 hover:bg-gray-100",
+              )}
+            >
+              <div className="flex items-center px-1 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <HelpCircle className="h-4 w-4 mr-3" />
+                Preguntas frecuentes
               </div>
             </Link>
           </div>
