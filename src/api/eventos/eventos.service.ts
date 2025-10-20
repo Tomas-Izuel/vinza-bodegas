@@ -53,7 +53,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     formData.append("descripcion", data.descripcion || "");
     formData.append("cupo", data.cupos.toString());
     formData.append("sucursalId", data.sucursalId.toString());
-    formData.append("estadoId", "1"); // Estado activo por defecto
+    formData.append("estadoId", "2"); // Estado activo por defecto (ID 2 = ACTIVO en la BD)
     formData.append("categoriaId", data.categoriaId.toString());
     formData.append("precio", data.precio.toString());
 

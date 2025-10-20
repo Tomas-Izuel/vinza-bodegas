@@ -127,12 +127,12 @@ export const HRolUsuarioSchema = z.object({
 export const RoleSchema = z.object({
   id: z.number(),
   nombre: z.string(),
-  bodegaId: z.number(),
+  bodegaId: z.number().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
   HRolUsuario: HRolUsuarioSchema,
-  permisos: z.array(PermisoSchema),
+  permisos: z.array(PermisoSchema).optional().default([]),
 });
 
 // Schema específico para la bodega que viene en el login
