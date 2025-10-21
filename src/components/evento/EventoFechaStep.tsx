@@ -153,10 +153,7 @@ export function EventoFechaStep({
               {eventData.duracion !== 1 ? "s" : ""}
             </span>
           </div>
-          <p className="text-sm text-gray-600">
-            {eventData.descripcion ||
-              "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo con"}
-          </p>
+          <p className="text-sm text-gray-600">{eventData.descripcion || ""}</p>
         </div>
 
         {/* Tipo de evento */}
