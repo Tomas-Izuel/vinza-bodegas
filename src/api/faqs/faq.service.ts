@@ -8,7 +8,6 @@ export const getFaqs = async (): Promise<FaqResponseType> => {
   try {
     const response = await fetchApi<FaqResponseType>("/faqs", {
       method: "GET",
-      cache: "no-store",
     });
 
     // Filtrar solo las FAQs que tienen recipient.name = "BODEGAS"

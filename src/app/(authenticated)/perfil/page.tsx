@@ -10,6 +10,8 @@ import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
 import PerfilUsuarioForm from "@/components/usuario/PerfilUsuarioForm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Vinza - Mi perfil",
   description: "Información de tu perfil de usuario",
