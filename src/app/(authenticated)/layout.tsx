@@ -1,5 +1,6 @@
 import TopNav from "@/components/common/Navbar";
 import SidebarNav from "@/components/common/Sidebar";
+import { Metadata } from "next";
 import type React from "react";
 
 interface LayoutWrapperProps {

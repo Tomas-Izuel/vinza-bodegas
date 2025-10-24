@@ -99,6 +99,22 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface RegisterResponse {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  validado: string | null;
+  fecha_nacimiento: string | null;
+  bodegaId: number | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  roles: Role[];
+  bodega: null;
+  token: string;
+}
+
 export const PermisoSchema = z.object({
   id: z.number(),
   nombre: z.string(),
@@ -127,7 +143,7 @@ export const HRolUsuarioSchema = z.object({
 export const RoleSchema = z.object({
   id: z.number(),
   nombre: z.string(),
-  bodegaId: z.number(),
+  bodegaId: z.number().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
@@ -153,10 +169,10 @@ export const AuthCookieSchema = z.object({
   apellido: z.string(),
   email: z.string(),
   validado: z.string().nullable().optional(),
-  bodegaId: z.number().nullable(),
+  bodegaId: z.number().nullable().optional(),
   roles: z.array(RoleSchema),
   token: z.string(),
-  bodega: LoginBodegaSchema.nullable(),
+  bodega: LoginBodegaSchema.nullable().optional(),
 });
 
 export const PermissionsCookieSchema = z.object({

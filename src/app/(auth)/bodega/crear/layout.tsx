@@ -9,7 +9,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   return (
     <div className="min-h-screen w-screen">
       <TopNav />
-      <main className="flex items-center justify-center common-main-container">
+      <main className="flex justify-center common-main-container py-8">
         {children}
       </main>
     </div>

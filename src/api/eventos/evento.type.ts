@@ -131,7 +131,10 @@ export type EventoStepFormData = {
 
   // Paso 2: Fecha y hora
   tipoEvento: "unica" | "recurrente";
-  fechas: string[];
+  fechas: string[]; // Para eventos únicos
+  diasSemana: string[]; // Para eventos recurrentes (Lunes, Martes, etc.)
+  fechaDesde?: string; // Para eventos recurrentes (opcional)
+  fechaHasta?: string; // Para eventos recurrentes (opcional)
   hora: string;
 
   // Paso 3: Multimedia
@@ -179,7 +182,10 @@ export const EventoDetallesSchema = z.object({
 // Schema de validación para el paso 2 (Fecha y hora)
 export const EventoFechaSchema = z.object({
   tipoEvento: z.enum(["unica", "recurrente"]),
-  fechas: z.array(z.string()).min(1, "Debe seleccionar al menos una fecha"),
+  fechas: z.array(z.string()).optional(),
+  diasSemana: z.array(z.string()).optional(),
+  fechaDesde: z.string().optional(),
+  fechaHasta: z.string().optional(),
   hora: z.string().min(1, "Debe seleccionar una hora"),
 });
 

@@ -77,6 +77,8 @@ export const CrearBodegaSchema = z.object({
     })
     .min(1, "El teléfono es requerido")
     .max(11, "El teléfono no puede exceder 11 caracteres"),
+  multimediaPortada: z.string().optional(),
+  multimedia: z.array(z.string()).optional(),
 });
 
 export interface CrearBodegaResponse {

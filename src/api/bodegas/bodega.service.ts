@@ -12,21 +12,40 @@ import {
   fetchApiWithAuth,
   buildApiUrl,
   getAuthCookie,
+  fetchApiWithAuthFormData,
 } from "@/lib/utils.server";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { AuthCookieSchema } from "@/api/auth/auth.type";
 
-export const crearBodega = async (data: CrearBodegaDto) => {
+export const crearBodega = async (
+  data: CrearBodegaDto | FormData,
+): Promise<CrearBodegaResponse> => {
   try {
+    console.log(data);
+    const formData = data instanceof FormData ? data : new FormData();
+    if (!(data instanceof FormData)) {
+      // Si no es FormData, convertir el objeto a FormData
+      formData.append("nombre", data.nombre);
+      formData.append("descripcion", data.descripcion);
+      formData.append("direccion", data.direccion);
+      formData.append("telefono", data.telefono);
+      if (data.aclaraciones) {
+        formData.append("aclaraciones", data.aclaraciones);
+      }
+    }
+
     const cookieStore = await cookies();
 
     // Crear la bodega
-    const bodegaData = await fetchApiWithAuth<CrearBodegaResponse>(`/bodegas`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      cache: "no-store",
-    });
+    const bodegaData = await fetchApiWithAuthFormData<CrearBodegaResponse>(
+      `/bodegas`,
+      formData,
+      {
+        method: "POST",
+        cache: "no-store",
+      },
+    );
 
     // Obtener los datos actuales del usuario de la cookie
     const authCookieValue = cookieStore.get(AUTH_COOKIE_NAME)?.value;
