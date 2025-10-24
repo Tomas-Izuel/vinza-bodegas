@@ -85,7 +85,7 @@ export function SucursalDetalle({
       <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Información de la sucursal */}
               <div className="lg:col-span-3 space-y-6">
                 {/* Primera fila de información */}
@@ -246,19 +246,6 @@ export function SucursalDetalle({
                     </Button>
                   </div>
                 )}
-              </div>
-
-              {/* Imagen de la sucursal */}
-              <div className="lg:col-span-1">
-                <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src="/placeholder-event.jpg"
-                    alt={sucursal.nombre}
-                    width={192}
-                    height={192}
-                    className="w-48 h-48 object-cover"
-                  />
-                </div>
               </div>
             </div>
           </form>

@@ -22,7 +22,6 @@ export const crearBodega = async (
   data: CrearBodegaDto | FormData,
 ): Promise<CrearBodegaResponse> => {
   try {
-    console.log(data);
     const formData = data instanceof FormData ? data : new FormData();
     if (!(data instanceof FormData)) {
       // Si no es FormData, convertir el objeto a FormData

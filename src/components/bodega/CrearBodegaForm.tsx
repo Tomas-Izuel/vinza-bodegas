@@ -159,20 +159,20 @@ const CrearBodegaForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-      <CardHeader className="sticky top-0 bg-white z-10 border-b">
+    <Card className="w-full max-w-7xl mx-auto">
+      <CardHeader className="border-b">
         <h1>Crear tu bodega</h1>
         <p>Para continuar, necesitas completar la información de tu bodega</p>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-8">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-3"
+            className="space-y-6"
             id="crear-bodega-form"
           >
-            {/* Primera fila - Campos principales en 3 columnas */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Primera fila - Campos principales en 4 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <FormField
                 control={form.control}
                 name="nombre"
@@ -235,66 +235,81 @@ const CrearBodegaForm = () => {
               />
             </div>
 
-            {/* Mapa - Ocupa todo el ancho */}
-            <div>
-              <MapView direccion={direccionValue} />
-            </div>
+            {/* Mapa y Descripciones - Layout en 2 columnas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Mapa */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Ubicación</h3>
+                <MapView direccion={direccionValue} />
+              </div>
 
-            {/* Segunda fila - Descripción y Aclaraciones */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="descripcion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required text-sm font-medium">
-                      Descripción
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe tu bodega..."
-                        className="min-h-[120px] resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Descripciones */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="descripcion"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="required text-sm font-medium">
+                        Descripción
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe tu bodega..."
+                          className="min-h-[140px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="aclaraciones"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">
-                      Aclaraciones
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Información adicional (opcional)"
-                        className="min-h-[120px] resize-none"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="aclaraciones"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Aclaraciones
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Información adicional (opcional)"
+                          className="min-h-[140px] resize-none"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Sección de Multimedia */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Multimedia</h3>
-              <p className="text-sm text-gray-600">
-                Agrega imágenes para mostrar tu bodega
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Multimedia</h3>
+                  <p className="text-sm text-gray-600">
+                    Agrega imágenes para mostrar tu bodega
+                  </p>
+                </div>
+                {selectedFiles.length > 0 && (
+                  <span className="text-sm text-gray-500">
+                    {selectedFiles.length} imagen
+                    {selectedFiles.length !== 1 ? "es" : ""} seleccionada
+                    {selectedFiles.length !== 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
 
-              {/* Área de upload */}
+              {/* Área de upload más compacta */}
               <div
                 className={`
-                  border-2 border-dashed rounded-lg p-8 text-center transition-colors
+                  border-2 border-dashed rounded-lg p-6 text-center transition-colors
                   ${
                     dragActive
                       ? "border-primary bg-primary/5"
@@ -306,8 +321,8 @@ const CrearBodegaForm = () => {
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600 mb-4">
+                <Upload className="mx-auto h-8 w-8 text-gray-400 mb-3" />
+                <p className="text-gray-600 mb-3 text-sm">
                   Clickea o arrastra las imágenes que desees agregar
                 </p>
                 <input
@@ -329,14 +344,13 @@ const CrearBodegaForm = () => {
               {/* Lista de archivos seleccionados */}
               {selectedFiles.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">
-                    Imágenes seleccionadas ({selectedFiles.length})
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Haz clic derecho en una imagen para establecerla como
-                    portada
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Imágenes seleccionadas</h4>
+                    <p className="text-xs text-gray-500">
+                      Clic derecho para establecer como portada
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-48 overflow-y-auto">
                     {selectedFiles.map((file, index) => {
                       const isPortada = file.name === multimediaPortada;
                       return (
@@ -344,11 +358,11 @@ const CrearBodegaForm = () => {
                           <Image
                             src={URL.createObjectURL(file)}
                             alt={file.name}
-                            width={128}
-                            height={128}
-                            className={`w-full h-32 object-cover rounded-lg ${
+                            width={96}
+                            height={96}
+                            className={`w-full h-24 object-cover rounded-lg ${
                               isPortada
-                                ? "ring-2 ring-primary ring-offset-2"
+                                ? "ring-2 ring-primary ring-offset-1"
                                 : ""
                             }`}
                             onContextMenu={(e) => {
@@ -359,7 +373,7 @@ const CrearBodegaForm = () => {
 
                           {/* Indicador de portada */}
                           {isPortada && (
-                            <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <div className="absolute top-1 left-1 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                               Portada
                             </div>
                           )}
@@ -367,9 +381,9 @@ const CrearBodegaForm = () => {
                           {/* Botón de eliminar */}
                           <button
                             onClick={() => removeFile(index)}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-3 h-3" />
                           </button>
 
                           <p className="text-xs text-gray-600 mt-1 truncate">

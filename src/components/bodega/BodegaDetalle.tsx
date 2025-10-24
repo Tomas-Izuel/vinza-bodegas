@@ -22,6 +22,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { actualizarBodega } from "@/api/bodegas/bodega.service";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface BodegaDetalleProps {
   bodega: BodegaDetalleType;
@@ -32,6 +34,7 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const isEditing = searchParams.get("editar") === "true";
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const form = useForm<EditarBodegaType>({
     resolver: zodResolver(EditarBodegaSchema),
@@ -70,6 +73,23 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
     params.delete("editar");
     router.push(`?${params.toString()}`);
     form.reset();
+  };
+
+  // Funciones del carrusel
+  const nextImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === bodega.multimedia.length - 1 ? 0 : prev + 1,
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? bodega.multimedia.length - 1 : prev - 1,
+    );
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
   };
 
   return (
@@ -183,17 +203,75 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
                 )}
               </div>
 
-              {/* Imagen de la bodega */}
+              {/* Carrusel de imágenes de la bodega */}
               <div className="lg:col-span-1">
-                <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src="https://media.istockphoto.com/id/1195681339/photo/italy-toscana-winary.jpg?s=1024x1024&w=is&k=20&c=tk0XEwcm_uw1B2_l83J8eerFcjWSiEqEVVM2IyGEJ0c="
-                    alt={bodega.nombre}
-                    width={192}
-                    height={192}
-                    className="w-48 h-48 object-cover"
-                  />
-                </div>
+                {bodega.multimedia && bodega.multimedia.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Imagen principal */}
+                    <div className="relative aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
+                      <Image
+                        src={bodega.multimedia[currentImageIndex]?.url}
+                        alt={`${bodega.nombre} - Imagen ${currentImageIndex + 1}`}
+                        width={192}
+                        height={192}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* Controles del carrusel */}
+                      {bodega.multimedia.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevImage}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={nextImage}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Indicadores */}
+                    {bodega.multimedia.length > 1 && (
+                      <div className="flex justify-center space-x-2">
+                        {bodega.multimedia.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => goToImage(index)}
+                            className={`w-2 h-2 rounded-full transition-colors ${
+                              index === currentImageIndex
+                                ? "bg-primary"
+                                : "bg-gray-300 hover:bg-gray-400"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Información de la imagen */}
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">
+                        {currentImageIndex + 1} de {bodega.multimedia.length}
+                        {bodega.multimedia[currentImageIndex]?.es_portada && (
+                          <span className="ml-2 text-primary font-medium">
+                            (Portada)
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aspect-square w-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500 text-sm text-center">
+                      Sin imágenes
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </form>

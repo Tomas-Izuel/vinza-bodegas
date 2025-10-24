@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { Sucursal } from "../sucursales/sucursal.type";
 
+export interface Multimedia {
+  id: number;
+  url: string;
+  es_portada: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  bodegaId: number;
+  tipoId: number | null;
+}
+
 export type Bodega = {
   id: number;
   nombre: string;
@@ -13,6 +24,7 @@ export type Bodega = {
 
 export interface BodegaDetalle extends Bodega {
   sucursales: Sucursal[];
+  multimedia: Multimedia[];
 }
 
 export interface SucursalesSearchParams {
