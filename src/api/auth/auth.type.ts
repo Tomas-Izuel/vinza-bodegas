@@ -231,9 +231,33 @@ export const RequestValidationSchema = z.object({
     .email("Debe ser un email válido"),
 });
 
+export const RecoveryPasswordSchema = z.object({
+  email: z
+    .string({
+      message: "El email es requerido",
+    })
+    .min(1, "El email es requerido")
+    .email("Debe ser un email válido"),
+});
+
+export const ResetPasswordSchema = z.object({
+  code: z
+    .string({
+      message: "El código es requerido",
+    })
+    .min(1, "El código es requerido"),
+  password: z
+    .string({
+      message: "La contraseña es requerida",
+    })
+    .min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
 export type LoginDto = z.infer<typeof LoginSchema>;
 export type RegisterDto = z.infer<typeof RegisterSchema>;
 export type ValidateAccountDto = z.infer<typeof ValidateAccountSchema>;
 export type RequestValidationDto = z.infer<typeof RequestValidationSchema>;
+export type RecoveryPasswordDto = z.infer<typeof RecoveryPasswordSchema>;
+export type ResetPasswordDto = z.infer<typeof ResetPasswordSchema>;
 export type AuthCookie = z.infer<typeof AuthCookieSchema>;
 export type PermissionsCookie = z.infer<typeof PermissionsCookieSchema>;

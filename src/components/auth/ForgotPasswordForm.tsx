@@ -13,42 +13,47 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { LoginSchema, LoginDto } from "@/api/auth/auth.type";
+import {
+  RecoveryPasswordSchema,
+  RecoveryPasswordDto,
+} from "@/api/auth/auth.type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { login } from "@/api/auth/auth.service";
+import { recoveryPassword } from "@/api/auth/auth.service";
 import { toast } from "sonner";
 import { Routes } from "@/lib/routes";
 import Link from "next/link";
 import Image from "next/image";
 import VinzaLogo from "./VinzaLogo";
 
-const LoginForm = () => {
+const ForgotPasswordForm = () => {
   const router = useRouter();
-  const form = useForm<LoginDto>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<RecoveryPasswordDto>({
+    resolver: zodResolver(RecoveryPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = async (data: LoginDto) => {
+  const onSubmit = async (data: RecoveryPasswordDto) => {
     try {
-      await login(data);
-
-      router.push(Routes.HOME);
+      await recoveryPassword(data);
+      toast.success("Código enviado", {
+        description: "Se ha enviado un código de recuperación a tu email",
+      });
+      router.push(Routes.RESET_PASSWORD);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Error al iniciar sesión";
-      toast.error("Error al iniciar sesión", {
+        error instanceof Error
+          ? error.message
+          : "Error al solicitar recuperación";
+      toast.error("Error al solicitar recuperación", {
         description: errorMessage,
       });
     }
@@ -63,10 +68,10 @@ const LoginForm = () => {
           <Card className="shadow-none border-0">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
-                Iniciar sesión
+                Recuperar contraseña
               </CardTitle>
               <CardDescription className="text-center">
-                Ingresa tu email para iniciar sesión
+                Ingresa tu email para recibir un código de recuperación
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -74,7 +79,7 @@ const LoginForm = () => {
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-4"
-                  id="login-form"
+                  id="forgot-password-form"
                 >
                   <FormField
                     control={form.control}
@@ -84,20 +89,6 @@ const LoginForm = () => {
                         <FormLabel className="required">Email</FormLabel>
                         <FormControl>
                           <Input type="email" {...field} />
-                        </FormControl>
-                        <FormDescription />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="required">Contraseña</FormLabel>
-                        <FormControl>
-                          <Input type="password" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -110,27 +101,18 @@ const LoginForm = () => {
               <Button
                 type="submit"
                 className="w-full"
-                form="login-form"
+                form="forgot-password-form"
                 isLoading={form.formState.isSubmitting}
               >
-                Iniciar sesión
+                Enviar código
               </Button>
-              <Link href={Routes.FORGOT_PASSWORD} className="w-full">
-                <Button
-                  variant="link"
-                  className="w-full text-sm"
-                  isLoading={form.formState.isSubmitting}
-                >
-                  ¿Olvidaste tu contraseña?
-                </Button>
-              </Link>
-              <Link href={Routes.REGISTER} className="w-full">
+              <Link href={Routes.LOGIN} className="w-full">
                 <Button
                   variant="outline"
                   className="w-full"
                   isLoading={form.formState.isSubmitting}
                 >
-                  Aún no tengo una cuenta
+                  Volver al login
                 </Button>
               </Link>
             </CardFooter>
@@ -152,4 +134,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default ForgotPasswordForm;

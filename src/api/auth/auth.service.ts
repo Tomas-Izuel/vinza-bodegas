@@ -9,6 +9,8 @@ import {
   RegisterDto,
   ValidateAccountDto,
   RequestValidationDto,
+  RecoveryPasswordDto,
+  ResetPasswordDto,
 } from "./auth.type";
 import { AUTH_COOKIE_NAME, PERMISSIONS_COOKIE_NAME } from "@/lib/constants";
 import { cookies } from "next/headers";
@@ -216,6 +218,50 @@ export const requestValidation = async (data: RequestValidationDto) => {
     const errorMessage =
       error instanceof Error ? error.message : "Error al reenviar el código";
     errorLogger(error, "requestValidation");
+    throw new Error(errorMessage);
+  }
+};
+
+export const recoveryPassword = async (data: RecoveryPasswordDto) => {
+  try {
+    const recoveryData = await fetchApi<{ message: string }>(
+      `/auth/recovery-password`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        cache: "no-store",
+      },
+    );
+
+    return recoveryData;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al solicitar recuperación";
+    errorLogger(error, "recoveryPassword");
+    throw new Error(errorMessage);
+  }
+};
+
+export const resetPassword = async (data: ResetPasswordDto) => {
+  try {
+    const resetData = await fetchApi<{ message: string }>(
+      `/auth/reset-password`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        cache: "no-store",
+      },
+    );
+
+    return resetData;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al resetear la contraseña";
+    errorLogger(error, "resetPassword");
     throw new Error(errorMessage);
   }
 };
