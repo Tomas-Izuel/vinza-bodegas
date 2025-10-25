@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { Routes } from "@/lib/routes";
 import { Switch } from "../ui/switch";
 import dynamic from "next/dynamic";
+import { useState } from "react";
 
 const MapView = dynamic(() => import("../bodega/MapView"), {
   ssr: false,
@@ -34,6 +35,10 @@ interface CrearSucursalFormProps {
 }
 
 const CrearSucursalForm = ({ bodegaId }: CrearSucursalFormProps) => {
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const router = useRouter();
   const form = useForm<CrearSucursalType>({
     resolver: zodResolver(CrearSucursalSchema),
@@ -51,7 +56,11 @@ const CrearSucursalForm = ({ bodegaId }: CrearSucursalFormProps) => {
 
   const onSubmit = async (data: CrearSucursalType) => {
     try {
-      await crearSucursal(data);
+      await crearSucursal({
+        ...data,
+        latitude: coordinates?.lat || 0,
+        longitude: coordinates?.lng || 0,
+      });
       toast.success("Sucursal creada exitosamente");
 
       router.push(Routes.BODEGA_INFORMACION);
@@ -122,7 +131,11 @@ const CrearSucursalForm = ({ bodegaId }: CrearSucursalFormProps) => {
 
             {/* Mapa - Ocupa todo el ancho */}
             <div>
-              <MapView direccion={direccionValue} />
+              <MapView
+                direccion={direccionValue}
+                setCoordinates={setCoordinates}
+                coordinates={coordinates}
+              />
             </div>
 
             {/* Switch para sucursal principal */}
@@ -185,6 +198,7 @@ const CrearSucursalForm = ({ bodegaId }: CrearSucursalFormProps) => {
                 type="submit"
                 form="crear-sucursal-form"
                 isLoading={form.formState.isSubmitting}
+                disabled={!coordinates}
                 className="px-8 h-10"
               >
                 Crear sucursal

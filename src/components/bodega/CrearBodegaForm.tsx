@@ -49,6 +49,12 @@ const CrearBodegaForm = () => {
   // Observar cambios en el campo dirección para actualizar el mapa
   const direccionValue = form.watch("direccion");
 
+  // Genero la coordenada de la direccion
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
   // Funciones para manejar archivos
   const handleFileSelect = useCallback(
     (files: FileList | null) => {
@@ -131,6 +137,8 @@ const CrearBodegaForm = () => {
       formData.append("descripcion", data.descripcion);
       formData.append("direccion", data.direccion);
       formData.append("telefono", data.telefono);
+      formData.append("latitude", coordinates?.lat.toString() || "");
+      formData.append("longitude", coordinates?.lng.toString() || "");
       if (data.aclaraciones) {
         formData.append("aclaraciones", data.aclaraciones);
       }
@@ -240,7 +248,11 @@ const CrearBodegaForm = () => {
               {/* Mapa */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Ubicación</h3>
-                <MapView direccion={direccionValue} />
+                <MapView
+                  direccion={direccionValue}
+                  setCoordinates={setCoordinates}
+                  coordinates={coordinates}
+                />
               </div>
 
               {/* Descripciones */}
