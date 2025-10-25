@@ -73,7 +73,7 @@ export const crearSucursal = async (
 
 export const actualizarSucursal = async (
   id: string,
-  data: EditarSucursalType,
+  data: EditarSucursalType & { latitude: number; longitude: number },
 ): Promise<Sucursal> => {
   try {
     const response = await fetchApiWithAuth<Sucursal>(`/sucursales/${id}`, {
