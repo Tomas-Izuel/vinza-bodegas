@@ -34,8 +34,34 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import moment from "moment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { EventoSearchInput } from "./EventoSearchInput";
+import { getEstadosReservas } from "@/api/estados/estado.service";
+import { EstadoReserva } from "@/api/reservas/reserva.type";
 
-export function ReservaFilters() {
+interface ReservaFiltersProps {
+  estados?: EstadoReserva[];
+}
+
+export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
+  const [estadosDisponibles, setEstadosDisponibles] =
+    React.useState<EstadoReserva[]>(estados);
+
+  React.useEffect(() => {
+    if (estados.length === 0) {
+      loadEstados();
+    } else {
+      setEstadosDisponibles(estados);
+    }
+  }, [estados]);
+
+  const loadEstados = async () => {
+    try {
+      const estadosData = await getEstadosReservas();
+      setEstadosDisponibles(estadosData);
+    } catch (error) {
+      console.error("Error al cargar estados:", error);
+    }
+  };
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -96,7 +122,14 @@ export function ReservaFilters() {
       filteredData.fechaDesde = data.fechaDesde.trim();
     if (data.fechaHasta?.trim())
       filteredData.fechaHasta = data.fechaHasta.trim();
-    if (data.estadoId) filteredData.estadoId = data.estadoId.toString();
+    if (data.estadoId) {
+      const estadoSeleccionado = estadosDisponibles.find(
+        (e) => e.id === data.estadoId,
+      );
+      if (estadoSeleccionado) {
+        filteredData.estado = estadoSeleccionado.nombre.toUpperCase();
+      }
+    }
     if (data.eventoId) filteredData.eventoId = data.eventoId.toString();
     if (data.precioMinimo)
       filteredData.precioMinimo = data.precioMinimo.toString();
@@ -244,23 +277,14 @@ export function ReservaFilters() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nombre evento</FormLabel>
-                <Select
-                  onValueChange={(value) =>
-                    field.onChange(value ? Number(value) : undefined)
-                  }
-                  value={field.value?.toString() || undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Nombre evento" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="w-full">
-                    <SelectItem value="1">Cata vino</SelectItem>
-                    <SelectItem value="2">Sunset</SelectItem>
-                    <SelectItem value="3">Degustación</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <EventoSearchInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Buscar evento..."
+                  />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -283,11 +307,14 @@ export function ReservaFilters() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    <SelectItem value="1">Confirmado</SelectItem>
-                    <SelectItem value="2">Pendiente</SelectItem>
-                    <SelectItem value="3">Cancelada</SelectItem>
+                    {estadosDisponibles.map((estado) => (
+                      <SelectItem key={estado.id} value={estado.id.toString()}>
+                        {estado.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

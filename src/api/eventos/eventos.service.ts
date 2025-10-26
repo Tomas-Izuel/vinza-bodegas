@@ -16,14 +16,6 @@ import {
 } from "./evento.type";
 import { Reserva } from "../reservas/reserva.type";
 
-export type Evento = {
-  id: string;
-  nombre: string;
-  sucursal: string;
-  estado: "Activo" | "Finalizado" | "Suspendido";
-  ultimaModificacion: string; // ISO date
-};
-
 export const getEventos = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
@@ -91,7 +83,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     }
 
     // Hacer POST al backend con FormData
-    await fetchApiWithAuthFormData<Evento>("/eventos", formData);
+    await fetchApiWithAuthFormData("/eventos", formData);
 
     return;
   } catch (error) {
