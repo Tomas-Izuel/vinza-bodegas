@@ -112,7 +112,6 @@ export async function obtenerSucursales(): Promise<
 export const getEvento = async (id: string): Promise<EventoDetalle> => {
   try {
     const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`);
-    console.log(response);
     return response;
   } catch (error) {
     console.error("[EVENTOS]:", error);
@@ -172,7 +171,6 @@ export const getEventosMiBodega = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
   try {
-    console.log(params);
     const eventosMapping = {
       search: "nombre", // mapea "search" a "nombre"
     };

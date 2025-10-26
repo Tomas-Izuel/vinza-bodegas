@@ -68,12 +68,23 @@ export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
 
   // Memorizar la función para obtener valores de search params
   const getInitialValues = React.useCallback((): ReservaFiltersType => {
+    // Obtener el estado como string y buscar su ID
+    const estadoString = searchParams.get("estado");
+    let estadoIdValue: number | undefined = undefined;
+
+    if (estadoString) {
+      const estadoEncontrado = estadosDisponibles.find(
+        (e) => e.nombre.toUpperCase() === estadoString.toUpperCase(),
+      );
+      if (estadoEncontrado) {
+        estadoIdValue = estadoEncontrado.id;
+      }
+    }
+
     return {
       fechaDesde: searchParams.get("fechaDesde") || "",
       fechaHasta: searchParams.get("fechaHasta") || "",
-      estadoId: searchParams.get("estadoId")
-        ? Number(searchParams.get("estadoId"))
-        : undefined,
+      estadoId: estadoIdValue,
       eventoId: searchParams.get("eventoId")
         ? Number(searchParams.get("eventoId"))
         : undefined,
@@ -87,18 +98,19 @@ export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
         ? Number(searchParams.get("cantidadGente"))
         : undefined,
     };
-  }, [searchParams]);
+  }, [searchParams, estadosDisponibles]);
 
   const form = useForm<ReservaFiltersType>({
     resolver: zodResolver(ReservaFiltersSchema),
     defaultValues: getInitialValues(),
   });
 
-  // Actualizar formulario cuando cambien los search params
+  // Actualizar el formulario cuando cambian los search params
   React.useEffect(() => {
     const newValues = getInitialValues();
-    form.reset(newValues);
-  }, [getInitialValues, form]);
+    form.reset(newValues, { keepDefaultValues: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.toString()]);
 
   const handleSubmit = (data: ReservaFiltersType) => {
     // Obtener parámetros actuales y preservar los importantes
@@ -155,31 +167,15 @@ export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
   };
 
   const handleClear = () => {
-    form.reset({
-      fechaDesde: "",
-      fechaHasta: "",
-      estadoId: undefined,
-      eventoId: undefined,
-      precioMinimo: undefined,
-      precioMaximo: undefined,
-      cantidadGente: undefined,
-    });
-
-    // Preservar solo los parámetros importantes al limpiar
-    const currentParams = new URLSearchParams(searchParams.toString());
-    const preservedParams: Record<string, string> = {};
-    const paramsToPreserve = ["search", "page", "limit", "orderBy"];
-
-    paramsToPreserve.forEach((param) => {
-      const value = currentParams.get(param);
-      if (value) {
-        preservedParams[param] = value;
-      }
-    });
-
-    const newSearchParams = new URLSearchParams(preservedParams);
-    const queryString = newSearchParams.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`);
+    // Limpiar la URL - preservar solo búsqueda si existe
+    const params = new URLSearchParams();
+    const search = searchParams.get("search");
+    if (search) {
+      params.set("search", search);
+    }
+    const newUrl = search ? `${pathname}?${params.toString()}` : pathname;
+    // Usar window.location para forzar una recarga completa de la página
+    window.location.href = newUrl;
   };
 
   return (

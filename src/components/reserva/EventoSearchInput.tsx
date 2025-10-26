@@ -31,6 +31,7 @@ export function EventoSearchInput({
   const [selectedEvento, setSelectedEvento] = React.useState<Evento | null>(
     null,
   );
+  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const loadEventos = React.useCallback(async (search: string) => {
     setLoading(true);
@@ -51,19 +52,66 @@ export function EventoSearchInput({
     }
   }, [open, loadEventos]);
 
+  // Cargar el evento seleccionado cuando hay un value inicial
+  React.useEffect(() => {
+    if (value) {
+      const loadSelectedEvento = async () => {
+        try {
+          const response = await getEventosMiBodega({ limit: 1000 });
+          const evento = response.items.find((e) => e.id === value);
+          if (evento) {
+            setSelectedEvento(evento);
+          }
+        } catch (error) {
+          console.error("Error al cargar evento seleccionado:", error);
+        }
+      };
+      loadSelectedEvento();
+    } else if (value === undefined || value === null) {
+      setSelectedEvento(null);
+    }
+  }, [value]);
+
   React.useEffect(() => {
     if (value && eventos.length > 0) {
       const evento = eventos.find((e) => e.id === value);
-      setSelectedEvento(evento || null);
-    } else if (!value) {
-      setSelectedEvento(null);
+      if (evento) {
+        setSelectedEvento(evento);
+      }
     }
   }, [value, eventos]);
+
+  // Resetear estado interno cuando el valor externo se resetea
+  React.useEffect(() => {
+    if (value === undefined) {
+      setSelectedEvento(null);
+      setSearchTerm("");
+      setEventos([]);
+    }
+  }, [value]);
+
+  // Cleanup del timeout cuando el componente se desmonte
+  React.useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleSearch = React.useCallback(
     (term: string) => {
       setSearchTerm(term);
-      loadEventos(term);
+
+      // Limpiar timeout anterior
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+
+      // Crear nuevo timeout para debounce
+      searchTimeoutRef.current = setTimeout(() => {
+        loadEventos(term);
+      }, 300);
     },
     [loadEventos],
   );
@@ -106,7 +154,7 @@ export function EventoSearchInput({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-[400px] p-0" align="start">
         <div className="p-2 border-b">
           <Input
             placeholder="Buscar evento..."
