@@ -14,7 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, User, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Clock, Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 // Tipo inferido del schema de Zod
 type EventoFechaFields = z.infer<typeof EventoFechaSchema>;
@@ -40,12 +41,18 @@ export function EventoFechaStep({
   const [selectedDates, setSelectedDates] = useState<string[]>(
     initialData?.fechas || [],
   );
+  const [selectedDays, setSelectedDays] = useState<string[]>(
+    initialData?.diasSemana || [],
+  );
 
   const form = useForm<EventoFechaFields>({
     resolver: zodResolver(EventoFechaSchema),
     defaultValues: {
       tipoEvento: initialData?.tipoEvento || "unica",
       fechas: initialData?.fechas || [],
+      diasSemana: initialData?.diasSemana || [],
+      fechaDesde: initialData?.fechaDesde || "",
+      fechaHasta: initialData?.fechaHasta || "",
       hora: initialData?.hora || "",
     },
   });
@@ -53,6 +60,12 @@ export function EventoFechaStep({
   const toggleDate = (date: string) => {
     setSelectedDates((prev) =>
       prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date],
+    );
+  };
+
+  const toggleDay = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
@@ -127,6 +140,16 @@ export function EventoFechaStep({
     "18:30",
   ];
 
+  const diasSemana = [
+    { value: "Lunes", label: "Lunes" },
+    { value: "Martes", label: "Martes" },
+    { value: "Miércoles", label: "Miércoles" },
+    { value: "Jueves", label: "Jueves" },
+    { value: "Viernes", label: "Viernes" },
+    { value: "Sábado", label: "Sábado" },
+    { value: "Domingo", label: "Domingo" },
+  ];
+
   const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
 
   return (
@@ -153,10 +176,7 @@ export function EventoFechaStep({
               {eventData.duracion !== 1 ? "s" : ""}
             </span>
           </div>
-          <p className="text-sm text-gray-600">
-            {eventData.descripcion ||
-              "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo con"}
-          </p>
+          <p className="text-sm text-gray-600">{eventData.descripcion || ""}</p>
         </div>
 
         {/* Tipo de evento */}
@@ -179,89 +199,116 @@ export function EventoFechaStep({
         </div>
       </div>
 
-      {/* Panel central - Calendario */}
+      {/* Panel central - Calendario o Días de la semana */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Fecha</h3>
+        <h3 className="text-lg font-semibold">
+          {form.watch("tipoEvento") === "unica" ? "Fecha" : "Días de la semana"}
+        </h3>
 
-        {/* Navegación del mes */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              setCurrentMonth(
-                new Date(
-                  currentMonth.getFullYear(),
-                  currentMonth.getMonth() - 1,
-                ),
-              )
-            }
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <span className="font-medium">
-            {monthNames[currentMonth.getMonth()]} - {currentMonth.getFullYear()}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              setCurrentMonth(
-                new Date(
-                  currentMonth.getFullYear(),
-                  currentMonth.getMonth() + 1,
-                ),
-              )
-            }
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {/* Días de la semana */}
-        <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-600">
-          {["D", "L", "M", "Mi", "J", "V", "S"].map((day) => (
-            <div key={day} className="py-2">
-              {day}
+        {form.watch("tipoEvento") === "unica" ? (
+          <>
+            {/* Navegación del mes */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.getFullYear(),
+                      currentMonth.getMonth() - 1,
+                    ),
+                  )
+                }
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="font-medium">
+                {monthNames[currentMonth.getMonth()]} -{" "}
+                {currentMonth.getFullYear()}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.getFullYear(),
+                      currentMonth.getMonth() + 1,
+                    ),
+                  )
+                }
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
-          ))}
-        </div>
 
-        {/* Calendario */}
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: startingDay }, (_, i) => (
-            <div key={`empty-${i}`} className="py-2" />
-          ))}
-          {Array.from({ length: daysInMonth }, (_, i) => {
-            const day = i + 1;
-            const dateStr = formatDate(day);
-            const isSelected = isDateSelected(day);
-            const isDisabled = isDateDisabled(day);
+            {/* Días de la semana */}
+            <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-600">
+              {["D", "L", "M", "Mi", "J", "V", "S"].map((day) => (
+                <div key={day} className="py-2">
+                  {day}
+                </div>
+              ))}
+            </div>
 
-            return (
+            {/* Calendario */}
+            <div className="grid grid-cols-7 gap-1">
+              {Array.from({ length: startingDay }, (_, i) => (
+                <div key={`empty-${i}`} className="py-2" />
+              ))}
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const day = i + 1;
+                const dateStr = formatDate(day);
+                const isSelected = isDateSelected(day);
+                const isDisabled = isDateDisabled(day);
+
+                return (
+                  <button
+                    key={day}
+                    onClick={() => !isDisabled && toggleDate(dateStr)}
+                    disabled={isDisabled}
+                    className={`
+                      py-2 px-3 rounded-full text-sm font-medium transition-colors
+                      ${
+                        isSelected
+                          ? "bg-primary text-white"
+                          : isDisabled
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "hover:bg-gray-100 text-gray-700"
+                      }
+                    `}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          /* Selector de días de la semana para eventos recurrentes */
+          <div className="space-y-2">
+            {diasSemana.map((dia) => (
               <button
-                key={day}
-                onClick={() => !isDisabled && toggleDate(dateStr)}
-                disabled={isDisabled}
+                key={dia.value}
+                onClick={() => toggleDay(dia.value)}
                 className={`
-                  py-2 px-3 rounded-full text-sm font-medium transition-colors
+                  w-full p-3 text-left rounded-lg border transition-colors
                   ${
-                    isSelected
-                      ? "bg-primary text-white"
-                      : isDisabled
-                        ? "text-gray-300 cursor-not-allowed"
-                        : "hover:bg-gray-100 text-gray-700"
+                    selectedDays.includes(dia.value)
+                      ? "border-primary bg-primary text-white"
+                      : "border-gray-200 hover:border-gray-300"
                   }
                 `}
               >
-                {day}
+                {dia.label}
               </button>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Panel derecho - Horarios */}
+      {/* Panel derecho - Horarios y fechas opcionales */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Hora</h3>
         <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
@@ -282,6 +329,40 @@ export function EventoFechaStep({
             </button>
           ))}
         </div>
+
+        {/* Campos opcionales para eventos recurrentes */}
+        {form.watch("tipoEvento") === "recurrente" && (
+          <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-2">
+              <Label htmlFor="fechaDesde" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha desde (opcional)
+              </Label>
+              <Input
+                id="fechaDesde"
+                type="date"
+                value={form.watch("fechaDesde") || ""}
+                onChange={(e) => form.setValue("fechaDesde", e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fechaHasta" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha hasta (opcional)
+              </Label>
+              <Input
+                id="fechaHasta"
+                type="date"
+                value={form.watch("fechaHasta") || ""}
+                onChange={(e) => form.setValue("fechaHasta", e.target.value)}
+                className="w-full"
+                min={form.watch("fechaDesde") || undefined}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Botones de navegación */}
@@ -290,14 +371,44 @@ export function EventoFechaStep({
           Volver
         </Button>
         <Button
-          onClick={() =>
-            onNext({
-              tipoEvento: form.watch("tipoEvento"),
-              fechas: selectedDates,
+          onClick={() => {
+            const tipoEvento = form.watch("tipoEvento");
+            const data: EventoFechaFields = {
+              tipoEvento: tipoEvento as "unica" | "recurrente",
               hora: form.watch("hora"),
-            })
+              fechas: selectedDates,
+              diasSemana: selectedDays,
+              fechaDesde: form.watch("fechaDesde"),
+              fechaHasta: form.watch("fechaHasta"),
+            };
+
+            if (tipoEvento === "unica") {
+              data.fechas = selectedDates;
+            } else {
+              data.diasSemana = selectedDays;
+              data.fechaDesde = form.watch("fechaDesde");
+              data.fechaHasta = form.watch("fechaHasta");
+            }
+
+            // Validación adicional
+            if (data.fechaDesde && data.fechaHasta) {
+              const fechaDesde = new Date(data.fechaDesde);
+              const fechaHasta = new Date(data.fechaHasta);
+              if (fechaDesde > fechaHasta) {
+                alert("La fecha desde no puede ser mayor a la fecha hasta");
+                return;
+              }
+            }
+
+            onNext(data);
+          }}
+          disabled={
+            !form.watch("hora") ||
+            (form.watch("tipoEvento") === "unica" &&
+              selectedDates.length === 0) ||
+            (form.watch("tipoEvento") === "recurrente" &&
+              selectedDays.length === 0)
           }
-          disabled={selectedDates.length === 0 || !form.watch("hora")}
         >
           Siguiente
         </Button>

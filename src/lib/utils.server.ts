@@ -70,6 +70,27 @@ export async function fetchApiWithAuth<T>(
   });
 }
 
+export async function fetchApiFormData<T>(
+  url: string,
+  formData: FormData,
+  options: RequestInit = {},
+): Promise<T> {
+  const response = await fetch(`${API_URL}${url}`, {
+    ...options,
+    method: "POST",
+    body: formData,
+    headers: {
+      ...options.headers,
+    },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+
+  return response.json();
+}
+
 export async function fetchApiWithAuthFormData<T>(
   url: string,
   formData: FormData,

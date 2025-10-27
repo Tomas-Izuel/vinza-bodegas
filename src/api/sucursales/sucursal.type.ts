@@ -23,6 +23,8 @@ export interface CrearSucursalDto {
   direccion: string;
   aclaraciones?: string;
   bodegaId: number;
+  latitude: number;
+  longitude: number;
 }
 
 export const CrearSucursalSchema = z.object({

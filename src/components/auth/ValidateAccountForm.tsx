@@ -52,7 +52,7 @@ const ValidateAccountForm = () => {
         description: "Tu cuenta ha sido activada correctamente",
       });
 
-      router.push(Routes.LOGIN);
+      router.push(Routes.CREAR_BODEGA);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Error al validar la cuenta";
@@ -91,7 +91,7 @@ const ValidateAccountForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">

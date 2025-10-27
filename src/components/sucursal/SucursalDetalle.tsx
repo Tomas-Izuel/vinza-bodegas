@@ -1,14 +1,14 @@
 "use client";
 
+import { actualizarSucursal } from "@/api/sucursales/sucursal.service";
 import {
-  Sucursal,
   EditarSucursalSchema,
   EditarSucursalType,
+  Sucursal,
 } from "@/api/sucursales/sucursal.type";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,15 +16,15 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import moment from "moment";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { actualizarSucursal } from "@/api/sucursales/sucursal.service";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import moment from "moment";
 import dynamic from "next/dynamic";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 const MapView = dynamic(() => import("@/components/bodega/MapView"), {
   ssr: false,
@@ -44,6 +44,10 @@ export function SucursalDetalle({
   const pathname = usePathname();
   const isEditing = searchParams.get("editar") === "true";
 
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const form = useForm<EditarSucursalType>({
     resolver: zodResolver(EditarSucursalSchema),
     defaultValues: {
@@ -58,7 +62,11 @@ export function SucursalDetalle({
     try {
       const sucursalActualizada = await actualizarSucursal(
         sucursal.id.toString(),
-        data,
+        {
+          ...data,
+          latitude: coordinates?.lat || 0,
+          longitude: coordinates?.lng || 0,
+        },
       );
       onSucursalUpdated?.(sucursalActualizada);
 
@@ -85,7 +93,7 @@ export function SucursalDetalle({
       <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Información de la sucursal */}
               <div className="lg:col-span-3 space-y-6">
                 {/* Primera fila de información */}
@@ -220,6 +228,8 @@ export function SucursalDetalle({
                 <div className="space-y-4">
                   <MapView
                     direccion={form.watch("direccion") || sucursal.direccion}
+                    setCoordinates={setCoordinates}
+                    coordinates={coordinates}
                   />
                 </div>
 
@@ -246,19 +256,6 @@ export function SucursalDetalle({
                     </Button>
                   </div>
                 )}
-              </div>
-
-              {/* Imagen de la sucursal */}
-              <div className="lg:col-span-1">
-                <div className="aspect-square w-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src="/placeholder-event.jpg"
-                    alt={sucursal.nombre}
-                    width={192}
-                    height={192}
-                    className="w-48 h-48 object-cover"
-                  />
-                </div>
               </div>
             </div>
           </form>

@@ -36,6 +36,8 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
 
 interface MapViewProps {
   direccion: string;
+  setCoordinates: (coordinates: { lat: number; lng: number } | null) => void;
+  coordinates: { lat: number; lng: number } | null;
 }
 
 interface GeocodeResult {
@@ -44,11 +46,7 @@ interface GeocodeResult {
   display_name: string;
 }
 
-const MapView = ({ direccion }: MapViewProps) => {
-  const [coordinates, setCoordinates] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+const MapView = ({ direccion, setCoordinates, coordinates }: MapViewProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

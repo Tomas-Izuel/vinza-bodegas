@@ -80,11 +80,6 @@ export function SuspenderInstanciaModal({
           <span className="block">
             Esta acción <strong>no</strong> se puede revertir.
           </span>
-
-          <span className="block">
-            Se enviará una notificación a los usuarios que hayan reservado.
-          </span>
-
           <span className="block">¿Estás seguro que deseas continuar?</span>
         </DialogDescription>
 

@@ -10,6 +10,8 @@ import {
 import { Routes } from "@/lib/routes";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Vinza - Crear sucursal",
   description: "Crear una nueva sucursal para tu bodega",

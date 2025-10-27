@@ -50,25 +50,59 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     formData.append("precio", data.precio.toString());
 
     // Agregar recurrencias como JSON string
-    const recurrencias = data.fechas.map((fecha) => {
-      const date = new Date(fecha);
-      const diasSemana = [
-        "Domingo",
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-      ];
-      const dia = diasSemana[date.getDay()];
+    let recurrencias: Array<{
+      dia: string;
+      hora: string;
+    }> = [];
 
-      return {
-        dia,
-        hora: data.hora,
-      };
-    });
+    if (data.tipoEvento === "unica") {
+      // Para eventos únicos, usar las fechas seleccionadas
+      recurrencias =
+        data.fechas && data.fechas.length > 0
+          ? data.fechas.map((fecha) => {
+              const date = new Date(fecha);
+              const diasSemana = [
+                "Domingo",
+                "Lunes",
+                "Martes",
+                "Miércoles",
+                "Jueves",
+                "Viernes",
+                "Sábado",
+              ];
+              const dia = diasSemana[date.getDay()];
+
+              return {
+                dia,
+                hora: data.hora,
+              };
+            })
+          : [];
+    } else if (data.tipoEvento === "recurrente") {
+      // Para eventos recurrentes, usar los días de la semana seleccionados
+      recurrencias =
+        data.diasSemana && data.diasSemana.length > 0
+          ? data.diasSemana.map((dia) => ({
+              dia,
+              hora: data.hora,
+            }))
+          : [];
+    }
+
     formData.append("recurrencias", JSON.stringify(recurrencias));
+
+    // Agregar campos específicos para eventos recurrentes
+    if (data.tipoEvento === "recurrente") {
+      formData.append("recurrente", "true");
+      if (data.fechaDesde) {
+        formData.append("fechaDesde", data.fechaDesde);
+      }
+      if (data.fechaHasta) {
+        formData.append("fechaHasta", data.fechaHasta);
+      }
+    } else {
+      formData.append("recurrente", "false");
+    }
 
     // Agregar archivos multimedia
     if (data.imagenes && data.imagenes.length > 0) {
