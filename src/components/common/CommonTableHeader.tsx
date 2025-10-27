@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "../ui/input";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 // Dynamic import del FiltersDrawer para optimizar la carga
@@ -30,33 +30,40 @@ export function CommonTableHeader({
 
   const [searchInput, setSearchInput] = useState(search);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const searchParamsRef = useRef(searchParams);
 
-  // Función para actualizar searchParams
-  const updateSearchParams = useCallback(
-    (newSearch: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (newSearch) {
-        params.set("search", newSearch);
-      } else {
-        params.delete("search");
-      }
-
-      router.push(`${pathname}?${params.toString()}`);
-    },
-    [router, pathname, searchParams],
-  );
+  // Mantener searchParams actualizado en el ref
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+  }, [searchParams]);
 
   // Debounce para el search
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== search) {
-        updateSearchParams(searchInput);
+        const params = new URLSearchParams();
+
+        // Preservar todos los params actuales excepto search
+        searchParamsRef.current.forEach((value, key) => {
+          if (key !== "search") {
+            params.set(key, value);
+          }
+        });
+
+        if (searchInput) {
+          params.set("search", searchInput);
+        }
+
+        const newUrl = params.toString()
+          ? `${pathname}?${params.toString()}`
+          : pathname;
+        router.push(newUrl);
       }
     }, 500); // 500ms de debounce
 
     return () => clearTimeout(timer);
-  }, [searchInput, search, updateSearchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   // Sincronizar el input con los searchParams cuando cambian externamente
   useEffect(() => {

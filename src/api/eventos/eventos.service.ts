@@ -193,6 +193,15 @@ export const getEventosMiBodega = async (
  */
 export const getInstanciasEvento = async (
   eventoId: string,
+  params?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    estadoId?: number;
+    recurrenciaEventoId?: number;
+    page?: number;
+    limit?: number;
+    orderBy?: string;
+  },
 ): Promise<
   Array<{
     id: number;
@@ -202,6 +211,7 @@ export const getInstanciasEvento = async (
   }>
 > => {
   try {
+    const url = buildApiUrl(`/eventos/${eventoId}/instancias`, params);
     const response = await fetchApiWithAuth<{
       items: Array<{
         id: number;
@@ -225,7 +235,7 @@ export const getInstanciasEvento = async (
         itemsPerPage: number;
         totalPages: number;
       };
-    }>(`/eventos/${eventoId}/instancias`);
+    }>(url);
 
     // Transformar la respuesta del backend al formato esperado por el componente
     const transformedData = response.items.map((instancia) => {

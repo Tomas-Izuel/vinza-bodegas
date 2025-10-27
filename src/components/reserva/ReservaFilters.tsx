@@ -104,10 +104,48 @@ export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
     defaultValues: getInitialValues(),
   });
 
+  // Ref para evitar loops infinitos de reset
+  const prevSearchParamsRef = React.useRef<string>(searchParams.toString());
+  const isResettingRef = React.useRef(false);
+
   // Actualizar el formulario cuando cambian los search params
+  // Solo cuando cambian parámetros relevantes al formulario
   React.useEffect(() => {
+    const currentSearchParams = searchParams.toString();
+
+    // Evitar reset si estamos en medio de un reset o si no cambió nada
+    if (
+      isResettingRef.current ||
+      prevSearchParamsRef.current === currentSearchParams
+    ) {
+      return;
+    }
+
     const newValues = getInitialValues();
-    form.reset(newValues, { keepDefaultValues: false });
+    const currentValues = form.getValues();
+
+    // Comparar solo los valores relevantes para evitar resets innecesarios
+    const relevantFieldsChanged =
+      newValues.fechaDesde !== currentValues.fechaDesde ||
+      newValues.fechaHasta !== currentValues.fechaHasta ||
+      newValues.estadoId !== currentValues.estadoId ||
+      newValues.eventoId !== currentValues.eventoId ||
+      newValues.precioMinimo !== currentValues.precioMinimo ||
+      newValues.precioMaximo !== currentValues.precioMaximo ||
+      newValues.cantidadGente !== currentValues.cantidadGente;
+
+    if (relevantFieldsChanged) {
+      isResettingRef.current = true;
+      form.reset(newValues, { keepDefaultValues: true });
+      prevSearchParamsRef.current = currentSearchParams;
+
+      // Resetear el flag después de un breve delay
+      setTimeout(() => {
+        isResettingRef.current = false;
+      }, 100);
+    } else {
+      prevSearchParamsRef.current = currentSearchParams;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()]);
 

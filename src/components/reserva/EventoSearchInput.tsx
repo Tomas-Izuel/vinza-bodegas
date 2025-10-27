@@ -32,6 +32,7 @@ export function EventoSearchInput({
     null,
   );
   const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedOnceRef = React.useRef(false);
 
   const loadEventos = React.useCallback(async (search: string) => {
     setLoading(true);
@@ -46,47 +47,28 @@ export function EventoSearchInput({
     }
   }, []);
 
+  // Solo cargar eventos cuando el popover se abre por primera vez
   React.useEffect(() => {
-    if (open) {
+    if (open && !hasLoadedOnceRef.current) {
       loadEventos("");
+      hasLoadedOnceRef.current = true;
     }
   }, [open, loadEventos]);
 
-  // Cargar el evento seleccionado cuando hay un value inicial
+  // Buscar el evento seleccionado en la lista cargada cuando hay eventos disponibles
   React.useEffect(() => {
-    if (value) {
-      const loadSelectedEvento = async () => {
-        try {
-          const response = await getEventosMiBodega({ limit: 1000 });
-          const evento = response.items.find((e) => e.id === value);
-          if (evento) {
-            setSelectedEvento(evento);
-          }
-        } catch (error) {
-          console.error("Error al cargar evento seleccionado:", error);
-        }
-      };
-      loadSelectedEvento();
-    } else if (value === undefined || value === null) {
-      setSelectedEvento(null);
-    }
-  }, [value]);
-
-  React.useEffect(() => {
-    if (value && eventos.length > 0) {
+    if (value && eventos.length > 0 && !selectedEvento) {
       const evento = eventos.find((e) => e.id === value);
       if (evento) {
         setSelectedEvento(evento);
       }
     }
-  }, [value, eventos]);
+  }, [value, eventos, selectedEvento]);
 
-  // Resetear estado interno cuando el valor externo se resetea
+  // Resetear el evento seleccionado cuando el valor se limpia
   React.useEffect(() => {
-    if (value === undefined) {
+    if (!value) {
       setSelectedEvento(null);
-      setSearchTerm("");
-      setEventos([]);
     }
   }, [value]);
 
@@ -120,15 +102,25 @@ export function EventoSearchInput({
     setSelectedEvento(evento);
     onChange(evento.id);
     setOpen(false);
+    setSearchTerm(""); // Limpiar búsqueda al seleccionar
   };
 
   const handleClear = () => {
     setSelectedEvento(null);
     onChange(undefined);
+    setSearchTerm("");
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      // Resetear búsqueda cuando se cierra el popover
+      setSearchTerm("");
+    }
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
