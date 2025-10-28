@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
-import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
-import { LiveDataTable } from "@/components/dashboard/LiveDataTable";
 import {
   ExportUtils,
   useExportUtils,
@@ -12,17 +10,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  Calendar,
-  Building2,
-  Star,
-  Activity,
-  Download,
-  Bell,
-  RefreshCw,
-} from "lucide-react";
+import { Activity, Download, Bell, RefreshCw } from "lucide-react";
 import { DashboardData } from "@/api/dashboard/dashboard.service";
+import { LiveDataTable } from "@/components/dashboard/LiveDataTable";
 
 interface DashboardClientProps {
   dashboardData: DashboardData;
@@ -32,7 +22,88 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
   const [showExportPanel, setShowExportPanel] = useState(false);
   const { exportData, generateReport } = useExportUtils();
 
-  const { metrics, charts } = dashboardData;
+  const { metrics, charts, eventosProgramados } = dashboardData;
+
+  // Transformar eventos programados al formato de la tabla (limitado a 5 items)
+  const eventosTableData = eventosProgramados.map((instancia) => ({
+    id: instancia.id.toString(),
+    evento: instancia.evento.nombre,
+    categoria: "Categoría", // TODO: Add categoria from evento if available
+    fecha: instancia.fecha,
+    hora: instancia.recurrenciaEvento.hora,
+    cupoDisponible: instancia.evento.cupo,
+    precio: parseFloat(instancia.evento.precio),
+    estado: instancia.estado.nombre.toLowerCase(),
+    eventoId: instancia.eventoId, // Para redirección
+    inicio: `${new Date(instancia.fecha).toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "short",
+    })} - ${instancia.recurrenciaEvento.hora}`,
+  }));
+
+  // Columnas para la tabla de eventos programados
+  const eventosColumns = [
+    {
+      key: "evento",
+      label: "Evento",
+      render: (value: string | number | boolean) => (
+        <div className="space-y-1">
+          <div className="font-medium">{String(value)}</div>
+        </div>
+      ),
+    },
+    {
+      key: "categoria",
+      label: "Categoría",
+      render: (value: string | number | boolean) => (
+        <Badge variant="outline">{String(value)}</Badge>
+      ),
+    },
+    {
+      key: "inicio",
+      label: "Fecha y Hora",
+      render: (value: string | number | boolean) => (
+        <div className="font-medium">{String(value)}</div>
+      ),
+    },
+    {
+      key: "cupoDisponible",
+      label: "Cupos",
+      render: (value: string | number | boolean) => (
+        <div className="font-medium">{String(value)} disponibles</div>
+      ),
+    },
+    {
+      key: "precio",
+      label: "Precio",
+      render: (value: string | number | boolean) => (
+        <div className="font-medium">${Number(value).toLocaleString()}</div>
+      ),
+    },
+    {
+      key: "estado",
+      label: "Estado",
+      render: (value: string | number | boolean) => (
+        <Badge
+          variant={
+            String(value) === "activo"
+              ? "default"
+              : String(value) === "suspendido"
+                ? "destructive"
+                : "secondary"
+          }
+        >
+          {String(value) === "activo"
+            ? "Activo"
+            : String(value) === "suspendido"
+              ? "Suspendido"
+              : String(value) === "finalizado"
+                ? "Finalizado"
+                : String(value)}
+        </Badge>
+      ),
+    },
+  ];
 
   // Transformar métricas al formato esperado por MetricCard
   const mainMetrics = [
@@ -45,40 +116,26 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
         isPositive: metrics.ingresosMensuales.tendencia >= 0,
         period: metrics.ingresosMensuales.periodo,
       },
-      onDownload: () => exportData("excel", [], "ingresos-mensuales"),
-      onAlert: () => alert("Configurar alerta para ingresos mensuales"),
     },
     {
       title: "Eventos Activos",
       value: metrics.eventosActivos.cantidad,
       subtitle: "en curso",
-      trend: {
-        value: metrics.eventosActivos.tendencia,
-        isPositive: metrics.eventosActivos.tendencia >= 0,
-        period: metrics.eventosActivos.periodo,
-      },
       progress: {
         value: metrics.eventosActivos.capacidadUtilizada,
         max: metrics.eventosActivos.capacidadMaxima,
         label: "Capacidad utilizada",
       },
-      onDownload: () => exportData("csv", [], "eventos-activos"),
     },
     {
       title: "Personal Activo",
       value: metrics.personalActivo.cantidad.toString(),
       subtitle: "empleados",
-      trend: {
-        value: metrics.personalActivo.tendencia,
-        isPositive: metrics.personalActivo.tendencia >= 0,
-        period: metrics.personalActivo.periodo,
-      },
       progress: {
         value: metrics.personalActivo.cantidad,
         max: metrics.personalActivo.capacidadMaxima,
         label: "Capacidad de personal",
       },
-      onAlert: () => alert("Ver gestión de personal"),
     },
     {
       title: "Puntuación Promedio",
@@ -96,7 +153,7 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
       },
     },
     {
-      title: "Bodegas Activas",
+      title: "Sucursales Activas",
       value: metrics.bodegasActivas.cantidad,
       subtitle: `de ${metrics.bodegasActivas.total} total`,
       progress: {
@@ -104,18 +161,11 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
         max: metrics.bodegasActivas.total,
         label: "Operativas",
       },
-      onDownload: () => exportData("excel", [], "bodegas-status"),
     },
     {
       title: "Tasa de Ocupación",
       value: `${metrics.tasaOcupacion.porcentaje}%`,
       subtitle: "promedio",
-      trend: {
-        value: metrics.tasaOcupacion.tendencia,
-        isPositive: metrics.tasaOcupacion.tendencia >= 0,
-        period: metrics.tasaOcupacion.periodo,
-      },
-      alert: { type: "success" as const, message: "Meta superada" },
     },
   ];
 
@@ -126,7 +176,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
       [
         charts.ingresosMensuales as unknown as Record<string, unknown>,
         charts.eventosPorCategoria as unknown as Record<string, unknown>,
-        charts.distribucionPersonal as unknown as Record<string, unknown>,
         charts.ocupacionSemanal as unknown as Record<string, unknown>,
       ],
       [],
@@ -216,7 +265,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
           onDownload={() =>
             exportData("excel", charts.ingresosMensuales, "ingresos-mensuales")
           }
-          onRefresh={() => console.log("Actualizando ingresos...")}
         />
 
         <ChartCard
@@ -230,27 +278,10 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
             exportData("csv", charts.eventosPorCategoria, "eventos-categoria")
           }
         />
+      </div>
 
-        <ChartCard
-          title="Distribución de Personal"
-          subtitle="Personal por departamento"
-          data={charts.distribucionPersonal}
-          type="pie"
-          dataKey="value"
-          badge={{
-            text: `${metrics.personalActivo.cantidad} Total`,
-            variant: "secondary",
-          }}
-          onDownload={() =>
-            exportData(
-              "excel",
-              charts.distribucionPersonal,
-              "distribucion-personal",
-            )
-          }
-          onFilter={() => console.log("Filtrar personal...")}
-        />
-
+      {/* Ocupación Semanal y Eventos Programados */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
           title="Ocupación Semanal"
           subtitle="Porcentaje de ocupación por día"
@@ -264,91 +295,25 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
           onDownload={() =>
             exportData("csv", charts.ocupacionSemanal, "ocupacion-semanal")
           }
-          onRefresh={() => console.log("Actualizando ocupación...")}
         />
-      </div>
 
-      {/* Panel de Alertas y Tabla */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <AlertsPanel
-            onMarkAsRead={(id) => console.log("Marcar como leída:", id)}
-            onDismiss={(id) => console.log("Descartar alerta:", id)}
-            onConfigureAlerts={handleAlertConfiguration}
-          />
-        </div>
-
-        <div className="lg:col-span-2">
-          <LiveDataTable
-            title="Eventos Programados"
-            subtitle="Lista de eventos próximos y en curso"
-            data={[]}
-            columns={[]}
-            showLiveIndicator={false}
-            refreshInterval={0}
-            onDownload={() => exportData("excel", [], "eventos-programados")}
-            onViewDetails={(id) => console.log("Ver detalles del evento:", id)}
-          />
-        </div>
-      </div>
-
-      {/* Métricas Adicionales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Building2 className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Sucursales</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Star className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Valoraciones</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Este Mes</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Crecimiento</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <LiveDataTable
+          title="Eventos Programados"
+          subtitle="Próximos eventos en los siguientes 30 días"
+          data={eventosTableData}
+          columns={eventosColumns}
+          showLiveIndicator={false}
+          refreshInterval={0}
+          onDownload={() =>
+            exportData("excel", eventosTableData, "eventos-programados")
+          }
+          onViewDetails={(id) => {
+            const evento = eventosTableData.find((e) => e.id === id);
+            if (evento) {
+              window.location.href = `/eventos/${evento.eventoId}`;
+            }
+          }}
+        />
       </div>
     </div>
   );

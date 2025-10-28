@@ -9,7 +9,6 @@ import {
   TrendingDown,
   Download,
   AlertTriangle,
-  MoreVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -75,9 +74,6 @@ export function MetricCard({
                 <AlertTriangle className="h-3 w-3" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-6 w-6">
-              <MoreVertical className="h-3 w-3" />
-            </Button>
           </div>
         </div>
       </CardHeader>
