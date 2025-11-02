@@ -202,7 +202,7 @@ export function InstanciasEvento({
                     )}
                   </TableCell>
                   <TableCell className="w-1/5">
-                    {esSuspendida ? (
+                    {esSuspendida || instancia.reservas.length > 0 ? (
                       <span className="text-gray-400 text-sm">-</span>
                     ) : (
                       <Button
