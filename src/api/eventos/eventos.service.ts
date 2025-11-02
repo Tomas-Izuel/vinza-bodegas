@@ -16,14 +16,6 @@ import {
 } from "./evento.type";
 import { Reserva } from "../reservas/reserva.type";
 
-export type Evento = {
-  id: string;
-  nombre: string;
-  sucursal: string;
-  estado: "Activo" | "Finalizado" | "Suspendido";
-  ultimaModificacion: string; // ISO date
-};
-
 export const getEventos = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
@@ -53,7 +45,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     formData.append("descripcion", data.descripcion || "");
     formData.append("cupo", data.cupos.toString());
     formData.append("sucursalId", data.sucursalId.toString());
-    formData.append("estadoId", "1"); // Estado activo por defecto
+    formData.append("estadoId", "2"); // Estado activo por defecto (ID 2 = ACTIVO en la BD)
     formData.append("categoriaId", data.categoriaId.toString());
     formData.append("precio", data.precio.toString());
 
@@ -125,7 +117,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     }
 
     // Hacer POST al backend con FormData
-    await fetchApiWithAuthFormData<Evento>("/eventos", formData);
+    await fetchApiWithAuthFormData("/eventos", formData);
 
     return;
   } catch (error) {
@@ -154,7 +146,6 @@ export async function obtenerSucursales(): Promise<
 export const getEvento = async (id: string): Promise<EventoDetalle> => {
   try {
     const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`);
-    console.log(response);
     return response;
   } catch (error) {
     console.error("[EVENTOS]:", error);
@@ -214,7 +205,6 @@ export const getEventosMiBodega = async (
   params?: EventosParams,
 ): Promise<EventosResponse> => {
   try {
-    console.log(params);
     const eventosMapping = {
       search: "nombre", // mapea "search" a "nombre"
     };
@@ -237,6 +227,15 @@ export const getEventosMiBodega = async (
  */
 export const getInstanciasEvento = async (
   eventoId: string,
+  params?: {
+    fechaDesde?: string;
+    fechaHasta?: string;
+    estadoId?: number;
+    recurrenciaEventoId?: number;
+    page?: number;
+    limit?: number;
+    orderBy?: string;
+  },
 ): Promise<
   Array<{
     id: number;
@@ -246,6 +245,7 @@ export const getInstanciasEvento = async (
   }>
 > => {
   try {
+    const url = buildApiUrl(`/eventos/${eventoId}/instancias`, params);
     const response = await fetchApiWithAuth<{
       items: Array<{
         id: number;
@@ -269,7 +269,7 @@ export const getInstanciasEvento = async (
         itemsPerPage: number;
         totalPages: number;
       };
-    }>(`/eventos/${eventoId}/instancias`);
+    }>(url);
 
     // Transformar la respuesta del backend al formato esperado por el componente
     const transformedData = response.items.map((instancia) => {
