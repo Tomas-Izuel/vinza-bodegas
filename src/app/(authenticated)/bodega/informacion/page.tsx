@@ -25,7 +25,9 @@ interface BodegaInformacionPageProps {
 const BodegaInformacionPage = async ({
   searchParams,
 }: BodegaInformacionPageProps) => {
-  const params = (await searchParams) as SucursalesSearchParams;
+  const rawParams = await searchParams;
+  const params = rawParams as SucursalesSearchParams;
+  const isEditing = rawParams.editar === "true";
 
   try {
     // Obtener la información de la bodega con parámetros de búsqueda
@@ -46,9 +48,12 @@ const BodegaInformacionPage = async ({
 
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Detalle bodega</h1>
-            <Link href={"?editar=true"}>
-              <Button>Editar bodega</Button>
-            </Link>
+
+            {!isEditing && (
+              <Link href={"?editar=true"}>
+                <Button>Editar bodega</Button>
+              </Link>
+            )}
           </div>
         </section>
 

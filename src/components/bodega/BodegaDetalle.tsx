@@ -41,6 +41,7 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
     defaultValues: {
       nombre: bodega.nombre,
       descripcion: bodega.descripcion || "",
+      telefono: bodega.telefono,
     },
   });
 
@@ -152,6 +153,35 @@ export function BodegaDetalle({ bodega, onBodegaUpdated }: BodegaDetalleProps) {
                 </div>
 
                 {/* Segunda fila de información */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Teléfono
+                    </p>
+                    {isEditing ? (
+                      <FormField
+                        control={form.control}
+                        name="telefono"
+                        render={({ field }) => {
+                          return (
+                            <FormItem>
+                              <FormControl>
+                                <Input type="tel" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ) : (
+                      <p className="text-base text-gray-900">
+                        {bodega.telefono || "Sin teléfono"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tercera fila de información */}
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
