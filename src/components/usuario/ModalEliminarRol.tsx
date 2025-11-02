@@ -3,15 +3,17 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import InlineErrorHandler from "../common/InlineErrorHandler";
-import { eliminarRol } from "@/api/roles/rol.service";
+import { eliminarRol, canDeleteRol } from "@/api/roles/rol.service";
 import { Rol } from "@/api/roles/rol.type";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ModalEliminarRolProps {
   isOpen: boolean;
@@ -28,9 +30,36 @@ export function ModalEliminarRol({
 }: ModalEliminarRolProps) {
   const [error, setError] = useState<string | null>("");
   const [cargando, setCargando] = useState(false);
+  const [canDelete, setCanDelete] = useState<boolean | null>(null);
+  const [isCheckingDelete, setIsCheckingDelete] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && rol) {
+      const checkCanDelete = async () => {
+        try {
+          setIsCheckingDelete(true);
+          const response = await canDeleteRol(rol.id);
+          console.log("response", response);
+          setCanDelete(response.canDelete);
+        } catch {
+          // Si hay error al verificar, asumimos que no se puede eliminar por seguridad
+          setCanDelete(false);
+        } finally {
+          setIsCheckingDelete(false);
+        }
+      };
+
+      checkCanDelete();
+    } else {
+      // Resetear el estado cuando se cierra el modal
+      setCanDelete(null);
+    }
+  }, [isOpen, rol]);
 
   const handleEliminar = async () => {
-    if (!rol) return;
+    if (!rol || !canDelete) {
+      return;
+    }
 
     setError("");
     setCargando(true);
@@ -55,44 +84,58 @@ export function ModalEliminarRol({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Eliminar rol - {rol?.nombre}</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600">
-              Estás a punto de eliminar el rol <strong>{rol?.nombre}</strong>.
-            </p>
-            <p className="text-sm text-gray-600">
+          {isCheckingDelete ? (
+            <DialogDescription>
+              Verificando si se puede eliminar el rol...
+            </DialogDescription>
+          ) : canDelete === false ? (
+            <DialogDescription>
+              No se puede eliminar el rol <strong>{rol?.nombre}</strong>
+              .
+              <br />
+              Este rol tiene usuarios relacionados.
+            </DialogDescription>
+          ) : (
+            <DialogDescription>
+              Estás a punto de eliminar el rol <strong>{rol?.nombre}</strong>
+              .
+              <br />
               Esta acción <strong>no</strong> se puede revertir.
+            </DialogDescription>
+          )}
+        </DialogHeader>
+        <div className="py-4">
+          {isCheckingDelete ? (
+            <p className="text-sm text-muted-foreground">Cargando...</p>
+          ) : canDelete === false ? (
+            <p className="text-sm text-muted-foreground">
+              No se puede eliminar el rol, tiene usuarios relacionados.
             </p>
-            <p className="text-sm text-gray-600">
+          ) : (
+            <p className="text-sm text-muted-foreground">
               ¿Estás seguro que deseas continuar?
             </p>
-          </div>
-
-          {error && <InlineErrorHandler error={new Error(error)} />}
-
-          <div className="flex justify-end space-x-2 pt-4">
+          )}
+        </div>
+        {error && <InlineErrorHandler error={new Error(error)} />}
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={handleClose} disabled={cargando}>
+            Cancelar
+          </Button>
+          {canDelete && (
             <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={cargando}
-            >
-              Cancelar
-            </Button>
-            <Button
+              variant="destructive"
               onClick={handleEliminar}
-              disabled={cargando}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={cargando || isCheckingDelete}
+              className="bg-red-500 hover:bg-red-600"
             >
               {cargando ? "Eliminando..." : "Eliminar rol"}
             </Button>
-          </div>
-        </div>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

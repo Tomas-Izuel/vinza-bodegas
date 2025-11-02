@@ -89,3 +89,7 @@ export const EditarRolSchema = z.object({
 });
 
 export type EditarRolDto = z.infer<typeof EditarRolSchema>;
+
+export interface CanDeleteRolResponse {
+  canDelete: boolean;
+}
