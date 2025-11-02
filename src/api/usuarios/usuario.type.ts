@@ -7,6 +7,7 @@ export type Usuario = {
   apellido: string;
   email: string;
   validado: boolean | null;
+  pausado: boolean | null;
   fecha_nacimiento: string | null;
   bodegaId: number | null;
   created_at: string;

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function UsuariosPage() {
   const [usuarios, roles] = await Promise.all([
-    getUsuariosMiBodega(),
+    getUsuariosMiBodega().then((data) => data.sort((a, b) => a.id - b.id)),
     obtenerRolesMiBodega(),
   ]);
 

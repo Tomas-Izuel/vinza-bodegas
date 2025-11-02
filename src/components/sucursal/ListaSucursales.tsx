@@ -13,16 +13,24 @@ import { CommonTableHeader } from "../common/CommonTableHeader";
 import moment from "moment";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Eye, LandPlot, Pencil, Trash } from "lucide-react";
+import { Eye, LandPlot, Pencil } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
 import { Routes } from "@/lib/routes";
+import { EliminarSucursalButton } from "./EliminarSucursalButton";
+import { useRouter } from "next/navigation";
 
 interface ListaSucursalesProps {
   sucursales: Sucursal[];
 }
 
 export function ListaSucursales({ sucursales }: ListaSucursalesProps) {
+  const router = useRouter();
+
+  const handleSucursalEliminada = () => {
+    router.refresh();
+  };
+
   return (
     <section>
       <CommonTableHeader
@@ -90,10 +98,10 @@ export function ListaSucursales({ sucursales }: ListaSucursalesProps) {
                       Editar
                     </Button>
                   </Link>
-                  <Button variant="ghost" size={"sm"} className="text-red-500">
-                    <Trash className="w-4 h-4" />
-                    Borrar
-                  </Button>
+                  <EliminarSucursalButton
+                    sucursal={sucursal}
+                    onSuccess={handleSucursalEliminada}
+                  />
                 </div>
               </TableCell>
             </TableRow>

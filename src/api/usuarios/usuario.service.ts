@@ -112,6 +112,38 @@ export const eliminarUsuario = async (id: number): Promise<void> => {
 };
 
 /**
+ * Pausa un usuario
+ */
+export const pausarUsuario = async (id: number): Promise<void> => {
+  try {
+    await fetchApiWithAuth(`/users/${id}/pause`, {
+      method: "POST",
+    });
+
+    revalidatePath("/usuarios");
+  } catch (error) {
+    console.error("[USUARIOS]: Error al pausar usuario:", error);
+    throw error;
+  }
+};
+
+/**
+ * Despausa un usuario
+ */
+export const despausarUsuario = async (id: number): Promise<void> => {
+  try {
+    await fetchApiWithAuth(`/users/${id}/unpause`, {
+      method: "POST",
+    });
+
+    revalidatePath("/usuarios");
+  } catch (error) {
+    console.error("[USUARIOS]: Error al despausar usuario:", error);
+    throw error;
+  }
+};
+
+/**
  * Obtiene el perfil del usuario autenticado
  */
 export const obtenerPerfilUsuario = async (): Promise<PerfilUsuario> => {
