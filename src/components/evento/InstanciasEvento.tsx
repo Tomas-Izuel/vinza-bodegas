@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import { VerReservasModal } from "./VerReservasModal";
 import { Reserva } from "@/api/reservas/reserva.type";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { CommonTableHeader } from "../common/CommonTableHeader";
 import { InstanciasEventoFilters } from "./InstanciasEventoFilters";
@@ -36,34 +36,32 @@ export function InstanciasEvento({
   eventoId,
   eventoNombre,
 }: InstanciasEventoProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [instancias, setInstancias] = useState<InstanciaEvento[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadInstancias = async () => {
+      setLoading(true);
+      try {
+        const fechaDesde = searchParams.get("fechaDesde") || undefined;
+        const fechaHasta = searchParams.get("fechaHasta") || undefined;
+
+        const filteredInstancias = await getInstanciasEvento(eventoId, {
+          fechaDesde,
+          fechaHasta,
+        });
+
+        setInstancias(filteredInstancias);
+      } catch (error) {
+        console.error("Error al cargar instancias:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadInstancias();
-  }, [searchParams.toString(), eventoId]);
+  }, [eventoId, searchParams]);
 
-  const loadInstancias = async () => {
-    setLoading(true);
-    try {
-      const fechaDesde = searchParams.get("fechaDesde") || undefined;
-      const fechaHasta = searchParams.get("fechaHasta") || undefined;
-
-      const filteredInstancias = await getInstanciasEvento(eventoId, {
-        fechaDesde,
-        fechaHasta,
-      });
-
-      setInstancias(filteredInstancias);
-    } catch (error) {
-      console.error("Error al cargar instancias:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const [modalData, setModalData] = useState<{
     id: number;
     eventoNombre: string;
