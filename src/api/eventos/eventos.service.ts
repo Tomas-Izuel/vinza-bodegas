@@ -11,8 +11,8 @@ import {
   EventoStepFormType,
   EventoDetalle,
   EditarEventoType,
-  ActualizarEventoDto,
   ReservasInstanciaResponse,
+  EstadoEvento,
 } from "./evento.type";
 import { Reserva } from "../reservas/reserva.type";
 
@@ -162,28 +162,40 @@ export const getEvento = async (id: string): Promise<EventoDetalle> => {
   }
 };
 
+// 🔹 Nuevo método: obtiene los estados del backend
+export const getEstadosEvento = async (): Promise<EstadoEvento[]> => {
+  try {
+    const response = await fetchApiWithAuth<{ items: EstadoEvento[] }>(
+      `/estado-eventos`,
+    );
+    return response.items;
+  } catch (error) {
+    console.error("[ESTADOS EVENTO]:", error);
+    throw new Error("Error al obtener los estados de evento");
+  }
+};
+
+// 🔹 Método corregido para actualizar el evento (usa FormData)
 export const actualizarEvento = async (
   id: string,
   data: EditarEventoType,
 ): Promise<{ success: boolean; data?: EventoDetalle; error?: string }> => {
   try {
-    // Transformar los datos al formato del backend
-    const backendData = {
-      nombre: data.nombre,
-      descripcion: data.descripcion || "",
-      cupo: Number(data.cupo), // Convertir a número, no a string
-      precio: data.precio,
-      categoriaId: data.categoriaId,
-      sucursalId: data.sucursalId,
-    } as ActualizarEventoDto;
+    const formData = new FormData();
 
-    const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(backendData),
-    });
+    // Aseguramos que todos los campos se envíen como texto
+    formData.append("nombre", data.nombre);
+    formData.append("descripcion", data.descripcion || "");
+    formData.append("cupo", data.cupo.toString());
+    formData.append("precio", data.precio.toString());
+    formData.append("categoriaId", data.categoriaId.toString());
+    formData.append("estadoId", data.estadoId.toString());
+    formData.append("sucursalId", data.sucursalId.toString());
+
+    const response = await fetchApiWithAuthFormData<EventoDetalle>(
+      `/eventos/${id}`,
+      formData,
+    );
 
     return { success: true, data: response };
   } catch (error) {

@@ -1,11 +1,15 @@
 "use client";
-
+import { useState } from "react";
 import {
   EventoDetalle as EventoDetalleType,
   EditarEventoSchema,
   EditarEventoType,
 } from "@/api/eventos/evento.type";
+
+import { Tooltip } from "@/components/ui/tooltip";
+import { TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CategoriaEvento } from "@/api/categoria-evento/categoria-evento.type";
+import { EstadoEvento } from "@/api/eventos/evento.type";
 import { Sucursal } from "@/api/sucursales/sucursal.type";
 import { Card, CardContent } from "@/components/ui/card";
 import { Rating } from "@/components/ui/rating";
@@ -38,13 +42,13 @@ interface EventoDetalleProps {
   evento: EventoDetalleType;
   categorias: CategoriaEvento[];
   sucursales: Sucursal[];
+  estados: EstadoEvento[];
   onEventoUpdated?: (eventoActualizado: EventoDetalleType) => void;
 }
 
 export function EventoDetalle({
   evento,
   categorias,
-  sucursales,
   onEventoUpdated,
 }: EventoDetalleProps) {
   const searchParams = useSearchParams();
@@ -59,9 +63,11 @@ export function EventoDetalle({
       cupo: parseInt(evento.cupo),
       precio: parseFloat(evento.precio),
       categoriaId: evento.categoriaId,
+      estadoId: evento.estado.id,
       sucursalId: evento.sucursalId,
     },
   });
+  const [precioToastShown, setPrecioToastShown] = useState(false);
 
   const formatPrecio = (precio: string) => {
     return `$${parseFloat(precio).toLocaleString()}`;
@@ -94,12 +100,11 @@ export function EventoDetalle({
     router.push(`?${params.toString()}`);
     form.reset();
   };
-
-  const habilitarEdicion = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("editar", "true");
-    router.push(`?${params.toString()}`);
-  };
+  const estados = [
+    { id: 1, nombre: "ACTIVO" },
+    { id: 2, nombre: "SUSPENDIDO" },
+    { id: 3, nombre: "FINALIZADO" },
+  ];
 
   return (
     <Card className="shadow-none">
@@ -107,10 +112,9 @@ export function EventoDetalle({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Información del evento */}
               <div className="lg:col-span-3 space-y-6">
-                {/* Primera fila de información */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Primera fila */}
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr_1fr] gap-6 pl-2">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Nombre
@@ -132,48 +136,22 @@ export function EventoDetalle({
                       <p className="text-base text-gray-900">{evento.nombre}</p>
                     )}
                   </div>
+
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Sucursal
                     </p>
                     {isEditing ? (
-                      <FormField
-                        control={form.control}
-                        name="sucursalId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Select
-                                value={field.value?.toString()}
-                                onValueChange={(value) =>
-                                  field.onChange(parseInt(value))
-                                }
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Seleccionar sucursal" />
-                                </SelectTrigger>
-                                <SelectContent className="w-full">
-                                  {sucursales.map((sucursal) => (
-                                    <SelectItem
-                                      key={sucursal.id}
-                                      value={sucursal.id.toString()}
-                                    >
-                                      {sucursal.nombre}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <p className="text-base text-gray-900 bg-gray-100 p-2 rounded">
+                        {evento.sucursal.nombre}
+                      </p>
                     ) : (
                       <p className="text-base text-gray-900">
                         {evento.sucursal.nombre}
                       </p>
                     )}
                   </div>
+
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Categoría
@@ -216,18 +194,69 @@ export function EventoDetalle({
                       </p>
                     )}
                   </div>
+
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
-                      Puntuación promedio
+                      Estado
                     </p>
-                    <div className="flex items-center gap-2">
-                      <Rating value={parseFloat(evento.promedioValoracion)} />
-                    </div>
+                    {isEditing ? (
+                      <FormField
+                        control={form.control}
+                        name="estadoId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select
+                                value={field.value?.toString()}
+                                onValueChange={(value) =>
+                                  field.onChange(parseInt(value))
+                                }
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Seleccionar estado" />
+                                </SelectTrigger>
+                                <SelectContent className="w-full">
+                                  {estados.map((estado) => (
+                                    <SelectItem
+                                      key={estado.id}
+                                      value={estado.id.toString()}
+                                    >
+                                      {estado.nombre}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) : (
+                      <p className="text-base text-gray-900">
+                        {evento.estado.nombre}
+                      </p>
+                    )}
                   </div>
+                  {!isEditing && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">
+                        Fecha de creación
+                      </p>
+                      <p className="text-base text-green-600">
+                        {formatFecha(evento.created_at)}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Segunda fila de información */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Segunda fila */}
+                <div
+                  className={`grid grid-cols-1 ${
+                    isEditing
+                      ? "md:grid-cols-3 gap-4"
+                      : "md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-6 pl-4"
+                  }`}
+                >
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Descripción
@@ -251,14 +280,18 @@ export function EventoDetalle({
                       </p>
                     )}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">
-                      Fecha de creación
-                    </p>
-                    <p className="text-base text-green-600">
-                      {formatFecha(evento.created_at)}
-                    </p>
-                  </div>
+
+                  {!isEditing && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">
+                        Puntuación promedio
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Rating value={parseFloat(evento.promedioValoracion)} />
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Precio
@@ -270,7 +303,33 @@ export function EventoDetalle({
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input type="number" step="0.01" {...field} />
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="100"
+                                      {...field}
+                                      onChange={(e) => {
+                                        field.onChange(e.target.value);
+                                        if (!precioToastShown) {
+                                          toast.warning(
+                                            "⚠️ Recordá que si existen reservas asociadas se respeta el precio anterior.",
+                                          );
+                                          setPrecioToastShown(true);
+
+                                          // opcional: lo volvés a habilitar después de unos segundos
+                                          setTimeout(
+                                            () => setPrecioToastShown(false),
+                                            8000,
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </TooltipTrigger>
+                                </Tooltip>
+                              </TooltipProvider>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -305,7 +364,6 @@ export function EventoDetalle({
                   </div>
                 </div>
 
-                {/* Botones de acción */}
                 {isEditing && (
                   <div className="flex gap-2 pt-4">
                     <Button
@@ -330,7 +388,6 @@ export function EventoDetalle({
                 )}
               </div>
 
-              {/* Imágenes del evento */}
               <div className="lg:col-span-1">
                 <EventoImagenes
                   imagenes={evento.multimedia || []}

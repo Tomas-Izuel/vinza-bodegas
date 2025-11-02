@@ -40,8 +40,6 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
         return "finalizado";
       case EstadosEvento.SUSPENDIDO:
         return "suspendido";
-      case EstadosEvento.INACTIVO:
-        return "inactivo";
       default:
         return "default";
     }
@@ -58,7 +56,6 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
           <TableRow>
             <TableHead>Nombre</TableHead>
             <TableHead>Sucursal</TableHead>
-            <TableHead>Precio</TableHead>
             <TableHead>Cupo</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead>Categoría</TableHead>
@@ -85,7 +82,6 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
                   )}
                 </div>
               </TableCell>
-              <TableCell>${evento.precio}</TableCell>
               <TableCell>{evento.cupo}</TableCell>
               <TableCell>
                 <Badge variant={getEstadoVariant(evento.estado.nombre)}>

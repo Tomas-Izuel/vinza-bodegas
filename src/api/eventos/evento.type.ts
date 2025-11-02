@@ -5,10 +5,9 @@ import { CategoriaEvento } from "../categoria-evento/categoria-evento.type";
 import { RecurrenciaEvento } from "../recurrencias/recurrencia.type";
 
 export enum EstadosEvento {
-  ACTIVO = "activo",
-  FINALIZADO = "finalizado",
-  SUSPENDIDO = "suspendido",
-  INACTIVO = "inactivo",
+  ACTIVO = "ACTIVO",
+  FINALIZADO = "FINALIZADO",
+  SUSPENDIDO = "SUSPENDIDO",
 }
 
 export type EventosResponse = {
@@ -215,18 +214,19 @@ export const EditarEventoSchema = z.object({
     .min(1, "El precio es requerido")
     .positive("El precio debe ser un número positivo"),
   categoriaId: z.number().min(1, "Debe seleccionar una categoría"),
+  estadoId: z.number().min(1, "Debe seleccionar un estado"),
   sucursalId: z.number().min(1, "Debe seleccionar una sucursal"),
 });
 
 export type EditarEventoType = z.infer<typeof EditarEventoSchema>;
 
-// DTO para actualizar evento
 export type ActualizarEventoDto = {
   nombre: string;
   descripcion: string;
-  cupo: number; // Cambiado de string a number
+  cupo: number;
   precio: number;
   categoriaId: number;
+  estadoId: number;
   sucursalId: number;
 };
 

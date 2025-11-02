@@ -143,7 +143,7 @@ export const HRolUsuarioSchema = z.object({
 export const RoleSchema = z.object({
   id: z.number(),
   nombre: z.string(),
-  bodegaId: z.number().nullable().optional(),
+  bodegaId: z.number().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
