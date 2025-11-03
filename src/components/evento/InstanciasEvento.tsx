@@ -15,6 +15,7 @@ import { useState } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import { VerReservasModal } from "./VerReservasModal";
 import { Reserva } from "@/api/reservas/reserva.type";
+import { SortableHeader } from "../common/SortableHeader";
 
 type InstanciaEvento = {
   id: number;
@@ -27,6 +28,26 @@ interface InstanciasEventoProps {
   instancias: InstanciaEvento[];
   eventoNombre: string;
 }
+
+// Valid attributes from the InstanciaEvento model for ordering
+const instanciaEventoOrderByAttributes = [
+  "id",
+  "fecha",
+  "eventoId",
+  "recurrenciaEventoId",
+  "estadoId",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+] as const;
+
+type InstanciaSortableField = (typeof instanciaEventoOrderByAttributes)[number];
+
+// Mapeo de headers de tabla a campos ordenables
+const headerToFieldMap: Record<string, InstanciaSortableField> = {
+  Fecha: "fecha",
+  Estado: "estadoId",
+};
 
 export function InstanciasEvento({
   instancias,
@@ -128,9 +149,17 @@ export function InstanciasEvento({
       <Table>
         <TableHeader className="bg-gray-100">
           <TableRow>
-            <TableHead className="w-1/5">Fecha</TableHead>
+            <SortableHeader
+              label="Fecha"
+              field={headerToFieldMap["Fecha"]}
+              allowedFields={instanciaEventoOrderByAttributes}
+            />
             <TableHead className="w-1/5">Cantidad de reservas</TableHead>
-            <TableHead className="w-1/5">Estado</TableHead>
+            <SortableHeader
+              label="Estado"
+              field={headerToFieldMap["Estado"]}
+              allowedFields={instanciaEventoOrderByAttributes}
+            />
             <TableHead className="w-1/5">Ver reservas</TableHead>
             <TableHead className="w-1/5">Acciones</TableHead>
           </TableRow>
