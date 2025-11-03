@@ -55,6 +55,7 @@ export function EditarUsuarioModal({
       nombre: "",
       apellido: "",
       email: "",
+      contrasena: "",
       roles: [],
     },
   });
@@ -88,6 +89,7 @@ export function EditarUsuarioModal({
         nombre: usuario.nombre,
         apellido: usuario.apellido,
         email: usuario.email,
+        contrasena: "",
         roles: usuario.roles.map((role) => role.id),
       });
     }
@@ -101,6 +103,9 @@ export function EditarUsuarioModal({
 
       // Si no se proporciona contraseña, la removemos del objeto
       const dataToSend = { ...data };
+      if (!dataToSend.contrasena || dataToSend.contrasena.trim() === "") {
+        delete dataToSend.contrasena;
+      }
 
       await editarUsuario(usuario.id, dataToSend);
       toast.success("Usuario editado exitosamente");
@@ -180,6 +185,24 @@ export function EditarUsuarioModal({
                       <Input
                         type="email"
                         placeholder="Ingrese el email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contrasena"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña (opcional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Dejar vacío para no cambiar"
                         {...field}
                       />
                     </FormControl>

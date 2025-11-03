@@ -100,7 +100,7 @@ export const canDeleteSucursal = async (
 ): Promise<CanDeleteSucursalResponse> => {
   try {
     const response = await fetchApiWithAuth<CanDeleteSucursalResponse>(
-      `/sucursal/${id}/can-delete`,
+      `/sucursales/${id}/can-delete`,
     );
     return response;
   } catch (error) {

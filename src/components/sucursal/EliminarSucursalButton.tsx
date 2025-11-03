@@ -38,6 +38,7 @@ export function EliminarSucursalButton({
         try {
           setIsCheckingDelete(true);
           const response = await canDeleteSucursal(sucursal.id);
+          console.log("response", response);
           setCanDelete(response.canDelete);
         } catch {
           // Si hay error al verificar, asumimos que no se puede eliminar por seguridad

@@ -55,6 +55,7 @@ export function CrearEventoStepForm({
     totalSteps: 3,
     onSubmit: async (data) => {
       try {
+        console.log("data", data);
         await crearEvento(data);
         toast.success("Evento creado exitosamente");
         router.push(Routes.EVENTOS);

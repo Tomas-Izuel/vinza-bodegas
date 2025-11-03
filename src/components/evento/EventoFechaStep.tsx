@@ -20,6 +20,52 @@ import { Input } from "@/components/ui/input";
 // Tipo inferido del schema de Zod
 type EventoFechaFields = z.infer<typeof EventoFechaSchema>;
 
+const monthNames = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const timeSlots = [
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+];
+
+const diasSemana = [
+  { value: "Lunes", label: "Lunes" },
+  { value: "Martes", label: "Martes" },
+  { value: "Miércoles", label: "Miércoles" },
+  { value: "Jueves", label: "Jueves" },
+  { value: "Viernes", label: "Viernes" },
+  { value: "Sábado", label: "Sábado" },
+  { value: "Domingo", label: "Domingo" },
+];
+
 interface EventoFechaStepProps {
   initialData?: Partial<EventoFechaFields>;
   eventData: Partial<{
@@ -104,54 +150,9 @@ export function EventoFechaStep({
     return date < today;
   };
 
-  const monthNames = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
-
-  const timeSlots = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-  ];
-
-  const diasSemana = [
-    { value: "Lunes", label: "Lunes" },
-    { value: "Martes", label: "Martes" },
-    { value: "Miércoles", label: "Miércoles" },
-    { value: "Jueves", label: "Jueves" },
-    { value: "Viernes", label: "Viernes" },
-    { value: "Sábado", label: "Sábado" },
-    { value: "Domingo", label: "Domingo" },
-  ];
-
   const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
 
+  const availableTimeSlots = timeSlots;
   return (
     <div className="grid grid-cols-3 gap-8">
       {/* Panel izquierdo - Resumen y tipo de evento */}
@@ -197,6 +198,40 @@ export function EventoFechaStep({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Campos opcionales para eventos recurrentes */}
+        {form.watch("tipoEvento") === "recurrente" && (
+          <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-2">
+              <Label htmlFor="fechaDesde" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha desde (opcional)
+              </Label>
+              <Input
+                id="fechaDesde"
+                type="date"
+                value={form.watch("fechaDesde") || ""}
+                onChange={(e) => form.setValue("fechaDesde", e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fechaHasta" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Fecha hasta (opcional)
+              </Label>
+              <Input
+                id="fechaHasta"
+                type="date"
+                value={form.watch("fechaHasta") || ""}
+                onChange={(e) => form.setValue("fechaHasta", e.target.value)}
+                className="w-full"
+                min={form.watch("fechaDesde") || undefined}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Panel central - Calendario o Días de la semana */}
@@ -312,7 +347,7 @@ export function EventoFechaStep({
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Hora</h3>
         <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-          {timeSlots.map((time) => (
+          {availableTimeSlots.map((time) => (
             <button
               key={time}
               onClick={() => form.setValue("hora", time)}
@@ -329,40 +364,6 @@ export function EventoFechaStep({
             </button>
           ))}
         </div>
-
-        {/* Campos opcionales para eventos recurrentes */}
-        {form.watch("tipoEvento") === "recurrente" && (
-          <div className="space-y-4 pt-4 border-t">
-            <div className="space-y-2">
-              <Label htmlFor="fechaDesde" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Fecha desde (opcional)
-              </Label>
-              <Input
-                id="fechaDesde"
-                type="date"
-                value={form.watch("fechaDesde") || ""}
-                onChange={(e) => form.setValue("fechaDesde", e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fechaHasta" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Fecha hasta (opcional)
-              </Label>
-              <Input
-                id="fechaHasta"
-                type="date"
-                value={form.watch("fechaHasta") || ""}
-                onChange={(e) => form.setValue("fechaHasta", e.target.value)}
-                className="w-full"
-                min={form.watch("fechaDesde") || undefined}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Botones de navegación */}

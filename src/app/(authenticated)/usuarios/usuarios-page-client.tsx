@@ -109,7 +109,7 @@ export function UsuariosPageClient({
         )}
         {activeTab === "roles" && (
           <ListaRoles
-            roles={roles}
+            roles={roles.filter((rol) => rol.bodegaId)}
             usuarios={usuarios}
             onRolActualizado={handleRolActualizado}
           />

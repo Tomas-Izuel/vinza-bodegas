@@ -45,6 +45,7 @@ export const getEventos = async (
 
 export async function crearEvento(data: EventoStepFormType): Promise<void> {
   try {
+    console.log("data", data);
     // Crear FormData para enviar archivos multimedia
     const formData = new FormData();
 
@@ -69,6 +70,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
         data.fechas && data.fechas.length > 0
           ? data.fechas.map((fecha) => {
               const date = new Date(fecha);
+
               const diasSemana = [
                 "Domingo",
                 "Lunes",
@@ -81,6 +83,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
               const dia = diasSemana[date.getDay()];
 
               return {
+                fecha_unica: date.toISOString(),
                 dia,
                 hora: data.hora,
               };
@@ -123,6 +126,10 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
       const imagenPortada = data.imagenPortada || data.imagenes[0]?.name || "";
       formData.append("multimediaPortada", imagenPortada);
     }
+
+    // Convertir tipoEvento a eventoUnico: "unica" = true, "recurrente" = false
+    const eventoUnico = data.tipoEvento === "unica";
+    formData.set("eventoUnico", eventoUnico ? "true" : "false");
 
     // Hacer POST al backend con FormData
     await fetchApiWithAuthFormData<Evento>("/eventos", formData);
