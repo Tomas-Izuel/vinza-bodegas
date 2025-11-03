@@ -10,7 +10,7 @@ export default async function TopNav() {
   const permissionsCookie = await getPermissionsCookie();
 
   return (
-    <nav className="bg-primary text-white px-6 py-2 flex items-center justify-between h-16">
+    <nav className="top-nav bg-primary text-white px-6 py-2 flex items-center justify-between h-16">
       <div className="flex items-center">
         <h1 className="text-lg font-bold tracking-wider font-inria-serif">
           VINZA {authCookie.bodega ? " - " + authCookie.bodega.nombre : ""}

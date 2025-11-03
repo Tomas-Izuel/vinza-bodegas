@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardAction,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
@@ -25,7 +18,6 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { Download, Filter, RefreshCw } from "lucide-react";
 
 interface ChartData {
   name: string;
@@ -46,9 +38,6 @@ interface ChartCardProps {
     text: string;
     variant?: "default" | "secondary" | "outline" | "destructive";
   };
-  onDownload?: () => void;
-  onFilter?: () => void;
-  onRefresh?: () => void;
 }
 
 const DEFAULT_COLORS = [
@@ -70,9 +59,6 @@ export function ChartCard({
   colors = DEFAULT_COLORS,
   height = 300,
   badge,
-  onDownload,
-  onFilter,
-  onRefresh,
 }: ChartCardProps) {
   const renderChart = () => {
     const commonProps = {
@@ -96,9 +82,10 @@ export function ChartCard({
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "6px",
+                color: "black",
               }}
             />
-            <Bar dataKey={dataKey} fill={colors[0]} radius={[4, 4, 0, 0]} />
+            <Bar dataKey={dataKey} fill={colors[1]} radius={[4, 4, 0, 0]} />
           </BarChart>
         );
 
@@ -205,26 +192,6 @@ export function ChartCard({
             )}
           </div>
         </div>
-
-        <CardAction>
-          <div className="flex gap-1">
-            {onFilter && (
-              <Button variant="ghost" size="icon" onClick={onFilter}>
-                <Filter className="h-4 w-4" />
-              </Button>
-            )}
-            {onRefresh && (
-              <Button variant="ghost" size="icon" onClick={onRefresh}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            )}
-            {onDownload && (
-              <Button variant="ghost" size="icon" onClick={onDownload}>
-                <Download className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardAction>
       </CardHeader>
 
       <CardContent>

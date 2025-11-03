@@ -109,8 +109,7 @@ export function EventoDetalleView({ evento }: EventoDetalleViewProps) {
               </Badge>
               {!isUnico && primeraRecurrencia && (
                 <span className="text-sm text-gray-600">
-                  <span className="font-medium">Rango:</span> desde{" "}
-                  {formatFechaCorta(primeraRecurrencia.fecha_desde)} hasta{" "}
+                  Desde {formatFechaCorta(primeraRecurrencia.fecha_desde)} hasta{" "}
                   {primeraRecurrencia.fecha_hasta
                     ? formatFechaCorta(primeraRecurrencia.fecha_hasta)
                     : "indefinido"}
