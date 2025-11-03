@@ -103,7 +103,7 @@ export async function fetchApiWithAuthFormData<T>(
 
   const response = await fetch(`${API_URL}${url}`, {
     ...options,
-    method: "POST",
+    method: options.method || "POST",
     body: formData,
     headers: {
       Authorization: `Bearer ${authCookie.token}`,

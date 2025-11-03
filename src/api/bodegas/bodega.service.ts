@@ -105,19 +105,17 @@ export const getBodegaDetalle = async (
 };
 
 export const actualizarBodega = async (
-  data: EditarBodegaType,
+  data: FormData,
 ): Promise<BodegaDetalle> => {
   try {
     const authCookieValue = await getAuthCookie();
 
-    const response = await fetchApiWithAuth<BodegaDetalle>(
+    const response = await fetchApiWithAuthFormData<BodegaDetalle>(
       `/bodegas/${authCookieValue.bodegaId}`,
+      data,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        cache: "no-store",
       },
     );
     return response;

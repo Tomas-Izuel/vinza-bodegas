@@ -172,7 +172,7 @@ const CrearBodegaForm = () => {
         <h1>Crear tu bodega</h1>
         <p>Para continuar, necesitas completar la información de tu bodega</p>
       </CardHeader>
-      <CardContent className="p-8">
+      <CardContent className="p-8 min-h-fit">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

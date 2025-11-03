@@ -81,7 +81,7 @@ export function EventoImagenes({
 
       {/* Miniaturas */}
       {imagenes.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto max-w-[200px] pb-2">
           {imagenes.map((imagen, index) => (
             <div
               key={index}
@@ -106,16 +106,15 @@ export function EventoImagenes({
 
       {/* Modal de imagen completa */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogContent className="w-fit h-fit min-w-7xl p-0">
           <div className="relative">
             {/* Imagen principal */}
-            <div className="relative aspect-video w-full">
+            <div className="relative aspect-video w-full flex items-center justify-center bg-black/5">
               <Image
                 src={imagenes[selectedImageIndex].url || ""}
                 alt={`${nombreEvento} - Imagen ${selectedImageIndex + 1}`}
-                width={800}
-                height={600}
-                className="w-full h-full object-contain"
+                fill
+                className="object-cover aspect-video"
               />
             </div>
 
