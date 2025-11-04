@@ -5,9 +5,11 @@ import {
   EditarEventoSchema,
   EditarEventoType,
   EventoMultimedia,
+  EstadoEvento,
 } from "@/api/eventos/evento.type";
 import { CategoriaEvento } from "@/api/categoria-evento/categoria-evento.type";
 import { Sucursal } from "@/api/sucursales/sucursal.type";
+import { getEstadosEventos } from "@/api/estados/estado.service";
 import { Card, CardContent } from "@/components/ui/card";
 import { Rating } from "@/components/ui/rating";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,12 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import Image from "next/image";
 import moment from "moment";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -34,8 +42,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { actualizarEvento } from "@/api/eventos/eventos.service";
 import { useState, useCallback, useEffect } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface EventoDetalleEditFormProps {
   evento: EventoDetalleType;
@@ -55,6 +66,12 @@ export function EventoDetalleEditForm({
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Get fechaHasta from first recurrencia if it exists
+  const fechaHastaInicial =
+    evento.recurrencias && evento.recurrencias.length > 0
+      ? evento.recurrencias[0].fecha_hasta
+      : "";
+
   const form = useForm<EditarEventoType>({
     resolver: zodResolver(EditarEventoSchema),
     defaultValues: {
@@ -64,6 +81,12 @@ export function EventoDetalleEditForm({
       precio: parseFloat(evento.precio),
       categoriaId: evento.categoriaId,
       sucursalId: evento.sucursalId,
+      estadoId: evento.estadoId,
+      fechaHasta: fechaHastaInicial,
+      duracion:
+        "duracion" in evento && typeof evento.duracion === "number"
+          ? evento.duracion
+          : undefined,
     },
   });
 
@@ -77,6 +100,7 @@ export function EventoDetalleEditForm({
   );
   const [multimediaPortada, setMultimediaPortada] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
+  const [estadosEventos, setEstadosEventos] = useState<EstadoEvento[]>([]);
 
   // Inicializar portada desde multimedia existente
   useEffect(() => {
@@ -87,6 +111,20 @@ export function EventoDetalleEditForm({
       setMultimediaPortada(`existing_${evento.multimediaPortada.id}`);
     }
   }, [existingMultimedia, evento.multimediaPortada]);
+
+  // Cargar estados de eventos
+  useEffect(() => {
+    const cargarEstadosEventos = async () => {
+      try {
+        const estados = await getEstadosEventos();
+        setEstadosEventos(estados);
+      } catch (error) {
+        console.error("Error al cargar estados de eventos:", error);
+        toast.error("Error al cargar estados de eventos");
+      }
+    };
+    cargarEstadosEventos();
+  }, []);
 
   // Funciones para manejar archivos
   const handleFileSelect = useCallback(
@@ -207,7 +245,10 @@ export function EventoDetalleEditForm({
       formData.append("precio", data.precio.toString());
       formData.append("categoriaId", data.categoriaId.toString());
       formData.append("sucursalId", data.sucursalId.toString());
-      formData.append("estadoId", evento.estadoId.toString());
+      formData.append("estadoId", data.estadoId.toString());
+      if (data.duracion) {
+        formData.append("duracion", data.duracion.toString());
+      }
 
       // Agregar recurrencias como JSON string (mantener las existentes)
       if (evento.recurrencias && evento.recurrencias.length > 0) {
@@ -215,7 +256,7 @@ export function EventoDetalleEditForm({
           dia: rec.dia,
           hora: rec.hora,
           fecha_desde: rec.fecha_desde,
-          fecha_hasta: rec.fecha_hasta,
+          fecha_hasta: data.fechaHasta || rec.fecha_hasta,
         }));
         formData.append("recurrencias", JSON.stringify(recurrenciasData));
       }
@@ -317,8 +358,8 @@ export function EventoDetalleEditForm({
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Información del evento */}
               <div className="lg:col-span-3 space-y-6">
-                {/* Primera fila de información */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Primera fila: Información básica */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
                       Nombre
@@ -408,42 +449,45 @@ export function EventoDetalleEditForm({
                       )}
                     />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">
-                      Puntuación promedio
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <Rating value={parseFloat(evento.promedioValoracion)} />
-                    </div>
-                  </div>
                 </div>
 
-                {/* Segunda fila de información */}
+                {/* Segunda fila: Estado y precios */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
-                      Descripción
+                      Estado
                     </p>
                     <FormField
                       control={form.control}
-                      name="descripcion"
+                      name="estadoId"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Textarea {...field} rows={3} />
+                            <Select
+                              value={field.value?.toString()}
+                              onValueChange={(value) =>
+                                field.onChange(parseInt(value))
+                              }
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Seleccionar estado" />
+                              </SelectTrigger>
+                              <SelectContent className="w-full">
+                                {estadosEventos.map((estado) => (
+                                  <SelectItem
+                                    key={estado.id}
+                                    value={estado.id.toString()}
+                                  >
+                                    {estado.nombre}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">
-                      Fecha de creación
-                    </p>
-                    <p className="text-base text-green-600">
-                      {moment(evento.created_at).format("MMM DD, YYYY")}
-                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">
@@ -494,7 +538,140 @@ export function EventoDetalleEditForm({
                       )}
                     />
                   </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Duración (Hrs)
+                    </p>
+                    <FormField
+                      control={form.control}
+                      name="duracion"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={24}
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseFloat(e.target.value)
+                                    : undefined,
+                                )
+                              }
+                              placeholder="Duración en horas"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
+
+                {/* Tercera fila: Descripción e información adicional */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Descripción
+                    </p>
+                    <FormField
+                      control={form.control}
+                      name="descripcion"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea {...field} rows={3} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Fecha de creación
+                    </p>
+                    <p className="text-base text-green-600">
+                      {moment(evento.created_at).format("MMM DD, YYYY")}
+                    </p>
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-500 mb-2">
+                        Puntuación promedio
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Rating value={parseFloat(evento.promedioValoracion)} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fecha hasta (solo para eventos recurrentes) */}
+                {evento.recurrencias && evento.recurrencias.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500 mb-2">
+                        Fecha hasta
+                      </p>
+                      <FormField
+                        control={form.control}
+                        name="fechaHasta"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    className={cn(
+                                      "w-full pl-3 text-left font-normal",
+                                      !field.value && "text-muted-foreground",
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(
+                                        new Date(field.value),
+                                        "dd/MM/yyyy",
+                                        {
+                                          locale: es,
+                                        },
+                                      )
+                                    ) : (
+                                      <span>Seleccionar fecha</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                              >
+                                <Calendar
+                                  mode="single"
+                                  selected={
+                                    field.value
+                                      ? new Date(field.value)
+                                      : undefined
+                                  }
+                                  onSelect={(date) => {
+                                    field.onChange(
+                                      date ? format(date, "yyyy-MM-dd") : "",
+                                    );
+                                  }}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Sección de Multimedia */}
                 <div className="space-y-4">

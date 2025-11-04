@@ -201,6 +201,13 @@ export const EditarEventoSchema = z.object({
     .positive("El precio debe ser un número positivo"),
   categoriaId: z.number().min(1, "Debe seleccionar una categoría"),
   sucursalId: z.number().min(1, "Debe seleccionar una sucursal"),
+  estadoId: z.number().min(1, "Debe seleccionar un estado"),
+  fechaHasta: z.string().optional(),
+  duracion: z.coerce
+    .number()
+    .min(1, "La duración es requerida")
+    .max(24, "La duración no puede ser mayor a 24 horas")
+    .optional(),
 });
 
 export type EditarEventoType = z.infer<typeof EditarEventoSchema>;

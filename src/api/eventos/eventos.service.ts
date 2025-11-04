@@ -49,6 +49,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
     formData.append("estadoId", "2"); // Estado activo por defecto (ID 2 = ACTIVO en la BD)
     formData.append("categoriaId", data.categoriaId.toString());
     formData.append("precio", data.precio.toString());
+    formData.append("duracion", data.duracion.toString());
 
     // Agregar recurrencias como JSON string
     let recurrencias: Array<{
