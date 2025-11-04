@@ -208,14 +208,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
             Exportar como PDF
           </Button>
           <Button
-            variant="outline"
-            onClick={handleAlertConfiguration}
-            className="gap-2"
-          >
-            <Bell className="h-4 w-4" />
-            Alertas
-          </Button>
-          <Button
             variant="default"
             onClick={() => window.location.reload()}
             className="gap-2"

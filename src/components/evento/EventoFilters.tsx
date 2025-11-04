@@ -109,7 +109,7 @@ export function EventoFilters() {
     if (data.puntuacionMinima)
       filteredData.puntuacionMinima = data.puntuacionMinima.toString();
 
-    // Resetear página a 1 cuando se aplican nuevos filtros
+    // Cambiar página a 1 cuando se aplican nuevos filtros
     if (filteredData.page) {
       filteredData.page = "1";
     }

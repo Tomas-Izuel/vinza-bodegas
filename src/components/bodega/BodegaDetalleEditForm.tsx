@@ -246,7 +246,7 @@ export function BodegaDetalleEditForm({
 
   const cancelarEdicion = () => {
     form.reset();
-    // Resetear estados de multimedia
+    // Cambiar estados de multimedia
     setExistingMultimedia(bodega.multimedia || []);
     setSelectedFiles([]);
     setDeletedMultimediaIds([]);

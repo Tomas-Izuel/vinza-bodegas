@@ -45,7 +45,7 @@ export function EliminarRolButton({ rol, onSuccess }: EliminarRolButtonProps) {
 
       checkCanDelete();
     } else {
-      // Resetear el estado cuando se cierra el modal
+      // Cambiar el estado cuando se cierra el modal
       setCanDelete(null);
     }
   }, [isOpen, rol.id]);

@@ -296,29 +296,6 @@ export function LiveDataTable({
             )}
           </div>
         </div>
-
-        <CardAction>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-            >
-              <RefreshCw
-                className={cn("h-4 w-4", isRefreshing && "animate-spin")}
-              />
-            </Button>
-            {onDownload && (
-              <Button variant="ghost" size="icon" onClick={onDownload}>
-                <Download className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </CardAction>
       </CardHeader>
 
       <CardContent>
@@ -356,9 +333,6 @@ export function LiveDataTable({
                           <Eye className="h-3 w-3" />
                         </Button>
                       )}
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <MoreHorizontal className="h-3 w-3" />
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

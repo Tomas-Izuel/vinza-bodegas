@@ -105,7 +105,7 @@ export function ReservaFilters() {
     if (data.cantidadGente)
       filteredData.cantidadGente = data.cantidadGente.toString();
 
-    // Resetear página a 1 cuando se aplican nuevos filtros
+    // Cambiar página a 1 cuando se aplican nuevos filtros
     if (filteredData.page) {
       filteredData.page = "1";
     }

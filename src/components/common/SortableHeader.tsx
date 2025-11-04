@@ -41,7 +41,7 @@ export function useTableSort<T extends string>(allowedFields: readonly T[]) {
       currentParams.set("orderBy", `${field}:asc`);
     }
 
-    // Resetear página a 1 al cambiar el ordenamiento
+    // Cambiar página a 1 al cambiar el ordenamiento
     currentParams.set("page", "1");
 
     router.push(`${pathname}?${currentParams.toString()}`);
