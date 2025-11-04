@@ -59,9 +59,12 @@ export const getReservaPorId = async (id: string): Promise<Reserva> => {
  */
 export const cancelarReserva = async (id: string): Promise<Reserva> => {
   try {
-    const response = await fetchApiWithAuth<Reserva>(`/reserva/${id}`, {
-      method: "DELETE",
-    });
+    const response = await fetchApiWithAuth<Reserva>(
+      `/reserva/${id}/cancelar-forzado`,
+      {
+        method: "PUT",
+      },
+    );
     return response;
   } catch (error) {
     errorLogger(error, "cancelarReserva");

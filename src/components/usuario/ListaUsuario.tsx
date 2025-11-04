@@ -18,6 +18,7 @@ import { CheckCircle, XCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditarUsuarioModal } from "./EditarUsuarioModal";
 import { EliminarUsuarioButton } from "./EliminarUsuarioButton";
+import { PausarUsuarioButton } from "./PausarUsuarioButton";
 
 interface ListaUsuarioProps {
   usuarios: Usuario[];
@@ -74,7 +75,7 @@ export function ListaUsuario({
             <TableHead>Rol</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Última modificación</TableHead>
-            <TableHead>Validado</TableHead>
+            <TableHead>Pausado</TableHead>
             <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -96,14 +97,14 @@ export function ListaUsuario({
                 {moment(usuario.updated_at).format("DD/MM/YYYY")}
               </TableCell>
               <TableCell>
-                {usuario.validado ? (
-                  <Badge variant="activo">
-                    <CheckCircle className="w-4 h-4" />
+                {usuario.pausado ? (
+                  <Badge variant="inactivo">
+                    <XCircle className="w-4 h-4" />
                     Si
                   </Badge>
                 ) : (
-                  <Badge variant="inactivo">
-                    <XCircle className="w-4 h-4" />
+                  <Badge variant="activo">
+                    <CheckCircle className="w-4 h-4" />
                     No
                   </Badge>
                 )}
@@ -118,6 +119,10 @@ export function ListaUsuario({
                     <Edit className="w-4 h-4" />
                     Editar
                   </Button>
+                  <PausarUsuarioButton
+                    usuario={usuario}
+                    onSuccess={() => onUsuarioActualizado?.()}
+                  />
                   <EliminarUsuarioButton
                     usuario={usuario}
                     onSuccess={handleDeleteSuccess}

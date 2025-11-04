@@ -171,6 +171,7 @@ export const EventoFechaSchema = z.object({
   fechaDesde: z.string().optional(),
   fechaHasta: z.string().optional(),
   hora: z.string().min(1, "Debe seleccionar una hora"),
+  eventoUnico: z.boolean().optional(),
 });
 
 // Schema de validación para el paso 3 (Multimedia)

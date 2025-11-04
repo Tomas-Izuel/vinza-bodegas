@@ -20,6 +20,7 @@ export type Bodega = {
   updated_at: string;
   deleted_at: string | null;
   validada: string | null;
+  telefono: string;
 };
 
 export interface BodegaDetalle extends Bodega {
@@ -54,6 +55,13 @@ export const EditarBodegaSchema = z.object({
     })
     .min(1, "La descripción es requerida")
     .max(500, "La descripción no puede exceder 500 caracteres"),
+  telefono: z
+    .string({
+      message: "El teléfono es requerido",
+    })
+    .min(1, "El teléfono es requerido")
+    .max(11, "El teléfono no puede exceder 11 caracteres")
+    .optional(),
 });
 
 export type EditarBodegaType = z.infer<typeof EditarBodegaSchema>;

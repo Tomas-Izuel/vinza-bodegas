@@ -2,14 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  TrendingUp,
-  TrendingDown,
-  Download,
-  AlertTriangle,
-} from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
@@ -31,8 +25,6 @@ interface MetricCardProps {
     message: string;
   };
   className?: string;
-  onDownload?: () => void;
-  onAlert?: () => void;
 }
 
 export function MetricCard({
@@ -43,39 +35,13 @@ export function MetricCard({
   progress,
   alert,
   className,
-  onDownload,
-  onAlert,
 }: MetricCardProps) {
   return (
     <Card className={cn("relative overflow-hidden", className)}>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <div className="flex items-center gap-1">
-            {onDownload && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={onDownload}
-              >
-                <Download className="h-3 w-3" />
-              </Button>
-            )}
-            {onAlert && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={onAlert}
-              >
-                <AlertTriangle className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-        </div>
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3">
@@ -86,7 +52,7 @@ export function MetricCard({
           )}
         </div>
 
-        {trend && (
+        {trend && trend.value !== 0 && (
           <div className="flex items-center gap-1">
             {trend.isPositive ? (
               <TrendingUp className="h-4 w-4 text-green-600" />
@@ -102,20 +68,11 @@ export function MetricCard({
               {trend.isPositive ? "+" : ""}
               {trend.value}%
             </span>
-            <span className="text-sm text-muted-foreground">
-              vs {trend.period}
-            </span>
           </div>
         )}
 
         {progress && (
           <div className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{progress.label}</span>
-              <span className="font-medium">
-                {progress.value}/{progress.max}
-              </span>
-            </div>
             <Progress value={progress.value} max={progress.max} />
           </div>
         )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +23,7 @@ import { RegisterSchema, RegisterDto } from "@/api/auth/auth.type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import { register } from "@/api/auth/auth.service";
 import { toast } from "sonner";
 import { Routes } from "@/lib/routes";
@@ -29,11 +31,15 @@ import Link from "next/link";
 import { z } from "zod";
 import Image from "next/image";
 import VinzaLogo from "./VinzaLogo";
+import { TerminosYCondicionesModal } from "./TerminosYCondicionesModal";
 
-// Schema extendido para el formulario con confirmación de contraseña
+// Schema extendido para el formulario con confirmación de contraseña y aceptación de TyC
 const RegisterFormSchema = RegisterSchema.extend({
   confirmarPassword: z.string({
     message: "La confirmación de contraseña es requerida",
+  }),
+  aceptarTyC: z.boolean().refine((val) => val === true, {
+    message: "Debes aceptar los términos y condiciones",
   }),
 }).refine((data) => data.password === data.confirmarPassword, {
   message: "Las contraseñas no coinciden",
@@ -44,6 +50,7 @@ type RegisterFormData = z.infer<typeof RegisterFormSchema>;
 
 const RegisterForm = () => {
   const router = useRouter();
+  const [isTyCOpen, setIsTyCOpen] = useState(false);
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
@@ -51,6 +58,7 @@ const RegisterForm = () => {
       password: "",
       nombre: "",
       confirmarPassword: "",
+      aceptarTyC: false,
     },
   });
 
@@ -154,6 +162,33 @@ const RegisterForm = () => {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="aceptarTyC"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm font-normal">
+                            Acepto los{" "}
+                            <button
+                              type="button"
+                              onClick={() => setIsTyCOpen(true)}
+                              className="text-primary underline-offset-4 hover:underline font-medium"
+                            >
+                              términos y condiciones
+                            </button>
+                          </FormLabel>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
                 </form>
               </Form>
             </CardContent>
@@ -163,6 +198,7 @@ const RegisterForm = () => {
                 className="w-full"
                 form="register-form"
                 isLoading={form.formState.isSubmitting}
+                disabled={!form.watch("aceptarTyC")}
               >
                 Registrarme
               </Button>
@@ -190,6 +226,12 @@ const RegisterForm = () => {
           className="w-full h-auto max-w-lg"
         />
       </div>
+
+      {/* Modal de Términos y Condiciones */}
+      <TerminosYCondicionesModal
+        isOpen={isTyCOpen}
+        onOpenChange={setIsTyCOpen}
+      />
     </div>
   );
 };

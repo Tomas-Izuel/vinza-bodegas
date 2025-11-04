@@ -68,6 +68,8 @@ export function useStepForm<T extends Record<string, unknown>>({
       stepData: newData,
       isSubmitting: true,
     }));
+    console.log("newData", newData);
+
     await onSubmit(newData as T);
     updateState({ isSubmitting: false });
   };

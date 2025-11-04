@@ -37,6 +37,7 @@ export const getEventos = async (
 
 export async function crearEvento(data: EventoStepFormType): Promise<void> {
   try {
+    console.log("data", data);
     // Crear FormData para enviar archivos multimedia
     const formData = new FormData();
 
@@ -61,6 +62,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
         data.fechas && data.fechas.length > 0
           ? data.fechas.map((fecha) => {
               const date = new Date(fecha);
+
               const diasSemana = [
                 "Domingo",
                 "Lunes",
@@ -73,6 +75,7 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
               const dia = diasSemana[date.getDay()];
 
               return {
+                fecha_unica: date.toISOString(),
                 dia,
                 hora: data.hora,
               };
@@ -85,6 +88,8 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
           ? data.diasSemana.map((dia) => ({
               dia,
               hora: data.hora,
+              fecha_desde: data.fechaDesde || null,
+              fecha_hasta: data.fechaHasta || null,
             }))
           : [];
     }
@@ -115,6 +120,10 @@ export async function crearEvento(data: EventoStepFormType): Promise<void> {
       const imagenPortada = data.imagenPortada || data.imagenes[0]?.name || "";
       formData.append("multimediaPortada", imagenPortada);
     }
+
+    // Convertir tipoEvento a eventoUnico: "unica" = true, "recurrente" = false
+    const eventoUnico = data.tipoEvento === "unica";
+    formData.set("eventoUnico", eventoUnico ? "true" : "false");
 
     // Hacer POST al backend con FormData
     await fetchApiWithAuthFormData("/eventos", formData);
@@ -155,26 +164,17 @@ export const getEvento = async (id: string): Promise<EventoDetalle> => {
 
 export const actualizarEvento = async (
   id: string,
-  data: EditarEventoType,
+  data: FormData,
 ): Promise<{ success: boolean; data?: EventoDetalle; error?: string }> => {
   try {
-    // Transformar los datos al formato del backend
-    const backendData = {
-      nombre: data.nombre,
-      descripcion: data.descripcion || "",
-      cupo: Number(data.cupo), // Convertir a número, no a string
-      precio: data.precio,
-      categoriaId: data.categoriaId,
-      sucursalId: data.sucursalId,
-    } as ActualizarEventoDto;
-
-    const response = await fetchApiWithAuth<EventoDetalle>(`/eventos/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetchApiWithAuthFormData<EventoDetalle>(
+      `/eventos/${id}`,
+      data,
+      {
+        method: "PUT",
+        cache: "no-store",
       },
-      body: JSON.stringify(backendData),
-    });
+    );
 
     return { success: true, data: response };
   } catch (error) {

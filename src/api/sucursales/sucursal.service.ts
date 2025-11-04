@@ -6,6 +6,7 @@ import {
   Sucursal,
   EditarSucursalType,
   CrearSucursalDto,
+  CanDeleteSucursalResponse,
 } from "./sucursal.type";
 
 export const getSucursales = async (): Promise<Sucursal[]> => {
@@ -94,6 +95,24 @@ export const actualizarSucursal = async (
   }
 };
 
+export const canDeleteSucursal = async (
+  id: number,
+): Promise<CanDeleteSucursalResponse> => {
+  try {
+    const response = await fetchApiWithAuth<CanDeleteSucursalResponse>(
+      `/sucursales/${id}/can-delete`,
+    );
+    return response;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error al verificar si se puede eliminar la sucursal";
+    errorLogger(error, "[SUCURSAL]: canDeleteSucursal");
+    throw new Error(errorMessage);
+  }
+};
+
 export const eliminarSucursal = async (id: number): Promise<void> => {
   try {
     await fetchApiWithAuth(`/sucursales/${id}`, {
@@ -102,7 +121,7 @@ export const eliminarSucursal = async (id: number): Promise<void> => {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al eliminar la sucursal";
-    errorLogger(error, "eliminarSucursal");
+    errorLogger(error, "[SUCURSAL]: eliminarSucursal");
     throw new Error(errorMessage);
   }
 };

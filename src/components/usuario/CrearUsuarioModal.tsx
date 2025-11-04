@@ -69,7 +69,7 @@ export function CrearUsuarioModal({
     try {
       setCargandoRoles(true);
       const rolesData = await obtenerRolesMiBodega();
-      setRoles(rolesData);
+      setRoles(rolesData.filter((rol) => rol.bodegaId));
     } catch {
       toast.error("Error al cargar roles", {
         description: "No se pudieron cargar los roles disponibles",

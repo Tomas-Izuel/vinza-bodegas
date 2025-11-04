@@ -109,7 +109,7 @@ export function EventoFilters({
     if (data.fechaHasta?.trim())
       filteredData.fechaHasta = data.fechaHasta.trim();
 
-    // Resetear página a 1 cuando se aplican nuevos filtros
+    // Cambiar página a 1 cuando se aplican nuevos filtros
     if (filteredData.page) {
       filteredData.page = "1";
     }

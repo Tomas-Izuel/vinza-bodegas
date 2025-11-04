@@ -50,8 +50,8 @@ const ResetPasswordForm = () => {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Error al resetear la contraseña";
-      toast.error("Error al resetear la contraseña", {
+          : "Error al cambiar la contraseña";
+      toast.error("Error al cambiar la contraseña", {
         description: errorMessage,
       });
     }
@@ -66,7 +66,7 @@ const ResetPasswordForm = () => {
           <Card className="shadow-none border-0">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
-                Resetear contraseña
+                Cambiar contraseña
               </CardTitle>
               <CardDescription className="text-center">
                 Ingresa el código recibido y tu nueva contraseña
@@ -119,7 +119,7 @@ const ResetPasswordForm = () => {
                 form="reset-password-form"
                 isLoading={form.formState.isSubmitting}
               >
-                Resetear contraseña
+                Cambiar contraseña
               </Button>
               <Link href={Routes.LOGIN} className="w-full">
                 <Button

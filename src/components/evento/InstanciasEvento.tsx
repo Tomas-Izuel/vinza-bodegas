@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import { VerReservasModal } from "./VerReservasModal";
 import { Reserva } from "@/api/reservas/reserva.type";
+import { SortableHeader } from "../common/SortableHeader";
 import { useSearchParams } from "next/navigation";
 import { getInstanciasEvento } from "@/api/eventos/eventos.service";
 import { CommonTableHeader } from "../common/CommonTableHeader";
@@ -31,6 +32,26 @@ interface InstanciasEventoProps {
   eventoId: string;
   eventoNombre: string;
 }
+
+// Valid attributes from the InstanciaEvento model for ordering
+const instanciaEventoOrderByAttributes = [
+  "id",
+  "fecha",
+  "eventoId",
+  "recurrenciaEventoId",
+  "estadoId",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+] as const;
+
+type InstanciaSortableField = (typeof instanciaEventoOrderByAttributes)[number];
+
+// Mapeo de headers de tabla a campos ordenables
+const headerToFieldMap: Record<string, InstanciaSortableField> = {
+  Fecha: "fecha",
+  Estado: "estadoId",
+};
 
 export function InstanciasEvento({
   eventoId,
@@ -156,71 +177,75 @@ export function InstanciasEvento({
         </h2>
         <CommonTableHeader filtersForm={<InstanciasEventoFilters />} />
       </div>
-      {loading ? (
-        <div className="p-8 text-center">Cargando...</div>
-      ) : (
-        <Table>
-          <TableHeader className="bg-gray-100">
-            <TableRow>
-              <TableHead className="w-1/5">Fecha</TableHead>
-              <TableHead className="w-1/5">Cantidad de reservas</TableHead>
-              <TableHead className="w-1/5">Estado</TableHead>
-              <TableHead className="w-1/5">Ver reservas</TableHead>
-              <TableHead className="w-1/5">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {instancias.map((instancia) => {
-              const esSuspendida = isInstanciaSuspendida(instancia.estado);
-              return (
-                <TableRow key={instancia.id}>
-                  <TableCell className="font-medium w-1/5">
-                    {moment(instancia.fecha).format("DD/MM/YYYY")}
-                  </TableCell>
-                  <TableCell className="w-1/5">
-                    {instancia.reservas.length} Reservas
-                  </TableCell>
-                  <TableCell className="w-1/5">
-                    <Badge variant={getEstadoVariant(instancia.estado)}>
-                      {formatEstadoTexto(instancia.estado)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="w-1/5">
-                    {instancia.reservas.length > 0 ? (
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        className="text-gray-600"
-                        onClick={() => handleVerReservasClick(instancia)}
-                      >
-                        Ver reservas
-                      </Button>
-                    ) : (
-                      <span className="text-gray-400 text-sm">
-                        No hay reservas
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="w-1/5">
-                    {esSuspendida ? (
-                      <span className="text-gray-400 text-sm">-</span>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        className="text-red-500 hover:text-red-600"
-                        onClick={() => handleSuspenderClick(instancia)}
-                      >
-                        Suspender
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+      <Table>
+        <TableHeader className="bg-gray-100">
+          <TableRow>
+            <SortableHeader
+              label="Fecha"
+              field={headerToFieldMap["Fecha"]}
+              allowedFields={instanciaEventoOrderByAttributes}
+            />
+            <TableHead className="w-1/5">Cantidad de reservas</TableHead>
+            <SortableHeader
+              label="Estado"
+              field={headerToFieldMap["Estado"]}
+              allowedFields={instanciaEventoOrderByAttributes}
+            />
+            <TableHead className="w-1/5">Ver reservas</TableHead>
+            <TableHead className="w-1/5">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {instancias.map((instancia) => {
+            const esSuspendida = isInstanciaSuspendida(instancia.estado);
+            return (
+              <TableRow key={instancia.id}>
+                <TableCell className="font-medium w-1/5">
+                  {moment(instancia.fecha).format("DD/MM/YYYY")}
+                </TableCell>
+                <TableCell className="w-1/5">
+                  {instancia.reservas.length} Reservas
+                </TableCell>
+                <TableCell className="w-1/5">
+                  <Badge variant={getEstadoVariant(instancia.estado)}>
+                    {formatEstadoTexto(instancia.estado)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="w-1/5">
+                  {instancia.reservas.length > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-gray-600"
+                      onClick={() => handleVerReservasClick(instancia)}
+                    >
+                      Ver reservas
+                    </Button>
+                  ) : (
+                    <span className="text-gray-400 text-sm">
+                      No hay reservas
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="w-1/5">
+                  {esSuspendida ? (
+                    <span className="text-gray-400 text-sm">-</span>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size={"sm"}
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => handleSuspenderClick(instancia)}
+                    >
+                      Suspender
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
 
       <SuspenderInstanciaModal
         isOpen={isModalOpen}

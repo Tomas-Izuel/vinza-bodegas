@@ -9,6 +9,7 @@ import {
   CrearRolResponse,
   EditarRolRequest,
   EditarRolResponse,
+  CanDeleteRolResponse,
 } from "./rol.type";
 
 export async function obtenerRoles(): Promise<RolesResponse> {
@@ -109,6 +110,21 @@ export async function editarRol(
     return response;
   } catch (error) {
     console.error("[ROLES]: Error al editar rol:", error);
+    throw error;
+  }
+}
+
+export async function canDeleteRol(id: number): Promise<CanDeleteRolResponse> {
+  try {
+    const response = await fetchApiWithAuth<CanDeleteRolResponse>(
+      `/rbac/roles/${id}/can-delete`,
+    );
+    return response;
+  } catch (error) {
+    console.error(
+      "[ROLES]: Error al verificar si se puede eliminar el rol:",
+      error,
+    );
     throw error;
   }
 }

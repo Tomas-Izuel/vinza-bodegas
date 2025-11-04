@@ -1,16 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
-import {
-  ExportUtils,
-  useExportUtils,
-} from "@/components/dashboard/ExportUtils";
+import { useExportUtils } from "@/components/dashboard/ExportUtils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Download, Bell, RefreshCw } from "lucide-react";
+import { Activity, FileText, Bell, RefreshCw } from "lucide-react";
 import { DashboardData } from "@/api/dashboard/dashboard.service";
 import { LiveDataTable } from "@/components/dashboard/LiveDataTable";
 
@@ -19,8 +14,7 @@ interface DashboardClientProps {
 }
 
 export function DashboardClient({ dashboardData }: DashboardClientProps) {
-  const [showExportPanel, setShowExportPanel] = useState(false);
-  const { exportData, generateReport } = useExportUtils();
+  const { exportData } = useExportUtils();
 
   const { metrics, charts, eventosProgramados } = dashboardData;
 
@@ -111,11 +105,13 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
       title: "Ingresos Mensuales",
       value: `$${metrics.ingresosMensuales.valor.toLocaleString()}`,
       subtitle: metrics.ingresosMensuales.moneda,
-      trend: {
-        value: metrics.ingresosMensuales.tendencia,
-        isPositive: metrics.ingresosMensuales.tendencia >= 0,
-        period: metrics.ingresosMensuales.periodo,
-      },
+      ...(metrics.ingresosMensuales.tendencia !== 0 && {
+        trend: {
+          value: metrics.ingresosMensuales.tendencia,
+          isPositive: metrics.ingresosMensuales.tendencia >= 0,
+          period: metrics.ingresosMensuales.periodo,
+        },
+      }),
     },
     {
       title: "Eventos Activos",
@@ -141,11 +137,13 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
       title: "Puntuación Promedio",
       value: metrics.puntuacionPromedio.valor.toString(),
       subtitle: "★ de 5.0",
-      trend: {
-        value: metrics.puntuacionPromedio.tendencia,
-        isPositive: metrics.puntuacionPromedio.tendencia >= 0,
-        period: metrics.puntuacionPromedio.periodo,
-      },
+      ...(metrics.puntuacionPromedio.tendencia !== 0 && {
+        trend: {
+          value: metrics.puntuacionPromedio.tendencia,
+          isPositive: metrics.puntuacionPromedio.tendencia >= 0,
+          period: metrics.puntuacionPromedio.periodo,
+        },
+      }),
       progress: {
         value: metrics.puntuacionPromedio.valor * 10,
         max: metrics.puntuacionPromedio.meta * 10,
@@ -169,17 +167,8 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
     },
   ];
 
-  const handleExportDashboard = async () => {
-    await generateReport(
-      "Dashboard Completo - Bodegas",
-      mainMetrics,
-      [
-        charts.ingresosMensuales as unknown as Record<string, unknown>,
-        charts.eventosPorCategoria as unknown as Record<string, unknown>,
-        charts.ocupacionSemanal as unknown as Record<string, unknown>,
-      ],
-      [],
-    );
+  const handleExportPDF = () => {
+    window.print();
   };
 
   const handleAlertConfiguration = () => {
@@ -188,8 +177,21 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
 
   return (
     <div className="space-y-6 p-6">
+      {/* Print-only header */}
+      <div className="print-only-header hidden">
+        <h1 className="text-3xl font-bold mb-2">Reporte</h1>
+        <p className="text-muted-foreground">
+          {new Date().toLocaleDateString("es-ES", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
+
       {/* Header del Dashboard */}
-      <div className="flex items-center justify-between">
+      <div className="no-print flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard Ejecutivo</h1>
           <p className="text-muted-foreground">
@@ -201,25 +203,13 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
             <Activity className="h-3 w-3" />
             Dashboard Ejecutivo
           </Badge>
-          <Button
-            variant="outline"
-            onClick={() => setShowExportPanel(!showExportPanel)}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Exportar
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleAlertConfiguration}
-            className="gap-2"
-          >
-            <Bell className="h-4 w-4" />
-            Alertas
+          <Button variant="outline" onClick={handleExportPDF} className="gap-2">
+            <FileText className="h-4 w-4" />
+            Exportar como PDF
           </Button>
           <Button
             variant="default"
-            onClick={handleExportDashboard}
+            onClick={() => window.location.reload()}
             className="gap-2"
           >
             <RefreshCw className="h-4 w-4" />
@@ -227,24 +217,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
           </Button>
         </div>
       </div>
-
-      {/* Panel de Exportación */}
-      {showExportPanel && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Exportar Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ExportUtils
-              data={mainMetrics}
-              filename="dashboard-bodegas"
-              onExport={async (type, data) => {
-                await exportData(type, data, "dashboard-completo");
-              }}
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Métricas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -262,9 +234,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
           type="area"
           dataKey="value"
           badge={{ text: "Tendencia Positiva", variant: "secondary" }}
-          onDownload={() =>
-            exportData("excel", charts.ingresosMensuales, "ingresos-mensuales")
-          }
         />
 
         <ChartCard
@@ -274,9 +243,6 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
           type="pie"
           dataKey="value"
           badge={{ text: "Activos", variant: "secondary" }}
-          onDownload={() =>
-            exportData("csv", charts.eventosPorCategoria, "eventos-categoria")
-          }
         />
       </div>
 
@@ -292,28 +258,27 @@ export function DashboardClient({ dashboardData }: DashboardClientProps) {
             text: `${metrics.tasaOcupacion.porcentaje}% Promedio`,
             variant: "outline",
           }}
-          onDownload={() =>
-            exportData("csv", charts.ocupacionSemanal, "ocupacion-semanal")
-          }
         />
 
-        <LiveDataTable
-          title="Eventos Programados"
-          subtitle="Próximos eventos en los siguientes 30 días"
-          data={eventosTableData}
-          columns={eventosColumns}
-          showLiveIndicator={false}
-          refreshInterval={0}
-          onDownload={() =>
-            exportData("excel", eventosTableData, "eventos-programados")
-          }
-          onViewDetails={(id) => {
-            const evento = eventosTableData.find((e) => e.id === id);
-            if (evento) {
-              window.location.href = `/eventos/${evento.eventoId}`;
+        <div className="no-print">
+          <LiveDataTable
+            title="Eventos Programados"
+            subtitle="Próximos eventos en los siguientes 30 días"
+            data={eventosTableData}
+            columns={eventosColumns}
+            showLiveIndicator={false}
+            refreshInterval={0}
+            onDownload={() =>
+              exportData("excel", eventosTableData, "eventos-programados")
             }
-          }}
-        />
+            onViewDetails={(id) => {
+              const evento = eventosTableData.find((e) => e.id === id);
+              if (evento) {
+                window.location.href = `/eventos/${evento.eventoId}`;
+              }
+            }}
+          />
+        </div>
       </div>
     </div>
   );

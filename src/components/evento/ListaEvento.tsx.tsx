@@ -24,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
 import { Routes } from "@/lib/routes";
 import { EliminarEventoButton } from "./EliminarEventoButton";
+import { SortableHeader } from "../common/SortableHeader";
 
 interface ListaEventoProps {
   eventos: Evento[];
@@ -32,6 +33,29 @@ interface ListaEventoProps {
   categorias: CategoriaEvento[];
   estados: EstadoEvento[];
 }
+
+const eventoOrderByAttributes = [
+  "id",
+  "nombre",
+  "precio",
+  "descripcion",
+  "cupo",
+  "sucursalId",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+] as const;
+
+type SortableField = (typeof eventoOrderByAttributes)[number];
+
+// Mapeo de headers de tabla a campos ordenables
+const headerToFieldMap: Record<string, SortableField> = {
+  Nombre: "nombre",
+  Sucursal: "sucursalId",
+  Precio: "precio",
+  Cupo: "cupo",
+  "Última actualización": "updated_at",
+};
 
 export function ListaEvento({
   eventos,
@@ -74,13 +98,39 @@ export function ListaEvento({
       <Table>
         <TableHeader className="bg-gray-100">
           <TableRow>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Sucursal</TableHead>
-            <TableHead>Precio</TableHead>
-            <TableHead>Cupo</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Categoría</TableHead>
-            <TableHead>Última actualización</TableHead>
+            <SortableHeader
+              label="Nombre"
+              field={headerToFieldMap["Nombre"]}
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Sucursal"
+              field={headerToFieldMap["Sucursal"]}
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Precio"
+              field={headerToFieldMap["Precio"]}
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Cupo"
+              field={headerToFieldMap["Cupo"]}
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Estado"
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Categoría"
+              allowedFields={eventoOrderByAttributes}
+            />
+            <SortableHeader
+              label="Última actualización"
+              field={headerToFieldMap["Última actualización"]}
+              allowedFields={eventoOrderByAttributes}
+            />
             <TableHead> </TableHead>
           </TableRow>
         </TableHeader>

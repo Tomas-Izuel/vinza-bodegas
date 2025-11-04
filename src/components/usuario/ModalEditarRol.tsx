@@ -108,7 +108,7 @@ export function ModalEditarRol({
       onOpenChange(false);
       onRolEditado?.();
 
-      // Resetear formulario
+      // Cambiar formulario
       setNombre("");
       setPermisosSeleccionados([]);
     } catch (error) {

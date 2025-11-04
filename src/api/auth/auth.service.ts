@@ -258,9 +258,7 @@ export const resetPassword = async (data: ResetPasswordDto) => {
     return resetData;
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Error al resetear la contraseña";
+      error instanceof Error ? error.message : "Error al cambiar la contraseña";
     errorLogger(error, "resetPassword");
     throw new Error(errorMessage);
   }

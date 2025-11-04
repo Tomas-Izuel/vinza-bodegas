@@ -19,10 +19,18 @@ interface EventoDetallePageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    editar?: string;
+  }>;
 }
 
-const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
+const EventoDetallePage = async ({
+  params,
+  searchParams,
+}: EventoDetallePageProps) => {
   const { id } = await params;
+  const { editar } = await searchParams;
+  const isEditing = editar === "true";
 
   try {
     // Obtener todos los datos necesarios en paralelo
@@ -56,9 +64,11 @@ const EventoDetallePage = async ({ params }: EventoDetallePageProps) => {
 
           <div className="flex justify-between items-center">
             <h1>{evento.nombre}</h1>
-            <Link href={"?editar=true"}>
-              <Button>Editar evento</Button>
-            </Link>
+            {!isEditing && (
+              <Link href={"?editar=true"}>
+                <Button>Editar evento</Button>
+              </Link>
+            )}
           </div>
         </section>
         <main className="flex flex-col gap-4">

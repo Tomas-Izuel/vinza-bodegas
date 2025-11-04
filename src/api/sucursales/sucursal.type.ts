@@ -77,3 +77,7 @@ export const EditarSucursalSchema = z.object({
 });
 
 export type EditarSucursalType = z.infer<typeof EditarSucursalSchema>;
+
+export interface CanDeleteSucursalResponse {
+  canDelete: boolean;
+}

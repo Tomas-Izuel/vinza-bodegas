@@ -147,3 +147,145 @@ h3 {
   background-color: #fffaf4;
   @apply px-8 xl:px-14 py-6 h-[calc(100vh-64px)] overflow-y-auto;
 }
+
+/* Print styles - Hide navigation and sidebar, show only main content */
+@media print {
+  /* Remove page headers and footers (URLs, page numbers, etc.) */
+  @page {
+    margin: 0.5cm;
+    size: auto;
+    /* Remove headers and footers */
+    margin-top: 0.5cm;
+    margin-bottom: 0.5cm;
+  }
+
+  /* Hide TopNav (navbar) and all its children using specific class */
+  .top-nav,
+  .top-nav *,
+  nav.top-nav,
+  nav.top-nav * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide SidebarNav (aside) and all its children using specific class */
+  .sidebar-nav,
+  .sidebar-nav *,
+  aside.sidebar-nav,
+  aside.sidebar-nav * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide the flex container that wraps sidebar and main */
+  div.flex:has(> aside) {
+    display: block !important;
+  }
+
+  /* Hide Popover content (Radix UI portals) */
+  [data-radix-popper-content-wrapper],
+  [data-radix-portal] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Hide any Avatar components in navbar */
+  nav ~ * [data-radix-avatar-root],
+  nav [data-radix-avatar-root] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Hide elements marked as no-print */
+  .no-print,
+  .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Show print-only elements */
+  .print-only-header {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    padding-bottom: 0.5rem !important;
+    overflow: visible !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-only-header h1 {
+    display: block !important;
+    visibility: visible !important;
+    margin-bottom: 0.25rem !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    font-size: 1.5rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .print-only-header p {
+    display: block !important;
+    visibility: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Make main content full width when printing */
+  .common-main-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.5rem !important;
+    height: auto !important;
+    overflow: visible !important;
+    background-color: white !important;
+  }
+
+  /* Reduce spacing in dashboard container when printing */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  /* Ensure content flows directly after header */
+  .print-only-header + * {
+    margin-top: 0.5rem !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Remove flex container constraints in layout */
+  div.flex {
+    display: block !important;
+  }
+
+  /* Ensure body and html take full page */
+  body,
+  html {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Remove any page breaks that might interfere */
+  * {
+    page-break-inside: avoid;
+  }
+}

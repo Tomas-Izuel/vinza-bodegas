@@ -24,7 +24,10 @@ export function UsuariosPageClient({
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "usuarios";
 
-  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosIniciales);
+  const [usuarios, setUsuarios] = useState<Usuario[]>(
+    [...usuariosIniciales].sort((a, b) => a.id - b.id),
+  );
+
   const [roles, setRoles] = useState<Rol[]>(rolesIniciales);
   const [cargando, setCargando] = useState(false);
 
@@ -35,7 +38,7 @@ export function UsuariosPageClient({
         getUsuariosMiBodega(),
         obtenerRolesMiBodega(),
       ]);
-      setUsuarios(usuariosData);
+      setUsuarios(usuariosData.sort((a, b) => a.id - b.id));
       setRoles(rolesData);
     } catch (error) {
       console.error("Error al cargar datos:", error);
@@ -106,7 +109,7 @@ export function UsuariosPageClient({
         )}
         {activeTab === "roles" && (
           <ListaRoles
-            roles={roles}
+            roles={roles.filter((rol) => rol.bodegaId)}
             usuarios={usuarios}
             onRolActualizado={handleRolActualizado}
           />
