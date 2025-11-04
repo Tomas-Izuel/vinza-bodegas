@@ -83,7 +83,7 @@ export function ListaReserva({ reservas, meta, onRefresh }: ListaReservaProps) {
   return (
     <section className="bg-white border">
       <CommonTableHeader
-        placeholder="Buscar por nombre de cliente o email"
+        placeholder="Buscar por nombre de cliente..."
         filtersForm={<ReservaFilters />}
       />
       <Table>

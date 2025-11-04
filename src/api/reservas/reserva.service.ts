@@ -10,10 +10,19 @@ export const getReservas = async (
   params?: ReservasParams,
 ): Promise<ReservasResponse> => {
   try {
-    // Configuración de mapeo específica para reservas
-    const reservasMapping = {
-      search: "recorrido.user", // mapea "search" a "recorrido.user" para buscar por nombre de cliente
-    };
+    // Probar diferentes mapeos según la documentación del API
+    let reservasMapping = {};
+
+    if (params?.search) {
+      const isEmail = params.search.includes("@");
+      if (isEmail) {
+        // Para emails, usar el parámetro directo
+        reservasMapping = { search: "email" };
+      } else {
+        // Para nombres, probar diferentes opciones
+        reservasMapping = { search: "nombre" };
+      }
+    }
 
     const url = buildApiUrl(
       "/reserva/mi-bodega",
@@ -22,6 +31,7 @@ export const getReservas = async (
     );
 
     const response = await fetchApiWithAuth<ReservasResponse>(url);
+
     return response;
   } catch (error) {
     const errorMessage =

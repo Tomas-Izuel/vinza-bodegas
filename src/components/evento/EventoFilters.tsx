@@ -35,7 +35,21 @@ import { cn } from "@/lib/utils";
 import moment from "moment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export function EventoFilters() {
+import { Sucursal } from "@/api/sucursales/sucursal.type";
+import { CategoriaEvento } from "@/api/categoria-evento/categoria-evento.type";
+import { EstadoEvento } from "@/api/eventos/evento.type";
+
+interface EventoFiltersProps {
+  sucursales?: Sucursal[];
+  categorias?: CategoriaEvento[];
+  estados?: EstadoEvento[];
+}
+
+export function EventoFilters({
+  sucursales = [],
+  categorias = [],
+  estados = [],
+}: EventoFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -52,17 +66,8 @@ export function EventoFilters() {
       estadoId: searchParams.get("estadoId")
         ? Number(searchParams.get("estadoId"))
         : undefined,
-      bodegaId: searchParams.get("bodegaId")
-        ? Number(searchParams.get("bodegaId"))
-        : undefined,
       fechaDesde: searchParams.get("fechaDesde") || "",
       fechaHasta: searchParams.get("fechaHasta") || "",
-      precioMaximo: searchParams.get("precioMaximo")
-        ? Number(searchParams.get("precioMaximo"))
-        : undefined,
-      puntuacionMinima: searchParams.get("puntuacionMinima")
-        ? Number(searchParams.get("puntuacionMinima"))
-        : undefined,
     };
   }, [searchParams]);
 
@@ -75,7 +80,7 @@ export function EventoFilters() {
   React.useEffect(() => {
     const newValues = getInitialValues();
     form.reset(newValues);
-  }, [getInitialValues, form]);
+  }, [searchParams, form]);
 
   const handleSubmit = (data: EventoFiltersType) => {
     // Obtener parámetros actuales y preservar los importantes
@@ -99,15 +104,10 @@ export function EventoFilters() {
     if (data.categoriaId)
       filteredData.categoriaId = data.categoriaId.toString();
     if (data.estadoId) filteredData.estadoId = data.estadoId.toString();
-    if (data.bodegaId) filteredData.bodegaId = data.bodegaId.toString();
     if (data.fechaDesde?.trim())
       filteredData.fechaDesde = data.fechaDesde.trim();
     if (data.fechaHasta?.trim())
       filteredData.fechaHasta = data.fechaHasta.trim();
-    if (data.precioMaximo)
-      filteredData.precioMaximo = data.precioMaximo.toString();
-    if (data.puntuacionMinima)
-      filteredData.puntuacionMinima = data.puntuacionMinima.toString();
 
     // Cambiar página a 1 cuando se aplican nuevos filtros
     if (filteredData.page) {
@@ -130,11 +130,8 @@ export function EventoFilters() {
       sucursalId: undefined,
       categoriaId: undefined,
       estadoId: undefined,
-      bodegaId: undefined,
       fechaDesde: "",
       fechaHasta: "",
-      precioMaximo: undefined,
-      puntuacionMinima: undefined,
     });
 
     // Preservar solo los parámetros importantes al limpiar
@@ -172,7 +169,7 @@ export function EventoFilters() {
                   onValueChange={(value) =>
                     field.onChange(value ? Number(value) : undefined)
                   }
-                  value={field.value?.toString() || undefined}
+                  value={field.value?.toString() || ""}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -180,9 +177,11 @@ export function EventoFilters() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    <SelectItem value="1">Activo</SelectItem>
-                    <SelectItem value="2">Finalizado</SelectItem>
-                    <SelectItem value="3">Suspendido</SelectItem>
+                    {estados.map((estado) => (
+                      <SelectItem key={estado.id} value={estado.id.toString()}>
+                        {estado.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -199,7 +198,7 @@ export function EventoFilters() {
                   onValueChange={(value) =>
                     field.onChange(value ? Number(value) : undefined)
                   }
-                  value={field.value?.toString() || undefined}
+                  value={field.value?.toString() || ""}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -207,9 +206,14 @@ export function EventoFilters() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    <SelectItem value="1">Sucursal Central</SelectItem>
-                    <SelectItem value="2">Sucursal Norte</SelectItem>
-                    <SelectItem value="3">Sucursal Sur</SelectItem>
+                    {sucursales.map((sucursal) => (
+                      <SelectItem
+                        key={sucursal.id}
+                        value={sucursal.id.toString()}
+                      >
+                        {sucursal.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -226,7 +230,7 @@ export function EventoFilters() {
                   onValueChange={(value) =>
                     field.onChange(value ? Number(value) : undefined)
                   }
-                  value={field.value?.toString() || undefined}
+                  value={field.value?.toString() || ""}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -234,36 +238,14 @@ export function EventoFilters() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    <SelectItem value="1">Degustación</SelectItem>
-                    <SelectItem value="2">Cata</SelectItem>
-                    <SelectItem value="3">Tour</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="bodegaId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bodega</FormLabel>
-                <Select
-                  onValueChange={(value) =>
-                    field.onChange(value ? Number(value) : undefined)
-                  }
-                  value={field.value?.toString() || undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Todas las bodegas" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="w-full">
-                    <SelectItem value="1">Bodega Central</SelectItem>
-                    <SelectItem value="2">Bodega Norte</SelectItem>
-                    <SelectItem value="3">Bodega Sur</SelectItem>
+                    {categorias.map((categoria) => (
+                      <SelectItem
+                        key={categoria.id}
+                        value={categoria.id.toString()}
+                      >
+                        {categoria.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -350,49 +332,6 @@ export function EventoFilters() {
               />
             )}
           />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="precioMaximo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Precio máximo</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      placeholder="Precio máximo"
-                      min="0"
-                      step="0.01"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="puntuacionMinima"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Puntuación mínima</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      placeholder="Puntuación mínima"
-                      min="0"
-                      max="5"
-                      step="0.1"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
         </div>
 
         <div className="flex flex-col gap-2 pt-4">
@@ -402,7 +341,7 @@ export function EventoFilters() {
             form="evento-filters-form"
             id="evento-filters-form-submit"
           >
-            Aplicar filtros
+            Filtrar
           </Button>
           <Button
             type="button"

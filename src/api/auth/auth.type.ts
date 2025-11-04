@@ -148,7 +148,7 @@ export const RoleSchema = z.object({
   updated_at: z.string(),
   deleted_at: z.string().nullable(),
   HRolUsuario: HRolUsuarioSchema,
-  permisos: z.array(PermisoSchema),
+  permisos: z.array(PermisoSchema).optional().default([]),
 });
 
 // Schema específico para la bodega que viene en el login

@@ -1,4 +1,4 @@
-import { getEvento, getInstanciasEvento } from "@/api/eventos/eventos.service";
+import { getEvento } from "@/api/eventos/eventos.service";
 import { getCategorias } from "@/api/categoria-evento/categoria-evento.service";
 import { getSucursalesMiBodega } from "@/api/sucursales/sucursal.service";
 import { EventoDetalle } from "@/components/evento/EventoDetalle";
@@ -34,11 +34,10 @@ const EventoDetallePage = async ({
 
   try {
     // Obtener todos los datos necesarios en paralelo
-    const [evento, categorias, sucursales, instancias] = await Promise.all([
+    const [evento, categorias, sucursales] = await Promise.all([
       getEvento(id),
       getCategorias(),
       getSucursalesMiBodega(),
-      getInstanciasEvento(id),
     ]);
 
     // Si el evento no existe, mostrar página not-found
@@ -78,10 +77,7 @@ const EventoDetallePage = async ({
             categorias={categorias}
             sucursales={sucursales}
           />
-          <InstanciasEvento
-            instancias={instancias}
-            eventoNombre={evento.nombre}
-          />
+          <InstanciasEvento eventoId={id} eventoNombre={evento.nombre} />
         </main>
       </>
     );

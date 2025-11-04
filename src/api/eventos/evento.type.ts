@@ -80,24 +80,8 @@ export const EventoFiltersSchema = z
     sucursalId: z.coerce.number().optional(),
     categoriaId: z.coerce.number().optional(),
     estadoId: z.coerce.number().optional(),
-    bodegaId: z.coerce.number().optional(),
     fechaDesde: z.string().optional(),
     fechaHasta: z.string().optional(),
-    precioMaximo: z.coerce
-      .number()
-      .positive({
-        message: "El precio máximo debe ser un valor positivo",
-      })
-      .optional(),
-    puntuacionMinima: z.coerce
-      .number()
-      .positive({
-        message: "La puntuación mínima debe ser un valor positivo",
-      })
-      .max(5, {
-        message: "La puntuación mínima no puede ser mayor a 5",
-      })
-      .optional(),
   })
   .refine(
     (data) => {

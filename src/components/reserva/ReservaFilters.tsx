@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -34,20 +33,57 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import moment from "moment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { EventoSearchInput } from "./EventoSearchInput";
+import { getEstadosReservas } from "@/api/estados/estado.service";
+import { EstadoReserva } from "@/api/reservas/reserva.type";
 
-export function ReservaFilters() {
+interface ReservaFiltersProps {
+  estados?: EstadoReserva[];
+}
+
+export function ReservaFilters({ estados = [] }: ReservaFiltersProps) {
+  const [estadosDisponibles, setEstadosDisponibles] =
+    React.useState<EstadoReserva[]>(estados);
+
+  React.useEffect(() => {
+    if (estados.length === 0) {
+      loadEstados();
+    } else {
+      setEstadosDisponibles(estados);
+    }
+  }, [estados]);
+
+  const loadEstados = async () => {
+    try {
+      const estadosData = await getEstadosReservas();
+      setEstadosDisponibles(estadosData);
+    } catch (error) {
+      console.error("Error al cargar estados:", error);
+    }
+  };
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Memorizar la función para obtener valores de search params
   const getInitialValues = React.useCallback((): ReservaFiltersType => {
+    // Obtener el estado como string y buscar su ID
+    const estadoString = searchParams.get("estado");
+    let estadoIdValue: number | undefined = undefined;
+
+    if (estadoString) {
+      const estadoEncontrado = estadosDisponibles.find(
+        (e) => e.nombre.toUpperCase() === estadoString.toUpperCase(),
+      );
+      if (estadoEncontrado) {
+        estadoIdValue = estadoEncontrado.id;
+      }
+    }
+
     return {
       fechaDesde: searchParams.get("fechaDesde") || "",
       fechaHasta: searchParams.get("fechaHasta") || "",
-      estadoId: searchParams.get("estadoId")
-        ? Number(searchParams.get("estadoId"))
-        : undefined,
+      estadoId: estadoIdValue,
       eventoId: searchParams.get("eventoId")
         ? Number(searchParams.get("eventoId"))
         : undefined,
@@ -61,18 +97,57 @@ export function ReservaFilters() {
         ? Number(searchParams.get("cantidadGente"))
         : undefined,
     };
-  }, [searchParams]);
+  }, [searchParams, estadosDisponibles]);
 
   const form = useForm<ReservaFiltersType>({
     resolver: zodResolver(ReservaFiltersSchema),
     defaultValues: getInitialValues(),
   });
 
-  // Actualizar formulario cuando cambien los search params
+  // Ref para evitar loops infinitos de reset
+  const prevSearchParamsRef = React.useRef<string>(searchParams.toString());
+  const isResettingRef = React.useRef(false);
+
+  // Actualizar el formulario cuando cambian los search params
+  // Solo cuando cambian parámetros relevantes al formulario
   React.useEffect(() => {
+    const currentSearchParams = searchParams.toString();
+
+    // Evitar reset si estamos en medio de un reset o si no cambió nada
+    if (
+      isResettingRef.current ||
+      prevSearchParamsRef.current === currentSearchParams
+    ) {
+      return;
+    }
+
     const newValues = getInitialValues();
-    form.reset(newValues);
-  }, [getInitialValues, form]);
+    const currentValues = form.getValues();
+
+    // Comparar solo los valores relevantes para evitar resets innecesarios
+    const relevantFieldsChanged =
+      newValues.fechaDesde !== currentValues.fechaDesde ||
+      newValues.fechaHasta !== currentValues.fechaHasta ||
+      newValues.estadoId !== currentValues.estadoId ||
+      newValues.eventoId !== currentValues.eventoId ||
+      newValues.precioMinimo !== currentValues.precioMinimo ||
+      newValues.precioMaximo !== currentValues.precioMaximo ||
+      newValues.cantidadGente !== currentValues.cantidadGente;
+
+    if (relevantFieldsChanged) {
+      isResettingRef.current = true;
+      form.reset(newValues, { keepDefaultValues: true });
+      prevSearchParamsRef.current = currentSearchParams;
+
+      // Resetear el flag después de un breve delay
+      setTimeout(() => {
+        isResettingRef.current = false;
+      }, 100);
+    } else {
+      prevSearchParamsRef.current = currentSearchParams;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.toString()]);
 
   const handleSubmit = (data: ReservaFiltersType) => {
     // Obtener parámetros actuales y preservar los importantes
@@ -96,7 +171,14 @@ export function ReservaFilters() {
       filteredData.fechaDesde = data.fechaDesde.trim();
     if (data.fechaHasta?.trim())
       filteredData.fechaHasta = data.fechaHasta.trim();
-    if (data.estadoId) filteredData.estadoId = data.estadoId.toString();
+    if (data.estadoId) {
+      const estadoSeleccionado = estadosDisponibles.find(
+        (e) => e.id === data.estadoId,
+      );
+      if (estadoSeleccionado) {
+        filteredData.estado = estadoSeleccionado.nombre.toUpperCase();
+      }
+    }
     if (data.eventoId) filteredData.eventoId = data.eventoId.toString();
     if (data.precioMinimo)
       filteredData.precioMinimo = data.precioMinimo.toString();
@@ -122,31 +204,15 @@ export function ReservaFilters() {
   };
 
   const handleClear = () => {
-    form.reset({
-      fechaDesde: "",
-      fechaHasta: "",
-      estadoId: undefined,
-      eventoId: undefined,
-      precioMinimo: undefined,
-      precioMaximo: undefined,
-      cantidadGente: undefined,
-    });
-
-    // Preservar solo los parámetros importantes al limpiar
-    const currentParams = new URLSearchParams(searchParams.toString());
-    const preservedParams: Record<string, string> = {};
-    const paramsToPreserve = ["search", "page", "limit", "orderBy"];
-
-    paramsToPreserve.forEach((param) => {
-      const value = currentParams.get(param);
-      if (value) {
-        preservedParams[param] = value;
-      }
-    });
-
-    const newSearchParams = new URLSearchParams(preservedParams);
-    const queryString = newSearchParams.toString();
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`);
+    // Limpiar la URL - preservar solo búsqueda si existe
+    const params = new URLSearchParams();
+    const search = searchParams.get("search");
+    if (search) {
+      params.set("search", search);
+    }
+    const newUrl = search ? `${pathname}?${params.toString()}` : pathname;
+    // Usar window.location para forzar una recarga completa de la página
+    window.location.href = newUrl;
   };
 
   return (
@@ -244,23 +310,14 @@ export function ReservaFilters() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nombre evento</FormLabel>
-                <Select
-                  onValueChange={(value) =>
-                    field.onChange(value ? Number(value) : undefined)
-                  }
-                  value={field.value?.toString() || undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Nombre evento" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="w-full">
-                    <SelectItem value="1">Cata vino</SelectItem>
-                    <SelectItem value="2">Sunset</SelectItem>
-                    <SelectItem value="3">Degustación</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <EventoSearchInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Buscar evento..."
+                  />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -283,11 +340,14 @@ export function ReservaFilters() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="w-full">
-                    <SelectItem value="1">Confirmado</SelectItem>
-                    <SelectItem value="2">Pendiente</SelectItem>
-                    <SelectItem value="3">Cancelada</SelectItem>
+                    {estadosDisponibles.map((estado) => (
+                      <SelectItem key={estado.id} value={estado.id.toString()}>
+                        {estado.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

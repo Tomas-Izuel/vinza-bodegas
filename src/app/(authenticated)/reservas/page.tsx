@@ -1,6 +1,6 @@
 import { ReservasParams } from "@/api/reservas/reserva.type";
 import { getReservas } from "@/api/reservas/reserva.service";
-import { ReservasPageClient } from "./reservas-page-client";
+import { ListaReserva } from "@/components/reserva/ListaReserva";
 import { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -26,8 +26,15 @@ export default async function ReservasPage({
   });
 
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
-      <ReservasPageClient reservasIniciales={reservas} searchParams={params} />
-    </Suspense>
+    <>
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Reservas</h1>
+      </header>
+      <main>
+        <Suspense fallback={<div>Cargando...</div>}>
+          <ListaReserva reservas={reservas.items} meta={reservas.meta} />
+        </Suspense>
+      </main>
+    </>
   );
 }

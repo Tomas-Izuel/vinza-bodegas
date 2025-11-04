@@ -11,11 +11,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import moment from "moment";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SuspenderInstanciaModal } from "./SuspenderInstanciaModal";
 import { VerReservasModal } from "./VerReservasModal";
 import { Reserva } from "@/api/reservas/reserva.type";
 import { SortableHeader } from "../common/SortableHeader";
+import { useSearchParams } from "next/navigation";
+import { getInstanciasEvento } from "@/api/eventos/eventos.service";
+import { CommonTableHeader } from "../common/CommonTableHeader";
+import { InstanciasEventoFilters } from "./InstanciasEventoFilters";
 
 type InstanciaEvento = {
   id: number;
@@ -25,7 +29,7 @@ type InstanciaEvento = {
 };
 
 interface InstanciasEventoProps {
-  instancias: InstanciaEvento[];
+  eventoId: string;
   eventoNombre: string;
 }
 
@@ -50,9 +54,35 @@ const headerToFieldMap: Record<string, InstanciaSortableField> = {
 };
 
 export function InstanciasEvento({
-  instancias,
+  eventoId,
   eventoNombre,
 }: InstanciasEventoProps) {
+  const searchParams = useSearchParams();
+  const [instancias, setInstancias] = useState<InstanciaEvento[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadInstancias = async () => {
+      setLoading(true);
+      try {
+        const fechaDesde = searchParams.get("fechaDesde") || undefined;
+        const fechaHasta = searchParams.get("fechaHasta") || undefined;
+
+        const filteredInstancias = await getInstanciasEvento(eventoId, {
+          fechaDesde,
+          fechaHasta,
+        });
+
+        setInstancias(filteredInstancias);
+      } catch (error) {
+        console.error("Error al cargar instancias:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadInstancias();
+  }, [eventoId, searchParams]);
+
   const [modalData, setModalData] = useState<{
     id: number;
     eventoNombre: string;
@@ -141,10 +171,11 @@ export function InstanciasEvento({
 
   return (
     <section className="bg-white border">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-900">
           Instancias del evento ({instancias.length})
         </h2>
+        <CommonTableHeader filtersForm={<InstanciasEventoFilters />} />
       </div>
       <Table>
         <TableHeader className="bg-gray-100">

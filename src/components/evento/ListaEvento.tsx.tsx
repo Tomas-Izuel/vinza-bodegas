@@ -2,6 +2,9 @@
 
 import { Evento, EstadosEvento } from "@/api/eventos/evento.type";
 import { Meta } from "@/api/common.type";
+import { Sucursal } from "@/api/sucursales/sucursal.type";
+import { CategoriaEvento } from "@/api/categoria-evento/categoria-evento.type";
+import { EstadoEvento } from "@/api/eventos/evento.type";
 import {
   Table,
   TableBody,
@@ -26,6 +29,9 @@ import { SortableHeader } from "../common/SortableHeader";
 interface ListaEventoProps {
   eventos: Evento[];
   meta: Meta;
+  sucursales: Sucursal[];
+  categorias: CategoriaEvento[];
+  estados: EstadoEvento[];
 }
 
 const eventoOrderByAttributes = [
@@ -51,7 +57,13 @@ const headerToFieldMap: Record<string, SortableField> = {
   "Última actualización": "updated_at",
 };
 
-export function ListaEvento({ eventos, meta }: ListaEventoProps) {
+export function ListaEvento({
+  eventos,
+  meta,
+  sucursales,
+  categorias,
+  estados,
+}: ListaEventoProps) {
   // Función para obtener la variante del badge según el estado
   const getEstadoVariant = (
     estadoNombre: string,
@@ -75,7 +87,13 @@ export function ListaEvento({ eventos, meta }: ListaEventoProps) {
     <section className="bg-white border">
       <CommonTableHeader
         placeholder="Buscar eventos..."
-        filtersForm={<EventoFilters />}
+        filtersForm={
+          <EventoFilters
+            sucursales={sucursales}
+            categorias={categorias}
+            estados={estados}
+          />
+        }
       />
       <Table>
         <TableHeader className="bg-gray-100">
