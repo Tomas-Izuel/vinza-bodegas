@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -10,6 +11,7 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
+  description?: string | React.ReactNode;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -31,6 +33,7 @@ export function MetricCard({
   title,
   value,
   subtitle,
+  description,
   trend,
   progress,
   alert,
@@ -90,6 +93,12 @@ export function MetricCard({
           >
             {alert.message}
           </Badge>
+        )}
+
+        {description && (
+          <div className="print-only hidden text-xs text-muted-foreground mt-2 pt-2 border-t">
+            {description}
+          </div>
         )}
       </CardContent>
     </Card>

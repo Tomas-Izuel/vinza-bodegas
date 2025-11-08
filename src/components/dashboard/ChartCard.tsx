@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,6 +29,7 @@ interface ChartData {
 interface ChartCardProps {
   title: string;
   subtitle?: string;
+  description?: string | React.ReactNode;
   data: ChartData[];
   type: "bar" | "line" | "pie" | "area";
   dataKey?: string;
@@ -52,6 +54,7 @@ const DEFAULT_COLORS = [
 export function ChartCard({
   title,
   subtitle,
+  description,
   data,
   type,
   dataKey = "value",
@@ -198,6 +201,11 @@ export function ChartCard({
         <ResponsiveContainer width="100%" height={height}>
           {renderChart()}
         </ResponsiveContainer>
+        {description && (
+          <div className="print-only hidden text-xs text-muted-foreground mt-4 pt-4 border-t">
+            {description}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
