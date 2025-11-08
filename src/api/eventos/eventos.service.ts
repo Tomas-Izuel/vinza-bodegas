@@ -1,20 +1,18 @@
 "use server";
-import {
-  fetchApiWithAuth,
-  fetchApiWithAuthFormData,
-  buildApiUrl,
-} from "@/lib/utils.server";
 import { errorLogger } from "@/lib/utils";
 import {
+  buildApiUrl,
+  fetchApiWithAuth,
+  fetchApiWithAuthFormData,
+} from "@/lib/utils.server";
+import { Reserva } from "../reservas/reserva.type";
+import {
+  EventoDetalle,
   EventosParams,
   EventosResponse,
   EventoStepFormType,
-  EventoDetalle,
-  EditarEventoType,
-  ActualizarEventoDto,
   ReservasInstanciaResponse,
 } from "./evento.type";
-import { Reserva } from "../reservas/reserva.type";
 
 export const getEventos = async (
   params?: EventosParams,
